@@ -31,7 +31,7 @@ import java.util.Set;
  */
 @Slf4j
 @RestControllerAdvice
-public class BusinessExceptionHandler {
+public class PlatformExceptionHandler {
 
     public static final String INTERNAL_SERVER_ERROR_MESSAGE_DEFAULT = "Oops_服务器开小差啦，过会儿再试吧_\uD83D\uDE02\uD83D\uDE02\uD83D\uDE02";
 
@@ -40,14 +40,14 @@ public class BusinessExceptionHandler {
      */
     private final boolean isProd;
 
-    public BusinessExceptionHandler(Environment environment) {
+    public PlatformExceptionHandler(Environment environment) {
         this.isProd = Arrays.asList(environment.getActiveProfiles()).contains("prod");
     }
 
-    /*------------------------------- 处理 Business Exception -------------------------------*/
+    /*------------------------------- 处理 Platform Exception -------------------------------*/
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ResponseDTO<?>> handleBusinessEx(BusinessException ex, HttpServletRequest request) {
+    @ExceptionHandler(PlatformException.class)
+    public ResponseEntity<ResponseDTO<?>> handleBusinessEx(PlatformException ex, HttpServletRequest request) {
         log.error("---> 业务异常: {} {}", request.getMethod(), request.getRequestURI());
         log.error("---> error message: ", ex);
         return new ResponseEntity<>(ResponseDTO.fail(ex.getCode(), ex.getMessage()), HttpStatus.OK);

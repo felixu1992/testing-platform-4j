@@ -3,6 +3,7 @@ package top.felixu.platform.mybatis;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +15,9 @@ import org.springframework.context.annotation.PropertySource;
  * @since 2021.08.07
  */
 @Configuration
-@PropertySource("classpath:/mybatis-plus-default.properties")
+@MapperScan("top.felixu.platform.mapper")
 @EnableConfigurationProperties(MybatisPlusProperties.class)
+@PropertySource("classpath:/mybatis-plus-default.properties")
 public class MybatisPlusAutoConfiguration {
 
     /**

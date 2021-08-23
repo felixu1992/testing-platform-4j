@@ -11,7 +11,7 @@ import java.text.MessageFormat;
  * @since 2021.08.01
  */
 @Getter
-public class BusinessException extends RuntimeException {
+public class PlatformException extends RuntimeException {
 
     /**
      * 状态码
@@ -23,17 +23,17 @@ public class BusinessException extends RuntimeException {
      */
     private final String message;
 
-    private BusinessException(int code, String message) {
+    private PlatformException(int code, String message) {
         super(message);
         this.code = code;
         this.message = message;
     }
 
-    public BusinessException(ErrorCode error) {
+    public PlatformException(ErrorCode error) {
         this(error.getCode(), error.getMessage());
     }
 
-    public BusinessException(ErrorCode error, Object... params) {
+    public PlatformException(ErrorCode error, Object... params) {
         this(error.getCode(), MessageFormat.format(error.getMessage(), params));
     }
 }

@@ -11,12 +11,18 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.MonthDaySerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.YearMonthSerializer;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.felixu.common.date.DateFormatter;
+import top.felixu.platform.interceptor.PermissionInterceptor;
+import top.felixu.platform.properties.PermissionProperties;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,8 +36,19 @@ import java.time.format.DateTimeFormatter;
  * @since 2021.08.15
  */
 @Configuration
+@RequiredArgsConstructor
 @PropertySource("classpath:/web-default.properties")
-public class WebAutoConfiguration {
+@EnableConfigurationProperties({PermissionProperties.class})
+public class WebAutoConfiguration implements WebMvcConfigurer {
+
+    private final PermissionProperties permissionProperties;
+
+    private final PermissionInterceptor permissionInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(permissionInterceptor).excludePathPatterns(permissionProperties.getWhiteList());
+    }
 
     @Bean
     public SimpleModule customJsr310Module() {
