@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 @Slf4j
 public class Md5Utils {
 
-    private final static String SALT  = "stm";
+    private final static String SALT  = "testing-platform";
 
     private final static String ALGORITHM = "MD5";
 

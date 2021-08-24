@@ -30,6 +30,8 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author felixu
@@ -47,7 +49,10 @@ public class WebAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(permissionInterceptor).excludePathPatterns(permissionProperties.getWhiteList());
+        registry.addInterceptor(permissionInterceptor)
+                .excludePathPatterns(permissionProperties.getIgnores().parallelStream()
+                        .map(Pattern::toString).collect(Collectors.toList())
+                );
     }
 
     @Bean

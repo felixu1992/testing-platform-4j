@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author felixu
@@ -18,10 +19,38 @@ public class PermissionProperties {
     /**
      * 超时时间
      */
-    private Duration timeout =  Duration.of(2, ChronoUnit.HOURS);
+    private Duration timeout =  Duration.ofHours(2);
 
     /**
-     * 白名单
+     * 是否开启单点
      */
-    private List<String> whiteList = new ArrayList<>();
+    private boolean isSingle = true;
+
+    /**
+     * 请求头 key
+     */
+    private String authorization = "Authorization";
+
+    /**
+     * 拼在 jwt 前面的一个字符串
+     */
+    private String salt = "token ";
+
+    /**
+     * jwt 加密的 secret
+     */
+    private String secret = "testing-platform";
+
+
+    /**
+     * 默认密码
+     * 经过 {@link top.felixu.platform.util.Md5Utils#encode(String)} 加密后的结果
+     * 如需自行指定默认密码，请按照上面提到的方式生成
+     */
+    private String defaultPassword = "e7181c3101c7dba1fce03b2edf3e0d05";
+
+    /**
+     * 忽略拦截的路径
+     */
+    private List<Pattern> ignores = new ArrayList<>();
 }
