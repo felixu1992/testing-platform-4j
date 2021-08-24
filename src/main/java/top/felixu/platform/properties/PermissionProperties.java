@@ -3,7 +3,6 @@ package top.felixu.platform.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -22,11 +21,6 @@ public class PermissionProperties {
     private Duration timeout =  Duration.ofHours(2);
 
     /**
-     * 是否开启单点
-     */
-    private boolean isSingle = true;
-
-    /**
      * 请求头 key
      */
     private String authorization = "Authorization";
@@ -37,9 +31,9 @@ public class PermissionProperties {
     private String salt = "token ";
 
     /**
-     * jwt 加密的 secret
+     * jwt 加密的 secret，同时也会作为使用 secret 认证的请求头
      */
-    private String secret = "testing-platform";
+    private String secret = "Testing-Platform";
 
 
     /**

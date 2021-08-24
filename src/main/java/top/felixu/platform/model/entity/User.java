@@ -27,12 +27,6 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
-    private LocalDateTime createdAt;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
-
     @NotNull(groups = Update.class)
     @Null(groups = Create.class)
     @TableId(value = "id", type = IdType.NONE)
@@ -58,4 +52,9 @@ public class User implements Serializable {
     @NotBlank
     private String secret;
 
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
+    private LocalDateTime createdAt;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 }
