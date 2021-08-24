@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.felixu.platform.constants.PermissionConstants;
+import top.felixu.platform.constants.CacheKeyConstants;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.User;
@@ -44,13 +44,14 @@ public class PermissionInterceptor implements HandlerInterceptor {
             token = token.replace(properties.getSalt(), "");
             // 从 token 中解析出 userId
             userId = JwtUtils.getUserId(token);
-            String cacheToken = redisTemplate.opsForValue().get(userId);
+            String cacheKey = CacheKeyConstants.Token.PREFIX + userId;
+            String cacheToken = redisTemplate.opsForValue().get(cacheKey);
             if (null == cacheToken)
                 throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
             // 判断与存的是否一样，不一样，则认为被挤掉了
             if (!token.equals(cacheToken))
                 throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
-            redisTemplate.expire(String.valueOf(userId), properties.getTimeout());
+            redisTemplate.expire(cacheKey, properties.getTimeout());
         } else {
             String secret = request.getHeader(properties.getSecret());
             if (StringUtils.hasText(secret)) {
@@ -67,7 +68,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         UserHolderUtils.clear();
     }
 }

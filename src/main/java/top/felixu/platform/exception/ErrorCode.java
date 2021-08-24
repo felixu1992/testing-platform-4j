@@ -16,7 +16,7 @@ public enum ErrorCode {
     FAILED(-1, "发生未知错误"),
 
     PARAM_ERROR(100, "不合法的参数"),
-    LOGIN_FAILED(101, "登录失败，请检查用户名密码是否正确"),
+    LOGIN_FAILED(101, "登录失败，请检查密码是否正确"),
     MISSING_PARAM(102, "缺少必要参数"),
     PATH_PARAM_ERROR(103, "路径参数不合法"),
     PARAM_TYPE_ERROR(104, "参数类型不合法"),

@@ -2,27 +2,31 @@ package top.felixu.platform.model.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import top.felixu.platform.model.validation.Create;
-import top.felixu.platform.model.validation.Update;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.time.LocalDateTime;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.io.Serializable;
-import javax.validation.constraints.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import top.felixu.platform.enums.RoleTypeEnum;
+import top.felixu.platform.model.validation.Create;
+import top.felixu.platform.model.validation.Update;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
- * 
+ * 用户表
  *
  * @author felixu
  * @since 2021-08-23
  */
 @Data
 @TableName("platform_user")
-@ApiModel(description = "")
+@ApiModel(description = "用户")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -46,11 +50,13 @@ public class User implements Serializable {
 
     private String avatar;
 
-    @NotBlank
-    private String role;
+    private RoleTypeEnum role;
 
     @NotBlank
     private String secret;
+
+    @TableField(exist = false)
+    private String token;
 
     @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime createdAt;
