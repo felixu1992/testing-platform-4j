@@ -11,3 +11,18 @@ spring:
     url: jdbc:mysql://47.111.94.101:6306/testing_platform_4j?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true&serverTimezone=Asia/Shanghai
     username: testing_platform
     password: testing_platform
+  redis:
+    host: 47.111.94.101
+    port: 7379
+    database: 0
+platform:
+  permission:
+    ignores:
+      - /doc.html
+      - /webjars/**
+      - /v2/api-docs/**
+      - /swagger-resources/**
+      - /api/user/login
+      - /error
+      - /favicon.ico
+      - /

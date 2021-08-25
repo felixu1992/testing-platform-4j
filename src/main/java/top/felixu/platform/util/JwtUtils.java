@@ -35,23 +35,16 @@ public class JwtUtils {
                 .sign(ALGORITHM);
     }
 
-    public static Map<String, String> claims(String token) {
+    public static Integer getUserId(String token) {
         try {
             DecodedJWT jwt = VERIFIER.verify(token);
-            Map<String, Claim> claimsMap = jwt.getClaims();
-            Map<String, String> claims = new HashMap<>(claimsMap.size());
-            claimsMap.forEach((k, v) -> claims.put(k, v.asString()));
-            return claims;
+            Map<String, Claim> claims = jwt.getClaims();
+            Integer userId = claims.get("userId").asInt();
+            if (null == userId)
+                throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
+            return userId;
         } catch (JWTVerificationException exception) {
             throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
         }
-    }
-
-    public static Integer getUserId(String token) {
-        Map<String, String> claims = claims(token);
-        String userId = claims.get("userId");
-        if (null == userId)
-            throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
-        return Integer.parseInt(userId);
     }
 }

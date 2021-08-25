@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * 从 Spring IoC 容器中获取 Bean
@@ -12,6 +13,7 @@ import org.springframework.lang.NonNull;
  * @author felixu
  * @since 2021.08.24
  */
+@Component
 public class ApplicationUtils implements ApplicationContextAware {
 
     private static ApplicationContext context;

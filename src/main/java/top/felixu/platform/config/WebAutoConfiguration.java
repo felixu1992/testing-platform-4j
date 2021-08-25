@@ -49,10 +49,7 @@ public class WebAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(permissionInterceptor)
-                .excludePathPatterns(permissionProperties.getIgnores().parallelStream()
-                        .map(Pattern::toString).collect(Collectors.toList())
-                );
+        registry.addInterceptor(permissionInterceptor).excludePathPatterns(permissionProperties.getIgnores());
     }
 
     @Bean

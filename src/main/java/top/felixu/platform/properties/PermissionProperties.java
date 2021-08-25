@@ -46,5 +46,5 @@ public class PermissionProperties {
     /**
      * 忽略拦截的路径
      */
-    private List<Pattern> ignores = new ArrayList<>();
+    private List<String> ignores = new ArrayList<>();
 }
