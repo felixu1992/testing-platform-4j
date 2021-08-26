@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.model.validation.Create;
@@ -49,6 +50,9 @@ public class User implements Serializable {
     private String password;
 
     private String avatar;
+
+    @ApiModelProperty("上级管理员 id")
+    private Integer parentId;
 
     private RoleTypeEnum role;
 

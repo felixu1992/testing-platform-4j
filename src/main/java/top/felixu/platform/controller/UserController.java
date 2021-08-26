@@ -22,6 +22,7 @@ import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.service.UserService;
+import top.felixu.platform.service.manager.UserManager;
 
 import javax.validation.groups.Default;
 
@@ -37,23 +38,24 @@ import javax.validation.groups.Default;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserService userService;
+    private final UserManager userManager;
 
     @PostMapping("/login")
     @ApiOperation("用户登录，只支持邮箱加密码登录")
     public ResponseDTO<User> login(@Validated @RequestBody LoginForm form) {
-        return ResponseDTO.success(userService.login(form));
+        return ResponseDTO.success(userManager.login(form));
     }
 
     @DeleteMapping("/logout")
     @ApiOperation("用户退出登录状态")
     public ResponseDTO<Void> logout() {
-        userService.logout();
+        userManager.logout();
         return ResponseDTO.success();
     }
 
     @GetMapping("/{id}")
-    public ResponseDTO<User> get(@PathVariable Long id) {
+    @ApiOperation("查询用户详情")
+    public ResponseDTO<User> get(@PathVariable Integer id) {
         return ResponseDTO.success(userService.getById(id));
     }
 
