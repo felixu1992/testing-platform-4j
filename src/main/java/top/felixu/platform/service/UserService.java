@@ -11,6 +11,7 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.mapper.UserMapper;
 import top.felixu.platform.model.entity.User;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,6 +45,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
             return list();
         if (user.getRole() == RoleTypeEnum.ADMIN)
             return list(Wrappers.<User>lambdaQuery().eq(User::getParentId, user.getId()));
-        return null;
+        return Collections.emptyList();
     }
 }

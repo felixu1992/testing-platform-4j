@@ -56,7 +56,7 @@ public class UserController {
     @GetMapping("/{id}")
     @ApiOperation("查询用户详情")
     public ResponseDTO<User> get(@PathVariable Integer id) {
-        return ResponseDTO.success(userService.getById(id));
+        return ResponseDTO.success(userManager.getUserById(id));
     }
 
     @GetMapping

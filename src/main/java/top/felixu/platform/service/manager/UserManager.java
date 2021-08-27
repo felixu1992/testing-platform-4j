@@ -53,6 +53,9 @@ public class UserManager {
         User self = userService.getUserByIdAndCheck(selfId);
         // 超级管理员看所有，管理员看自己及以下，普通用户只能看自己
         if ((self.getRole() == RoleTypeEnum.ORDINARY && !selfId.equals(id))
-                || (self.getRole() == RoleTypeEnum.ADMIN ))
+                || (self.getRole() == RoleTypeEnum.ADMIN && userService.getChildUserList(self)
+                .stream().anyMatch(user -> user.getId().equals(id))))
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        return userService.getUserByIdAndCheck(id);
     }
 }
