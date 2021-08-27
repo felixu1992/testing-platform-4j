@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import top.felixu.platform.constants.CacheKeyConstants;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
@@ -16,7 +17,10 @@ import top.felixu.platform.properties.PermissionProperties;
 import top.felixu.platform.service.UserService;
 import top.felixu.platform.util.JwtUtils;
 import top.felixu.platform.util.Md5Utils;
+import top.felixu.platform.util.RandomStringUtils;
 import top.felixu.platform.util.UserHolderUtils;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author felixu
@@ -72,6 +76,8 @@ public class UserManager {
             throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
         user.setRole(self.getRole() == RoleTypeEnum.SUPER_ADMIN ? RoleTypeEnum.ADMIN : RoleTypeEnum.ORDINARY);
         user.setParentId(self.getId());
+        user.setPassword(properties.getDefaultPassword());
+        user.setSecret(Base64Utils.encodeToString(RandomStringUtils.make().getBytes(StandardCharsets.UTF_8)));
         userService.save(user);
         return user;
     }

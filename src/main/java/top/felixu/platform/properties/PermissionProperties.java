@@ -44,12 +44,6 @@ public class PermissionProperties {
     private String defaultPassword = "e7181c3101c7dba1fce03b2edf3e0d05";
 
     /**
-     * 默认访问的 secret
-     * Testing-Platform 经过 base64 加密后的结果
-     */
-    private String defaultSecret = "VGVzdGluZy1QbGF0Zm9ybQ==";
-
-    /**
      * 忽略拦截的路径
      */
     private List<String> ignores = new ArrayList<>();
