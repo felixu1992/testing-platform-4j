@@ -78,8 +78,7 @@ public class UserManager {
         user.setParentId(self.getId());
         user.setPassword(properties.getDefaultPassword());
         user.setSecret(Base64Utils.encodeToString(RandomStringUtils.make().getBytes(StandardCharsets.UTF_8)));
-        userService.save(user);
-        return user;
+        return userService.create(user);
     }
 
     public User update(User user) {
@@ -89,8 +88,7 @@ public class UserManager {
         user.setPassword(null);
         user.setSecret(null);
         checkAuthority(self, other.getId());
-        userService.updateById(user);
-        return user;
+        return userService.update(user);
     }
 
     public void delete(Integer id) {
@@ -99,10 +97,9 @@ public class UserManager {
         User user = userService.getUserByIdAndCheck(id);
         if (user.getRole() == RoleTypeEnum.SUPER_ADMIN)
             throw new PlatformException(ErrorCode.SUPER_ADMIN_CAN_NOT_DELETE);
-        userService.removeById(user.getId());
+        userService.delete(user);
         // TODO: 08/27 删除项目与用户的关联关系
         // TODO: 08/27 如果是管理员，要清除所有数据
-        // TODO: 08/27  创建、更新、删除都要在 UserService 中提供方法，以便缓存
     }
 
     private void checkAuthority(User self, Integer target) {

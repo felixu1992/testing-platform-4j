@@ -3,7 +3,10 @@ package top.felixu.platform.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
@@ -39,12 +42,41 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
         return user;
     }
 
-    @Cacheable(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getId", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getId()", unless = "#result == null", sync = true)
     public List<User> getChildUserList(User user) {
         if (user.getRole() == RoleTypeEnum.SUPER_ADMIN)
             return list();
         if (user.getRole() == RoleTypeEnum.ADMIN)
             return list(Wrappers.<User>lambdaQuery().eq(User::getParentId, user.getId()));
         return Collections.emptyList();
+    }
+
+    @Caching(
+            evict = @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()"),
+            cacheable = @Cacheable(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null", sync = true)
+    )
+    public User create(User user) {
+        save(user);
+        return user;
+    }
+
+    @Caching(
+            evict = @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()"),
+            put = @CachePut(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null")
+    )
+    public User update(User user) {
+        updateById(user);
+        return user;
+    }
+
+
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()"),
+                    @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()")
+            }
+    )
+    public void delete(User user) {
+        removeById(user.getId());
     }
 }
