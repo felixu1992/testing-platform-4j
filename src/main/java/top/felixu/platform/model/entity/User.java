@@ -46,7 +46,6 @@ public class User implements Serializable {
     @NotBlank
     private String phone;
 
-    @NotBlank
     private String password;
 
     private String avatar;
@@ -54,9 +53,10 @@ public class User implements Serializable {
     @ApiModelProperty("上级管理员 id")
     private Integer parentId;
 
+    @Null(groups = Create.class)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     private RoleTypeEnum role;
 
-    @NotBlank
     private String secret;
 
     @TableField(exist = false)

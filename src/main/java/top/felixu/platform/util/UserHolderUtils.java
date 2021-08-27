@@ -1,5 +1,8 @@
 package top.felixu.platform.util;
 
+import top.felixu.platform.exception.ErrorCode;
+import top.felixu.platform.exception.PlatformException;
+
 import java.util.Optional;
 
 /**
@@ -14,8 +17,8 @@ public class UserHolderUtils {
         USER_ID.set(userId);
     }
 
-    public static Optional<Integer> getCurrentUserId() {
-        return Optional.ofNullable(USER_ID.get());
+    public static Integer getCurrentUserId() {
+        return Optional.ofNullable(USER_ID.get()).orElseThrow(() -> new PlatformException(ErrorCode.REQUIRE_LOGIN));
     }
 
     public static void clear() {

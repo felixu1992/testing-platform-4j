@@ -24,6 +24,7 @@ public enum ErrorCode {
     REQUIRE_LOGIN(106, "请(重新)登录"),
 
     USER_NOT_FOUND(1000, "当前用户不存在"),
+    SUPER_ADMIN_CAN_NOT_DELETE(1001, "超级管理员无法被删除")
     ;
 
     private final int code;

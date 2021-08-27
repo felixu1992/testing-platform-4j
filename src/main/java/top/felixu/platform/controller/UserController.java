@@ -60,25 +60,27 @@ public class UserController {
     }
 
     @GetMapping
+    @ApiOperation("分页查询用户列表")
     public ResponseDTO<IPage<User>> page(User user, PageRequestForm form) {
-        return ResponseDTO.success(userService.page(form.toPage(), new QueryWrapper<>(user)));
+        return ResponseDTO.success(userManager.page(user, form));
     }
 
+    @ApiOperation("创建用户")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO<User> create(@Validated({Create.class, Default.class}) @RequestBody User user) {
-        userService.save(user);
-        return ResponseDTO.success();
+        return ResponseDTO.success(userManager.create(user));
     }
 
+    @ApiOperation("修改用户信息")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO<User> update(@Validated({Update.class, Default.class}) @RequestBody User user) {
-        userService.updateById(user);
-        return ResponseDTO.success();
+        return ResponseDTO.success(userManager.update(user));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseDTO<Void> delete(@PathVariable Long id) {
-        userService.removeById(id);
+    @ApiOperation("删除用户信息")
+    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+        userManager.delete(id);
         return ResponseDTO.success();
     }
 }

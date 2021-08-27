@@ -1,5 +1,6 @@
 package top.felixu.platform.service.manager;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,6 +11,7 @@ import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.User;
 import top.felixu.platform.model.form.LoginForm;
+import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.properties.PermissionProperties;
 import top.felixu.platform.service.UserService;
 import top.felixu.platform.util.JwtUtils;
@@ -44,18 +46,64 @@ public class UserManager {
     }
 
     public void logout() {
-        UserHolderUtils.getCurrentUserId().ifPresent(userId -> redisTemplate.delete(CacheKeyConstants.Token.PREFIX + userId));
+        redisTemplate.delete(CacheKeyConstants.Token.PREFIX + UserHolderUtils.getCurrentUserId());
     }
 
     public User getUserById(Integer id) {
         // 先判断自己是谁，有没有资格看人家信息
-        Integer selfId = UserHolderUtils.getCurrentUserId().orElseThrow(() -> new PlatformException(ErrorCode.MISSING_AUTHORITY));
+        Integer selfId = UserHolderUtils.getCurrentUserId();
         User self = userService.getUserByIdAndCheck(selfId);
-        // 超级管理员看所有，管理员看自己及以下，普通用户只能看自己
-        if ((self.getRole() == RoleTypeEnum.ORDINARY && !selfId.equals(id))
-                || (self.getRole() == RoleTypeEnum.ADMIN && userService.getChildUserList(self)
-                .stream().anyMatch(user -> user.getId().equals(id))))
-            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        checkAuthority(self, id);
         return userService.getUserByIdAndCheck(id);
+    }
+
+    public IPage<User> page(User user, PageRequestForm form) {
+        User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
+        if (self.getRole() == RoleTypeEnum.ORDINARY)
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        if (self.getRole() == RoleTypeEnum.ADMIN)
+            user.setParentId(self.getId());
+        return userService.page(form.toPage(), Wrappers.lambdaQuery(user));
+    }
+
+    public User create(User user){
+        User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
+        if (self.getRole() == RoleTypeEnum.ORDINARY)
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        user.setRole(self.getRole() == RoleTypeEnum.SUPER_ADMIN ? RoleTypeEnum.ADMIN : RoleTypeEnum.ORDINARY);
+        user.setParentId(self.getId());
+        userService.save(user);
+        return user;
+    }
+
+    public User update(User user) {
+        User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
+        User other = userService.getUserByIdAndCheck(user.getId());
+        // 防止不该更新的字段被更新
+        user.setPassword(null);
+        user.setSecret(null);
+        checkAuthority(self, other.getId());
+        userService.updateById(user);
+        return user;
+    }
+
+    public void delete(Integer id) {
+        User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
+        checkAuthority(self, id);
+        User user = userService.getUserByIdAndCheck(id);
+        if (user.getRole() == RoleTypeEnum.SUPER_ADMIN)
+            throw new PlatformException(ErrorCode.SUPER_ADMIN_CAN_NOT_DELETE);
+        userService.removeById(user.getId());
+        // TODO: 08/27 删除项目与用户的关联关系
+        // TODO: 08/27 如果是管理员，要清除所有数据
+        // TODO: 08/27  创建、更新、删除都要在 UserService 中提供方法，以便缓存
+    }
+
+    private void checkAuthority(User self, Integer target) {
+        // 超级管理员看所有，管理员看自己及以下，普通用户只能看自己
+        if ((self.getRole() == RoleTypeEnum.ORDINARY && !self.getId().equals(target))
+                || (self.getRole() == RoleTypeEnum.ADMIN && userService.getChildUserList(self)
+                .stream().noneMatch(user -> user.getId().equals(target)) && !self.getId().equals(target)))
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
     }
 }
