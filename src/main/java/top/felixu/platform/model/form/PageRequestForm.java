@@ -2,6 +2,8 @@ package top.felixu.platform.model.form;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 import top.felixu.common.parameter.Splitters;
@@ -16,6 +18,7 @@ import java.util.List;
  * @since 2021.08.02
  */
 @Data
+@ApiModel("分页查询封装")
 public class PageRequestForm implements Serializable {
 
     /**
@@ -31,21 +34,25 @@ public class PageRequestForm implements Serializable {
     /**
      * 页数
      */
+    @ApiModelProperty("当前页")
     private int current;
 
     /**
      * 每页数量
      */
+    @ApiModelProperty("每页数量")
     private int size;
 
     /**
      * 是否查询总数
      */
+    @ApiModelProperty("是否查询总数，默认 true")
     private boolean searchCount = true;
 
     /**
      * 排序字段
      */
+    @ApiModelProperty("排序字段，用法如：?orders=create_at.desc&orders=sequence.asc")
     private List<String> orders;
 
     public PageRequestForm() {

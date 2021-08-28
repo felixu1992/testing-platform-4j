@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.entity.User;
+import top.felixu.platform.model.form.ChangePasswordForm;
 import top.felixu.platform.model.form.LoginForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -75,6 +76,24 @@ public class UserController {
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO<User> update(@Validated({Update.class, Default.class}) @RequestBody User user) {
         return ResponseDTO.success(userManager.update(user));
+    }
+
+    @ApiOperation("重置 secret")
+    @PutMapping("/reset/{id}/secret")
+    public ResponseDTO<User> resetSecret(@PathVariable Integer id) {
+        return ResponseDTO.success(userManager.resetSecret(id));
+    }
+
+    @ApiOperation("重置密码")
+    @PutMapping("/reset/{id}/password")
+    public ResponseDTO<User> resetPassword(@PathVariable Integer id) {
+        return ResponseDTO.success(userManager.resetPassword(id));
+    }
+
+    @ApiOperation("修改密码")
+    @PutMapping("/change/{id}/password")
+    public ResponseDTO<User> changePassword(@PathVariable Integer id, @Validated @RequestBody ChangePasswordForm form) {
+        return ResponseDTO.success(userManager.changePassword(id, form));
     }
 
     @DeleteMapping("/{id}")

@@ -16,7 +16,7 @@ public enum ErrorCode {
     FAILED(-1, "发生未知错误"),
 
     PARAM_ERROR(100, "不合法的参数"),
-    LOGIN_FAILED(101, "登录失败，请检查密码是否正确"),
+    LOGIN_FAILED(101, "登录失败，请检查密码是否正确，或者联系管理员重置密码"),
     MISSING_PARAM(102, "缺少必要参数"),
     PATH_PARAM_ERROR(103, "路径参数不合法"),
     PARAM_TYPE_ERROR(104, "参数类型不合法"),
@@ -24,7 +24,9 @@ public enum ErrorCode {
     REQUIRE_LOGIN(106, "请(重新)登录"),
 
     USER_NOT_FOUND(1000, "当前用户不存在"),
-    SUPER_ADMIN_CAN_NOT_DELETE(1001, "超级管理员无法被删除")
+    SUPER_ADMIN_CAN_NOT_DELETE(1001, "超级管理员无法被删除"),
+    ONLY_SUPPORT_CHANGE_SELF_PASSWORD(1002, "只能修改自己的密码哦，你别乱来"),
+    ORIGINAL_PASSWORD_IS_WRONG(1003, "如果忘记了旧密码，请联系管理员重置密码"),
     ;
 
     private final int code;

@@ -11,6 +11,7 @@ import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.User;
+import top.felixu.platform.model.form.ChangePasswordForm;
 import top.felixu.platform.model.form.LoginForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.properties.PermissionProperties;
@@ -100,6 +101,35 @@ public class UserManager {
         userService.delete(user);
         // TODO: 08/27 删除项目与用户的关联关系
         // TODO: 08/27 如果是管理员，要清除所有数据
+    }
+
+    public User resetSecret(Integer id) {
+        User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
+        checkAuthority(self, id);
+        User user = userService.getUserByIdAndCheck(id);
+        user.setSecret(Base64Utils.encodeToString(RandomStringUtils.make().getBytes(StandardCharsets.UTF_8)));
+        return userService.update(user);
+    }
+
+    public User changePassword(Integer id, ChangePasswordForm form) {
+        // 只能自己修改密码，其他上级管理员只能重置密码
+        if (!UserHolderUtils.getCurrentUserId().equals(id))
+            throw new PlatformException(ErrorCode.ONLY_SUPPORT_CHANGE_SELF_PASSWORD);
+        // TODO: 08/28 可以加个密码规则
+        User user = userService.getUserByIdAndCheck(id);
+        if (!user.getPassword().equals(Md5Utils.encode(form.getOriginalPassword())))
+            throw new PlatformException(ErrorCode.ORIGINAL_PASSWORD_IS_WRONG);
+        user.setPassword(Md5Utils.encode(form.getNewPassword()));
+        return userService.update(user);
+    }
+
+    public User resetPassword(Integer id) {
+        User user = userService.getUserByIdAndCheck(id);
+        // 能够重置密码的人，一定是指定 id 的上级
+        if (!UserHolderUtils.getCurrentUserId().equals(user.getParentId()))
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        user.setPassword(properties.getDefaultPassword());
+        return userService.update(user);
     }
 
     private void checkAuthority(User self, Integer target) {

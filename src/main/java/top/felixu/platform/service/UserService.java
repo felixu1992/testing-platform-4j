@@ -53,7 +53,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
 
     @Caching(
             evict = @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()"),
-            cacheable = @Cacheable(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null", sync = true)
+            cacheable = {
+                    @Cacheable(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null", sync = true),
+                    @Cacheable(cacheNames = "USER", key = "'USER-CACHE-' + #user.getSecret()", unless = "#result == null", sync = true)
+            }
     )
     public User create(User user) {
         save(user);
@@ -62,7 +65,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
 
     @Caching(
             evict = @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()"),
-            put = @CachePut(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null")
+            put = {
+                    @CachePut(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()", unless = "#result == null"),
+                    @CachePut(cacheNames = "USER", key = "'USER-CACHE-' + #user.getSecret()", unless = "#result == null")
+            }
     )
     public User update(User user) {
         updateById(user);
@@ -73,6 +79,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
     @Caching(
             evict = {
                     @CacheEvict(cacheNames = "USER", key = "'USER-CACHE-' + #user.getId()"),
+                    @CacheEvict(cacheNames = "USER", key = "'USER-CACHE-' + #user.getSecret()"),
                     @CacheEvict(cacheNames = "USER", key = "'CHILD-USER-CACHE-' + #user.getParentId()")
             }
     )
