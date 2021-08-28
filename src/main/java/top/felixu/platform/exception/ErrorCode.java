@@ -28,6 +28,8 @@ public enum ErrorCode {
     ONLY_SUPPORT_CHANGE_SELF_PASSWORD(1002, "只能修改自己的密码哦，你别乱来"),
     ORIGINAL_PASSWORD_IS_WRONG(1003, "如果忘记了旧密码，请联系管理员重置密码"),
     DEFAULT_PASSWORD_NOT_SUPPORT(1004, "初始密码无法登陆的哦，请先修改密码"),
+    CAN_NOT_USE_DEFAULT_PASSWORD(1005, "不可以修改为初始密码"),
+    NEW_PASSWORD_SAME_ORIGINAL(1006, "您的新密码不可以与旧密码一致"),
     ;
 
     private final int code;

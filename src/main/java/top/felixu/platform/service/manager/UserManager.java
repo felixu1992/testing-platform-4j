@@ -121,7 +121,12 @@ public class UserManager {
         User user = userService.getUserByIdAndCheck(id);
         if (!user.getPassword().equals(Md5Utils.encode(form.getOriginalPassword())))
             throw new PlatformException(ErrorCode.ORIGINAL_PASSWORD_IS_WRONG);
-        user.setPassword(Md5Utils.encode(form.getNewPassword()));
+        String newPassword = Md5Utils.encode(form.getNewPassword());
+        if (properties.getDefaultPassword().equals(newPassword))
+            throw new PlatformException(ErrorCode.CAN_NOT_USE_DEFAULT_PASSWORD);
+        if (user.getPassword().equals(newPassword))
+            throw new PlatformException(ErrorCode.NEW_PASSWORD_SAME_ORIGINAL);
+        user.setPassword(newPassword);
         return userService.update(user);
     }
 
