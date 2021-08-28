@@ -26,3 +26,6 @@ platform:
       - /error
       - /favicon.ico
       - /
+mybatis-plus:
+  global-config:
+    banner: false
