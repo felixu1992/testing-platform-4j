@@ -27,6 +27,7 @@ public enum ErrorCode {
     SUPER_ADMIN_CAN_NOT_DELETE(1001, "超级管理员无法被删除"),
     ONLY_SUPPORT_CHANGE_SELF_PASSWORD(1002, "只能修改自己的密码哦，你别乱来"),
     ORIGINAL_PASSWORD_IS_WRONG(1003, "如果忘记了旧密码，请联系管理员重置密码"),
+    DEFAULT_PASSWORD_NOT_SUPPORT(1004, "初始密码无法登陆的哦，请先修改密码"),
     ;
 
     private final int code;

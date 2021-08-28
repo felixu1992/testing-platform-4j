@@ -43,6 +43,8 @@ public class UserManager {
                 .eq(User::getPassword, Md5Utils.encode(form.getPassword())));
         if (null == user)
             throw new PlatformException(ErrorCode.LOGIN_FAILED);
+        if (user.getPassword().equals(properties.getDefaultPassword()))
+            throw new PlatformException(ErrorCode.DEFAULT_PASSWORD_NOT_SUPPORT);
         // 登录成功，设置 token
         user.setToken(JwtUtils.generate(user.getId()));
         // 缓存 token，并设置过期时间(这个会顶掉之前的登录，一个帐号只能一处登录)
