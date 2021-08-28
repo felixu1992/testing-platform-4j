@@ -1,14 +1,18 @@
 package top.felixu.platform.service;
 
-import top.felixu.platform.model.entity.Record;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import top.felixu.platform.mapper.RecordMapper;
+import top.felixu.platform.model.entity.Record;
+import org.springframework.stereotype.Service;
 
 /**
- * 测试报告 服务类
+ * 测试报告 服务实现类
  *
  * @author felixu
  * @since 2021-08-28
  */
-public interface RecordService extends IService<Record> {
+@Service
+public class RecordService extends ServiceImpl<RecordMapper, Record> implements IService<Record> {
 
 }

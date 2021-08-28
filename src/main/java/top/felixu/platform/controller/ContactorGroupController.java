@@ -1,10 +1,10 @@
 package top.felixu.platform.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.model.entity.ContactorGroup;
-import top.felixu.platform.service.ContactorGroupService;
 import org.springframework.http.MediaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import top.felixu.platform.service.ContactorGroupService;
+
 import javax.validation.groups.Default;
 
 /**
@@ -27,7 +29,7 @@ import javax.validation.groups.Default;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api//contactor-group")
+@RequestMapping("/api/contactor-group")
 public class ContactorGroupController {
 
     private final ContactorGroupService contactorGroupService;

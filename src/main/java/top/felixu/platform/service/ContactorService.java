@@ -1,14 +1,18 @@
 package top.felixu.platform.service;
 
-import top.felixu.platform.model.entity.Contactor;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import top.felixu.platform.mapper.ContactorMapper;
+import top.felixu.platform.model.entity.Contactor;
+import org.springframework.stereotype.Service;
 
 /**
- * 联系人 服务类
+ * 联系人 服务实现类
  *
  * @author felixu
  * @since 2021-08-28
  */
-public interface ContactorService extends IService<Contactor> {
+@Service
+public class ContactorService extends ServiceImpl<ContactorMapper, Contactor> implements IService<Contactor> {
 
 }
