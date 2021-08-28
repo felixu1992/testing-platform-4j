@@ -3,8 +3,7 @@ package top.felixu.platform.model.form;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author felixu
@@ -14,11 +13,11 @@ import javax.validation.constraints.NotNull;
 @ApiModel("修改密码")
 public class ChangePasswordForm {
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty("旧密码")
     private String originalPassword;
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty("新密码")
     private String newPassword;
 }
