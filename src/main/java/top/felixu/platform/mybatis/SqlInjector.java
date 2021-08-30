@@ -14,16 +14,16 @@ import java.util.List;
 @Slf4j
 public class SqlInjector extends DefaultSqlInjector {
 
-    private final String underscoreCreateTime;
+    private final String underscoreCreatedAt;
 
     public SqlInjector(MybatisPlusProperties properties) {
-        underscoreCreateTime = properties.getUnderscoreCreateTime();
+        underscoreCreatedAt = properties.getUnderscoreCreatedAt();
     }
 
     @Override
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
         List<AbstractMethod> methodList = new ArrayList<>();
-        methodList.add(new AlwaysUpdateSomeColumnById().setPredicate(i -> !underscoreCreateTime.equalsIgnoreCase(i.getColumn())));
+        methodList.add(new AlwaysUpdateSomeColumnById().setPredicate(i -> !underscoreCreatedAt.equalsIgnoreCase(i.getColumn())));
         methodList.addAll(super.getMethodList(mapperClass));
         return methodList;
     }

@@ -38,12 +38,13 @@ public class PermissionInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 到了这里，一定是需要拦截的
         String token = request.getHeader(properties.getAuthorization());
-        Integer userId = null;
+        User user = null;
         if (StringUtils.hasText(token)) {
             // 取出 token
             token = token.replace(properties.getSalt(), "");
             // 从 token 中解析出 userId
-            userId = JwtUtils.getUserId(token);
+            Integer userId = JwtUtils.getUserId(token);
+            user = userService.getUserByIdAndCheck(userId);
             String cacheKey = CacheKeyConstants.Token.PREFIX + userId;
             String cacheToken = redisTemplate.opsForValue().get(cacheKey);
             if (null == cacheToken)
@@ -56,13 +57,12 @@ public class PermissionInterceptor implements HandlerInterceptor {
             String secret = request.getHeader(properties.getSecret());
             if (StringUtils.hasText(secret)) {
                 // 看看 secret 能不能找到用户，找到就 ok
-                User user = userService.getUserBySecretAndCheck(secret);
-                userId = user.getId();
+                user = userService.getUserBySecretAndCheck(secret);
             }
         }
-        if (ObjectUtils.isEmpty(userId))
+        if (ObjectUtils.isEmpty(user))
             throw new PlatformException(ErrorCode.REQUIRE_LOGIN);
-        UserHolderUtils.setUserId(userId);
+        UserHolderUtils.setUser(user);
         return true;
     }
 

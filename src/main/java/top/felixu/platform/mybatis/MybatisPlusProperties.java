@@ -14,23 +14,53 @@ public class MybatisPlusProperties {
     /**
      * 驼峰式创建时间字段
      */
-    private String camelCreateTime = "createTime";
+    private String camelCreatedAt = "createdAt";
+
+    /**
+     * 驼峰式创建者字段
+     */
+    private String camelCreateBy = "createdBy";
+
     /**
      * 驼峰式更新时间字段
      */
-    private String camelUpdateTime = "updateTime";
+    private String camelUpdatedAt = "updatedAt";
+
+    /**
+     * 驼峰式更新者字段
+     */
+    private String camelUpdatedBy = "updatedBy";
+
     /**
      * 下划线式创建时间字段
      */
-    private String underscoreCreateTime = "create_time";
+    private String underscoreCreatedAt = "created_at";
+
+    /**
+     * 下划线式创建者字段
+     */
+    private String underscoreCreatedBy = "created_by";
+
     /**
      * 下划线式更新时间字段
      */
-    private String underscoreUpdateTime = "update_time";
+    private String underscoreUpdatedAt = "updated_at";
+
+    /**
+     * 下划线更新者字段
+     */
+    private String underscoreUpdatedBy = "updated_by";
+
+    /**
+     * 数据拥有者字段
+     */
+    private String owner = "owner";
+
     /**
      * 数据库类型
      */
     private DbType dbType;
+
     /**
      * 最大分页限制
      */

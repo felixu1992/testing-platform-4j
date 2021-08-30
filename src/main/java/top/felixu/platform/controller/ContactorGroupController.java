@@ -1,6 +1,7 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -29,6 +30,7 @@ import javax.validation.groups.Default;
  */
 @RestController
 @RequiredArgsConstructor
+@Api(tags = "联系人分组管理")
 @RequestMapping("/api/contactor-group")
 public class ContactorGroupController {
 
