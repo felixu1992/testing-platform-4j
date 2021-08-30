@@ -13,6 +13,12 @@ public interface CacheKeyConstants {
     }
 
     interface User {
+        String NAME = "USER";
+        String USER_CACHE = "'USER-CACHE-'";
+        String CHILD_USER_CACHE = "'CHILD-USER-CACHE-'";
+    }
 
+    interface ContactorGroup {
+        String NAME = "CONTACTOR-GROUP";
     }
 }

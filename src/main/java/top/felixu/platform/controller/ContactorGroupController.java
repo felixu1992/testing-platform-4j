@@ -2,6 +2,7 @@ package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -37,6 +38,7 @@ public class ContactorGroupController {
     private final ContactorGroupService contactorGroupService;
 
     @GetMapping("/{id}")
+    @ApiOperation("查询联系人分组详情")
     public ContactorGroup get(@PathVariable Long id) {
         return contactorGroupService.getById(id);
     }
