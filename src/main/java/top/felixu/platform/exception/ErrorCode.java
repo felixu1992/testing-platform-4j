@@ -30,6 +30,8 @@ public enum ErrorCode {
     DEFAULT_PASSWORD_NOT_SUPPORT(1004, "初始密码无法登陆的哦，请先修改密码"),
     CAN_NOT_USE_DEFAULT_PASSWORD(1005, "不可以修改为初始密码"),
     NEW_PASSWORD_SAME_ORIGINAL(1006, "您的新密码不可以与旧密码一致"),
+    USER_DUPLICATE_EMAIL(1007, "用户邮箱已经被使用"),
+    USER_DUPLICATE_PHONE(1008, "用户手机号已经被使用"),
 
     CONTACTOR_GROUP_NOT_FOUND(2000, "当前联系人分组不存在"),
     CONTACTOR_GROUP_DUPLICATE_NAME(2001, "当前联系人分组名称重复"),

@@ -75,10 +75,10 @@ public class UserManager {
     }
 
     public User create(User user){
-        // TODO: 08/31 少了校验邮箱和手机号
         User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
         if (self.getRole() == RoleTypeEnum.ORDINARY)
             throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        check(user);
         user.setRole(self.getRole() == RoleTypeEnum.SUPER_ADMIN ? RoleTypeEnum.ADMIN : RoleTypeEnum.ORDINARY);
         user.setParentId(self.getId());
         user.setPassword(properties.getDefaultPassword());
@@ -87,10 +87,10 @@ public class UserManager {
     }
 
     public User update(User user) {
-        // TODO: 08/31 少了校验邮箱和手机号
         User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
         User other = userService.getUserByIdAndCheck(user.getId());
         BeanUtils.copy(user, other);
+        check(other);
         // 防止不该更新的字段被更新
         other.setPassword(null);
         other.setSecret(null);
@@ -149,5 +149,16 @@ public class UserManager {
                 || (self.getRole() == RoleTypeEnum.ADMIN && userService.getChildUserList(self)
                 .stream().noneMatch(user -> user.getId().equals(target)) && !self.getId().equals(target)))
             throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+    }
+
+    private void check(User user) {
+        // 校验邮箱
+        User email = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getEmail, user.getEmail()));
+        if (email != null && (user.getId() == null || !user.getId().equals(email.getId())))
+            throw new PlatformException(ErrorCode.USER_DUPLICATE_EMAIL);
+        // 校验手机号
+        User phone = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getPhone, user.getPhone()));
+        if (phone != null && (user.getId() == null || !user.getId().equals(phone.getId())))
+            throw new PlatformException(ErrorCode.USER_DUPLICATE_PHONE);
     }
 }
