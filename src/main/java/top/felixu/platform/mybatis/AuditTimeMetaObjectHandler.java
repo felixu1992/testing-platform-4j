@@ -41,11 +41,12 @@ public class AuditTimeMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, camelCreatedBy, Integer.class, userId);
         this.strictInsertFill(metaObject, camelUpdatedAt, LocalDateTime.class, now);
         this.strictInsertFill(metaObject, camelUpdatedBy, Integer.class, userId);
-        this.strictInsertFill(metaObject, owner, Integer.class, UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY ? UserHolderUtils.getCurrentUserParentId() : userId);
+        this.strictInsertFill(metaObject, owner, Integer.class, UserHolderUtils.getOwner());
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         this.strictUpdateFill(metaObject, camelUpdatedAt, LocalDateTime.class, LocalDateTime.now());
+        this.strictUpdateFill(metaObject, camelUpdatedBy, Integer.class, UserHolderUtils.getCurrentUserId());
     }
 }

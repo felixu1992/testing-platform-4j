@@ -54,10 +54,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
     }
 
     @Caching(
-            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER_CACHE + " + #user.getParentId()"),
+            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER_CACHE + " + #result.getParentId()"),
             cacheable = {
-                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #user.getId()", unless = "#result == null", sync = true),
-                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #user.getSecret()", unless = "#result == null", sync = true)
+                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
+                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #result.getSecret()", unless = "#result == null", sync = true)
             }
     )
     public User create(User user) {

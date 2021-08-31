@@ -3,6 +3,8 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ContactorTreeDTO;
+import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -18,10 +20,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import top.felixu.platform.service.ContactorGroupService;
+import top.felixu.platform.service.manager.ContactorGroupManager;
 
 import javax.validation.groups.Default;
+import java.util.List;
 
 /**
  * 联系人分组
@@ -35,31 +37,42 @@ import javax.validation.groups.Default;
 @RequestMapping("/api/contactor-group")
 public class ContactorGroupController {
 
-    private final ContactorGroupService contactorGroupService;
+    private final ContactorGroupManager contactorGroupManager;
 
     @GetMapping("/{id}")
     @ApiOperation("查询联系人分组详情")
-    public ContactorGroup get(@PathVariable Long id) {
-        return contactorGroupService.getById(id);
+    public ResponseDTO<ContactorGroup> get(@PathVariable Integer id) {
+        return ResponseDTO.success(contactorGroupManager.getContactorGroupById(id));
     }
 
     @GetMapping
-    public IPage<ContactorGroup> page(ContactorGroup contactorGroup, PageRequestForm form) {
-        return contactorGroupService.page(form.toPage(), new QueryWrapper<>(contactorGroup));
+    @ApiOperation("分页查询联系人分组")
+    public ResponseDTO<IPage<ContactorGroup>> page(ContactorGroup group, PageRequestForm form) {
+        return ResponseDTO.success(contactorGroupManager.page(group, form));
     }
 
+    @GetMapping("/tree")
+    @ApiOperation("查询联系人分组树")
+    public ResponseDTO<List<ContactorTreeDTO>> tree() {
+        return ResponseDTO.success(contactorGroupManager.tree());
+    }
+
+    @ApiOperation("创建联系人分组")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean create(@Validated({Create.class, Default.class}) @RequestBody ContactorGroup contactorGroup) {
-        return contactorGroupService.save(contactorGroup);
+    public ResponseDTO<ContactorGroup> create(@Validated({Create.class, Default.class}) @RequestBody ContactorGroup group) {
+        return ResponseDTO.success(contactorGroupManager.create(group));
     }
 
+    @ApiOperation("更新联系人分组")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody ContactorGroup contactorGroup) {
-        return contactorGroupService.updateById(contactorGroup);
+    public ResponseDTO<ContactorGroup> update(@Validated({Update.class, Default.class}) @RequestBody ContactorGroup group) {
+        return ResponseDTO.success(contactorGroupManager.update(group));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Long id) {
-        return contactorGroupService.removeById(id);
+    @ApiOperation("删除指定的联系人分组")
+    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+        contactorGroupManager.delete(id);
+        return ResponseDTO.success();
     }
 }

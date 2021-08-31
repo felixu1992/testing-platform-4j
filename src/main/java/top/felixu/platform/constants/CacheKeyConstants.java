@@ -20,5 +20,7 @@ public interface CacheKeyConstants {
 
     interface ContactorGroup {
         String NAME = "CONTACTOR-GROUP";
+        String CONTACTOR_GROUP_CACHE = "'CONTACTOR-GROUP-CACHE-'";
+        String CONTACTOR_GROUP_LIST_CACHE = "'CONTACTOR-GROUP-LIST-CACHE-'";
     }
 }

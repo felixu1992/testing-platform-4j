@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.constants.CacheKeyConstants;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
@@ -74,6 +75,7 @@ public class UserManager {
     }
 
     public User create(User user){
+        // TODO: 08/31 少了校验邮箱和手机号
         User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
         if (self.getRole() == RoleTypeEnum.ORDINARY)
             throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
@@ -85,13 +87,15 @@ public class UserManager {
     }
 
     public User update(User user) {
+        // TODO: 08/31 少了校验邮箱和手机号
         User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
         User other = userService.getUserByIdAndCheck(user.getId());
+        BeanUtils.copy(user, other);
         // 防止不该更新的字段被更新
-        user.setPassword(null);
-        user.setSecret(null);
+        other.setPassword(null);
+        other.setSecret(null);
         checkAuthority(self, other.getId());
-        return userService.update(user);
+        return userService.update(other);
     }
 
     public void delete(Integer id) {

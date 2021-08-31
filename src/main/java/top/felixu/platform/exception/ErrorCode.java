@@ -32,6 +32,7 @@ public enum ErrorCode {
     NEW_PASSWORD_SAME_ORIGINAL(1006, "您的新密码不可以与旧密码一致"),
 
     CONTACTOR_GROUP_NOT_FOUND(2000, "当前联系人分组不存在"),
+    CONTACTOR_GROUP_DUPLICATE_NAME(2001, "当前联系人分组名称重复"),
     ;
 
     private final int code;
