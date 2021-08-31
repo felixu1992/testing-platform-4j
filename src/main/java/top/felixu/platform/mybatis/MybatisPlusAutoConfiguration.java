@@ -3,6 +3,7 @@ package top.felixu.platform.mybatis;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,6 +32,7 @@ public class MybatisPlusAutoConfiguration {
         pageInterceptor.setDbType(properties.getDbType());
         pageInterceptor.setMaxLimit(properties.getMaxLimit());
         interceptor.addInnerInterceptor(pageInterceptor);
+        interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(new OwnerTenantLineHandler(properties)));
         return interceptor;
     }
 

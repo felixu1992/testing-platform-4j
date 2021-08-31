@@ -31,6 +31,12 @@ public class UserHolderUtils {
         return getUser().getParentId();
     }
 
+    public static Integer getOwner() {
+        if (getCurrentRole() == RoleTypeEnum.ORDINARY)
+            return getCurrentUserParentId();
+        return getCurrentUserId();
+    }
+
     private static User getUser() {
         return Optional.ofNullable(USER.get()).orElseThrow(() -> new PlatformException(ErrorCode.REQUIRE_LOGIN));
     }

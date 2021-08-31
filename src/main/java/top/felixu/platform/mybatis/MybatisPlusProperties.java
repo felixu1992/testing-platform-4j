@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author felixu
  * @since 2021.08.07
@@ -59,10 +62,15 @@ public class MybatisPlusProperties {
     /**
      * 数据库类型
      */
-    private DbType dbType;
+    private DbType dbType = DbType.MYSQL;
 
     /**
      * 最大分页限制
      */
     private Long maxLimit = 200L;
+
+    /**
+     * 忽略 owner 字段查询的表
+     */
+    private Set<String> ignores = new HashSet<>();
 }
