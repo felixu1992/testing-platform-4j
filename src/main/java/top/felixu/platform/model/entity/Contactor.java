@@ -2,6 +2,7 @@ package top.felixu.platform.model.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -34,24 +35,27 @@ public class Contactor implements Serializable {
     @TableId(value = "id", type = IdType.NONE)
     private Integer id;
 
-    @ApiModelProperty(value = "联系人名称")
     @NotBlank
+    @ApiModelProperty(value = "联系人名称")
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
-    @ApiModelProperty(value = "邮箱")
     @NotBlank
+    @ApiModelProperty(value = "邮箱")
+    @TableField(condition = SqlCondition.LIKE)
     private String email;
 
-    @ApiModelProperty(value = "手机号")
     @NotBlank
+    @ApiModelProperty(value = "手机号")
+    @TableField(condition = SqlCondition.LIKE)
     private String phone;
 
-    @ApiModelProperty(value = "分组 id")
     @NotNull
+    @ApiModelProperty(value = "分组 id")
     private Integer groupId;
 
     @ApiModelProperty(value = "拥有者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer owner;
 
     @ApiModelProperty(value = "创建时间")
@@ -59,7 +63,7 @@ public class Contactor implements Serializable {
     private LocalDateTime createdAt;
 
     @ApiModelProperty(value = "创建者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer createdBy;
 
     @ApiModelProperty(value = "更新时间")
@@ -67,7 +71,7 @@ public class Contactor implements Serializable {
     private LocalDateTime updatedAt;
 
     @ApiModelProperty(value = "更新者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer updatedBy;
 
 }

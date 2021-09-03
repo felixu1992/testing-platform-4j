@@ -1,6 +1,9 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -17,8 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import top.felixu.platform.service.ContactorService;
-
+import top.felixu.platform.service.manager.ContactorManager;
 import javax.validation.groups.Default;
 
 /**
@@ -28,34 +30,41 @@ import javax.validation.groups.Default;
  * @since 2021-08-28
  */
 @RestController
+@Api(tags = "联系人管理")
 @RequiredArgsConstructor
 @RequestMapping("/api/contactor")
 public class ContactorController {
 
-    private final ContactorService contactorService;
+    private final ContactorManager contactorManager;
 
     @GetMapping("/{id}")
-    public Contactor get(@PathVariable Long id) {
-        return contactorService.getById(id);
+    @ApiOperation("查询联系人详情")
+    public ResponseDTO<Contactor> get(@PathVariable Integer id) {
+        return ResponseDTO.success(contactorManager.getContactorById(id));
     }
 
     @GetMapping
-    public IPage<Contactor> page(Contactor contactor, PageRequestForm form) {
-        return contactorService.page(form.toPage(), new QueryWrapper<>(contactor));
+    @ApiOperation("分页查询联系人")
+    public ResponseDTO<IPage<Contactor>> page(Contactor contactor, PageRequestForm form) {
+        return ResponseDTO.success(contactorManager.page(contactor, form));
     }
 
+    @ApiOperation("创建联系人")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean create(@Validated({Create.class, Default.class}) @RequestBody Contactor contactor) {
-        return contactorService.save(contactor);
+    public ResponseDTO<Contactor> create(@Validated({Create.class, Default.class}) @RequestBody Contactor contactor) {
+        return ResponseDTO.success(contactorManager.create(contactor));
     }
 
+    @ApiOperation("更新联系人")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody Contactor contactor) {
-        return contactorService.updateById(contactor);
+    public ResponseDTO<Contactor> update(@Validated({Update.class, Default.class}) @RequestBody Contactor contactor) {
+        return ResponseDTO.success(contactorManager.update(contactor));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Long id) {
-        return contactorService.removeById(id);
+    @ApiOperation("根据 id 删除联系人")
+    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+        contactorManager.delete(id);
+        return ResponseDTO.success();
     }
 }

@@ -12,6 +12,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    /* ------------------- 通用错误 --------------------*/
+
     SUCCESS(0, "成功"),
     FAILED(-1, "发生未知错误"),
 
@@ -23,6 +25,8 @@ public enum ErrorCode {
     MISSING_AUTHORITY(105, "权限不足"),
     REQUIRE_LOGIN(106, "请(重新)登录"),
 
+    /* ------------------- 用户错误 --------------------*/
+
     USER_NOT_FOUND(1000, "当前用户不存在"),
     SUPER_ADMIN_CAN_NOT_DELETE(1001, "超级管理员无法被删除"),
     ONLY_SUPPORT_CHANGE_SELF_PASSWORD(1002, "只能修改自己的密码哦，你别乱来"),
@@ -33,8 +37,15 @@ public enum ErrorCode {
     USER_DUPLICATE_EMAIL(1007, "用户邮箱已经被使用"),
     USER_DUPLICATE_PHONE(1008, "用户手机号已经被使用"),
 
+    /* ------------------- 联系人错误 --------------------*/
+
     CONTACTOR_GROUP_NOT_FOUND(2000, "当前联系人分组不存在"),
     CONTACTOR_GROUP_DUPLICATE_NAME(2001, "当前联系人分组名称重复"),
+    CONTACTOR_GROUP_USED_BY_CONTACTOR(2002, "当前联系人分组下存在联系人"),
+
+    CONTACTOR_NOT_FOUND(2100, "当前联系不存在"),
+    CONTACTOR_DUPLICATE_EMAIL(2101, "联系人邮箱已经被使用"),
+    CONTACTOR_DUPLICATE_PHONE(2102, "联系人手机号已经被使用"),
     ;
 
     private final int code;

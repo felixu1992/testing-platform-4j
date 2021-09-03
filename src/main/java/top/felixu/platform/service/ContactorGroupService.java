@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import top.felixu.platform.util.UserHolderUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP_CACHE;
 import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP_LIST_CACHE;
@@ -31,11 +32,7 @@ public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, Con
 
     @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_CACHE + " + #id", unless = "#result == null", sync = true)
     public ContactorGroup getContactGroupByIdAndCheck(Integer id) {
-        ContactorGroup group = getOne(Wrappers.<ContactorGroup>lambdaQuery().eq(ContactorGroup::getId, id)
-                .eq(ContactorGroup::getOwner, UserHolderUtils.getOwner()));
-        if (null == group)
-            throw new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND);
-        return group;
+        return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
 
     @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_LIST_CACHE + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")

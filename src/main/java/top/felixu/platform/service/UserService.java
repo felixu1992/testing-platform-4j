@@ -15,6 +15,8 @@ import top.felixu.platform.mapper.UserMapper;
 import top.felixu.platform.model.entity.User;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import static top.felixu.platform.constants.CacheKeyConstants.User.NAME;
 import static top.felixu.platform.constants.CacheKeyConstants.User.USER_CACHE;
 import static top.felixu.platform.constants.CacheKeyConstants.User.CHILD_USER_CACHE;
@@ -30,10 +32,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
 
     @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #id", unless = "#result == null", sync = true)
     public User getUserByIdAndCheck(Integer id) {
-        User user = getById(id);
-        if (null == user)
-            throw new PlatformException(ErrorCode.USER_NOT_FOUND);
-        return user;
+        return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #secret", unless = "#result == null", sync = true)

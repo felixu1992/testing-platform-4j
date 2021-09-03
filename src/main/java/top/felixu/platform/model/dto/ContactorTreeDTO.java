@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,5 +30,5 @@ public class ContactorTreeDTO {
     private Boolean disable = Boolean.FALSE;
 
     @ApiModelProperty("子节点")
-    private List<ContactorTreeDTO> children;
+    private List<ContactorTreeDTO> children = new ArrayList<>();
 }
