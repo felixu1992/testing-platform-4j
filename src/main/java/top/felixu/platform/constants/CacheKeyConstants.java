@@ -25,7 +25,18 @@ public interface CacheKeyConstants {
     }
 
     interface Contactor {
-        String NAME = "CONTACTOR-GROUP";
+        String NAME = "CONTACTOR";
         String CONTACTOR_CACHE = "'CONTACTOR-CACHE-'";
+    }
+
+    interface FileGroup {
+        String NAME = "FILE-GROUP";
+        String FILE_GROUP_CACHE = "'FILE-GROUP-CACHE-'";
+        String FILE_GROUP_LIST_CACHE = "'FILE-GROUP-LIST-CACHE-'";
+    }
+
+    interface File {
+        String NAME = "FILE";
+        String CONTACTOR_CACHE = "'FILE-CACHE-'";
     }
 }

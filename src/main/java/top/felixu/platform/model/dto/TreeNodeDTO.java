@@ -3,6 +3,7 @@ package top.felixu.platform.model.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +15,9 @@ import java.util.List;
  * @since 2021.08.31
  */
 @Data
+@NoArgsConstructor
 @ApiModel("联系人分组树节点")
-public class ContactorTreeDTO {
+public class TreeNodeDTO {
 
     @ApiModelProperty("显示内容")
     private String title;
@@ -30,5 +32,11 @@ public class ContactorTreeDTO {
     private Boolean disable = Boolean.FALSE;
 
     @ApiModelProperty("子节点")
-    private List<ContactorTreeDTO> children = new ArrayList<>();
+    private List<TreeNodeDTO> children = new ArrayList<>();
+
+    public TreeNodeDTO(String title, Integer key, Integer value) {
+        this.title = title;
+        this.key = key;
+        this.value = value;
+    }
 }

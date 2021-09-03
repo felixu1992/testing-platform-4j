@@ -46,6 +46,11 @@ public enum ErrorCode {
     CONTACTOR_NOT_FOUND(2100, "当前联系不存在"),
     CONTACTOR_DUPLICATE_EMAIL(2101, "联系人邮箱已经被使用"),
     CONTACTOR_DUPLICATE_PHONE(2102, "联系人手机号已经被使用"),
+
+    /* ------------------- 文件错误 --------------------*/
+
+    FILE_GROUP_NOT_FOUND(3000, "当前文件分组不存在"),
+    FILE_GROUP_DUPLICATE_NAME(2001, "当前文件分组名称重复"),
     ;
 
     private final int code;

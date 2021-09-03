@@ -51,7 +51,7 @@ public class ContactorManager {
 
     public void delete(Integer id) {
         Contactor contactor = contactorService.getContactorByIdAndCheck(id);
-        // TODO: 09/03 是否被用例使用
+        // TODO: 09/03 是否被用例使用(用例、项目)
         contactorService.delete(contactor);
     }
 

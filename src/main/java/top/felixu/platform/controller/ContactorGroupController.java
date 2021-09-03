@@ -3,7 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import top.felixu.platform.model.dto.ContactorTreeDTO;
+import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -53,7 +53,7 @@ public class ContactorGroupController {
 
     @GetMapping("/tree")
     @ApiOperation("查询联系人分组树")
-    public ResponseDTO<List<ContactorTreeDTO>> tree() {
+    public ResponseDTO<List<TreeNodeDTO>> tree() {
         return ResponseDTO.success(contactorGroupManager.tree());
     }
 

@@ -8,7 +8,7 @@ import org.springframework.util.CollectionUtils;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
-import top.felixu.platform.model.dto.ContactorTreeDTO;
+import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.ContactorGroup;
 import top.felixu.platform.model.form.PageRequestForm;
@@ -42,30 +42,21 @@ public class ContactorGroupManager {
         return contactorGroupService.page(form.toPage(), Wrappers.lambdaQuery(group));
     }
 
-    public List<ContactorTreeDTO> tree() {
+    public List<TreeNodeDTO> tree() {
         List<ContactorGroup> groups = contactorGroupService.getContactGroupList();
         if (CollectionUtils.isEmpty(groups))
             return Collections.emptyList();
         Set<Integer> groupIds = new HashSet<>();
-        List<ContactorTreeDTO> result = groups.stream().map(group -> {
+        List<TreeNodeDTO> result = groups.stream().map(group -> {
             groupIds.add(group.getId());
-            ContactorTreeDTO dto = new ContactorTreeDTO();
-            dto.setTitle(group.getName());
-            dto.setValue(group.getId());
-            dto.setKey(group.getId());
+            TreeNodeDTO dto = new TreeNodeDTO(group.getName(), group.getId(), group.getId());
             dto.setDisable(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
         Map<Integer, List<Contactor>> childrenMap = contactorService.mapByGroupIds(groupIds);
         result.parallelStream().forEach(group -> {
             // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
-            group.setChildren(childrenMap.get(group.getKey()).stream().map(contactor -> {
-                ContactorTreeDTO dto = new ContactorTreeDTO();
-                dto.setTitle(contactor.getName());
-                dto.setValue(contactor.getId());
-                dto.setKey(contactor.getId());
-                return dto;
-            }).collect(Collectors.toList()));
+            group.setChildren(childrenMap.get(group.getKey()).stream().map(contactor -> new TreeNodeDTO(contactor.getName(), contactor.getId(), contactor.getId())).collect(Collectors.toList()));
         });
         return result;
     }
