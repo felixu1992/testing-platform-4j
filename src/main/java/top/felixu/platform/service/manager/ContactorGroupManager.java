@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.ContactorTreeDTO;
@@ -60,8 +61,10 @@ public class ContactorGroupManager {
     }
 
     public ContactorGroup update(ContactorGroup group) {
-        check(group);
-        return contactorGroupService.update(group);
+        ContactorGroup original = contactorGroupService.getContactGroupByIdAndCheck(group.getId());
+        BeanUtils.copyNotEmpty(ContactorGroup.class, group, ContactorGroup.class, original);
+        check(original);
+        return contactorGroupService.update(original);
     }
 
     public void delete(Integer id) {

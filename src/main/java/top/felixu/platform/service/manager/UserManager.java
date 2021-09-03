@@ -89,7 +89,7 @@ public class UserManager {
     public User update(User user) {
         User self = userService.getUserByIdAndCheck(UserHolderUtils.getCurrentUserId());
         User other = userService.getUserByIdAndCheck(user.getId());
-        BeanUtils.copy(user, other);
+        BeanUtils.copyNotEmpty(User.class, user, User.class, other);
         check(other);
         // 防止不该更新的字段被更新
         other.setPassword(null);
