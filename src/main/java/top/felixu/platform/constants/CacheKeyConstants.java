@@ -37,6 +37,6 @@ public interface CacheKeyConstants {
 
     interface File {
         String NAME = "FILE";
-        String CONTACTOR_CACHE = "'FILE-CACHE-'";
+        String FILE_CACHE = "'FILE-CACHE-'";
     }
 }

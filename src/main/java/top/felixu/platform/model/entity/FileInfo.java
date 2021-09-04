@@ -2,6 +2,7 @@ package top.felixu.platform.model.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -34,23 +35,22 @@ public class FileInfo implements Serializable {
     @TableId(value = "id", type = IdType.NONE)
     private Integer id;
 
-    @ApiModelProperty(value = "文件名称")
     @NotBlank
+    @ApiModelProperty(value = "文件名称")
+    @TableField(condition = SqlCondition.LIKE)
     private String name;
 
     @ApiModelProperty(value = "文件路径")
-    @NotBlank
     private String path;
 
     @ApiModelProperty(value = "文件描述")
     private String remark;
 
-    @ApiModelProperty(value = "分组 id")
     @NotNull
+    @ApiModelProperty(value = "分组 id")
     private Integer groupId;
 
     @ApiModelProperty(value = "拥有者")
-    @NotNull
     private Integer owner;
 
     @ApiModelProperty(value = "创建时间")
@@ -58,7 +58,7 @@ public class FileInfo implements Serializable {
     private LocalDateTime createdAt;
 
     @ApiModelProperty(value = "创建者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer createdBy;
 
     @ApiModelProperty(value = "更新时间")
@@ -66,7 +66,7 @@ public class FileInfo implements Serializable {
     private LocalDateTime updatedAt;
 
     @ApiModelProperty(value = "更新者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer updatedBy;
 
 }

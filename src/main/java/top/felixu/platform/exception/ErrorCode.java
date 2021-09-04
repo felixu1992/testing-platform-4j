@@ -50,7 +50,14 @@ public enum ErrorCode {
     /* ------------------- 文件错误 --------------------*/
 
     FILE_GROUP_NOT_FOUND(3000, "当前文件分组不存在"),
-    FILE_GROUP_DUPLICATE_NAME(2001, "当前文件分组名称重复"),
+    FILE_GROUP_DUPLICATE_NAME(3001, "当前文件分组名称重复"),
+    FILE_GROUP_USED_BY_FILE(3002, "当前文件分组下存在文件"),
+
+    FILE_NOT_FOUND(3100, "当前文件不存在"),
+    FILE_DUPLICATE_NAME(3101, "文件名称已经被使用"),
+    FILE_SAVE_FAILED(3102, "文件存储失败"),
+    FILE_UPDATE_FAILED(3102, "文件更新失败"),
+    FILE_DELETE_FAILED(3102, "文件删除失败"),
     ;
 
     private final int code;

@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import top.felixu.platform.properties.PermissionProperties;
+import top.felixu.platform.properties.PlatformProperties;
 
 /**
  * @author felixu
@@ -12,6 +13,7 @@ import top.felixu.platform.properties.PermissionProperties;
  */
 @EnableCaching
 @SpringBootApplication
+@EnableConfigurationProperties(PlatformProperties.class)
 public class Application {
 
     public static void main(String[] args) {

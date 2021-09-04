@@ -11,12 +11,15 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.entity.ContactorGroup;
 import top.felixu.platform.model.entity.FileGroup;
+import top.felixu.platform.model.entity.FileInfo;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.service.FileGroupService;
+import top.felixu.platform.service.FileInfoService;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 public class FileGroupManager {
 
     private final FileGroupService fileGroupService;
+
+    private final FileInfoService fileInfoService;
 
     public FileGroup getFileGroupById(Integer id) {
         return fileGroupService.getFileGroupByIdAndCheck(id);
@@ -49,18 +54,11 @@ public class FileGroupManager {
             dto.setDisable(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
-        // TODO: 09/03 填充子节点
-//        Map<Integer, List<Contactor>> childrenMap = contactorService.mapByGroupIds(groupIds);
-//        result.parallelStream().forEach(group -> {
-//            // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
-//            group.setChildren(childrenMap.get(group.getKey()).stream().map(contactor -> {
-//                ContactorTreeDTO dto = new ContactorTreeDTO();
-//                dto.setTitle(contactor.getName());
-//                dto.setValue(contactor.getId());
-//                dto.setKey(contactor.getId());
-//                return dto;
-//            }).collect(Collectors.toList()));
-//        });
+        Map<Integer, List<FileInfo>> childrenMap = fileInfoService.mapByGroupIds(groupIds);
+        result.parallelStream().forEach(group -> {
+            // 没有判断从 Map 中取值的结果不为 null 的原因是 FileInfoService#mapByGroupIds 保证了不会为 null
+            group.setChildren(childrenMap.get(group.getKey()).stream().map(fileInfo -> new TreeNodeDTO(fileInfo.getName(), fileInfo.getId(), fileInfo.getId())).collect(Collectors.toList()));
+        });
         return result;
     }
 
@@ -78,9 +76,8 @@ public class FileGroupManager {
 
     public void delete(Integer id) {
         FileGroup group = fileGroupService.getFileGroupByIdAndCheck(id);
-        // TODO: 09/03 判断是否有文件
-//        if (contactorService.countByGroupId(id) > 0)
-//            throw new PlatformException(ErrorCode.CONTACTOR_GROUP_USED_BY_CONTACTOR);
+        if (fileInfoService.countByGroupId(id) > 0)
+            throw new PlatformException(ErrorCode.FILE_GROUP_USED_BY_FILE);
         fileGroupService.delete(group);
     }
 
