@@ -11,9 +11,11 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.ContactorGroup;
+import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectGroup;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.service.ProjectGroupService;
+import top.felixu.platform.service.ProjectService;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 public class ProjectGroupManager {
 
     private final ProjectGroupService projectGroupService;
+
+    private final ProjectService projectService;
 
     public ProjectGroup getProjectGroupById(Integer id) {
         return projectGroupService.getProjectGroupByIdAndCheck(id);
@@ -51,12 +55,11 @@ public class ProjectGroupManager {
             dto.setDisable(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
-        // TODO: 09/06 填充子节点
-//        Map<Integer, List<Project>> childrenMap = contactorService.mapByGroupIds(groupIds);
-//        result.parallelStream().forEach(group -> {
-//            // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
-//            group.setChildren(childrenMap.get(group.getKey()).stream().map(contactor -> new TreeNodeDTO(contactor.getName(), contactor.getId(), contactor.getId())).collect(Collectors.toList()));
-//        });
+        Map<Integer, List<Project>> childrenMap = projectService.mapByGroupIds(groupIds);
+        result.parallelStream().forEach(group -> {
+            // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
+            group.setChildren(childrenMap.get(group.getKey()).stream().map(project -> new TreeNodeDTO(project.getName(), project.getId(), project.getId())).collect(Collectors.toList()));
+        });
         return result;
     }
 
@@ -74,8 +77,8 @@ public class ProjectGroupManager {
 
     public void delete(Integer id) {
         ProjectGroup group = projectGroupService.getProjectGroupByIdAndCheck(id);
-//        if (contactorService.countByGroupId(id) > 0)
-//            throw new PlatformException(ErrorCode.CONTACTOR_GROUP_USED_BY_CONTACTOR);
+        if (projectService.countByGroupId(id) > 0)
+            throw new PlatformException(ErrorCode.PROJECT_GROUP_USED_BY_PROJECT);
         projectGroupService.delete(group);
     }
 

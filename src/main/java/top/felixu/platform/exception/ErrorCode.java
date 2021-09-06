@@ -64,6 +64,9 @@ public enum ErrorCode {
     PROJECT_GROUP_NOT_FOUND(4000, "当前项目分组不存在"),
     PROJECT_GROUP_DUPLICATE_NAME(4001, "当前项目分组名称重复"),
     PROJECT_GROUP_USED_BY_PROJECT(4002, "当前项目分组下存在项目"),
+
+    PROJECT_NOT_FOUND(4100, "当前项目不存在"),
+    PROJECT_DUPLICATE_NAME(4101, "项目名称已经被使用"),
     ;
 
     private final int code;
