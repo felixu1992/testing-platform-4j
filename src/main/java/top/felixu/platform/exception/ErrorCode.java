@@ -58,6 +58,12 @@ public enum ErrorCode {
     FILE_SAVE_FAILED(3102, "文件存储失败"),
     FILE_UPDATE_FAILED(3102, "文件更新失败"),
     FILE_DELETE_FAILED(3102, "文件删除失败"),
+
+    /* ------------------- 项目错误 --------------------*/
+
+    PROJECT_GROUP_NOT_FOUND(4000, "当前项目分组不存在"),
+    PROJECT_GROUP_DUPLICATE_NAME(4001, "当前项目分组名称重复"),
+    PROJECT_GROUP_USED_BY_PROJECT(4002, "当前项目分组下存在项目"),
     ;
 
     private final int code;

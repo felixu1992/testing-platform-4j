@@ -39,4 +39,15 @@ public interface CacheKeyConstants {
         String NAME = "FILE";
         String FILE_CACHE = "'FILE-CACHE-'";
     }
+
+    interface ProjectGroup {
+        String NAME = "PROJECT-GROUP";
+        String PROJECT_GROUP_CACHE = "'PROJECT-GROUP-CACHE-'";
+        String PROJECT_GROUP_LIST_CACHE = "'Project-GROUP-LIST-CACHE-'";
+    }
+
+    interface Project {
+        String NAME = "PROJECT";
+        String PROJECT_CACHE = "'PROJECT-CACHE-'";
+    }
 }
