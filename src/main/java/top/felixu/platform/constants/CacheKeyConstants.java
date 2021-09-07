@@ -56,4 +56,10 @@ public interface CacheKeyConstants {
         String CASE_GROUP_CACHE = "'CASE-GROUP-CACHE-'";
         String CASE_GROUP_LIST_CACHE = "'CASE-GROUP-LIST-CACHE-'";
     }
+
+    interface CaseInfo {
+        String NAME = "CASE";
+        String CASE_CACHE = "'CASE-CACHE-'";
+        String PROJECT_CASE_CACHE = "'PROJECT-CACHE-'";
+    }
 }

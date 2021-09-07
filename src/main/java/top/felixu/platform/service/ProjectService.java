@@ -68,7 +68,7 @@ public class ProjectService extends ServiceImpl<ProjectMapper, Project> implemen
         return project;
     }
 
-    @CacheEvict(cacheNames = NAME, key = PROJECT_CACHE + " + #contactor.getId()")
+    @CacheEvict(cacheNames = NAME, key = PROJECT_CACHE + " + #project.getId()")
     public void delete(Project project) {
         removeById(project.getId());
     }

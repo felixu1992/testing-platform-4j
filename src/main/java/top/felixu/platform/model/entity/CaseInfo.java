@@ -3,6 +3,7 @@ package top.felixu.platform.model.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -10,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.List;
 import javax.validation.constraints.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -64,6 +66,14 @@ public class CaseInfo implements Serializable {
     @ApiModelProperty(value = "需要依赖的值")
     private String extendValues;
 
+    @ApiModelProperty(value = "接口依赖")
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Dependency> dependencies;
+
+    @ApiModelProperty(value = "校验预期")
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<Expected> expects;
+
     @ApiModelProperty(value = "校验预期的键")
     private String expectedKeys;
 
@@ -71,15 +81,13 @@ public class CaseInfo implements Serializable {
     private String expectedValues;
 
     @ApiModelProperty(value = "校验预期的状态码")
-    private Integer expectedHttpStatus;
+    private Integer expectedHttpStatus = 200;
 
     @ApiModelProperty(value = "是否校验状态码")
-    @NotNull
-    private Boolean checkStatus;
+    private Boolean checkStatus = Boolean.FALSE;
 
     @ApiModelProperty(value = "是否运行")
-    @NotNull
-    private Boolean run;
+    private Boolean run = Boolean.TRUE;
 
     @ApiModelProperty(value = "开发者")
     private Integer developer;
@@ -89,12 +97,10 @@ public class CaseInfo implements Serializable {
     private Integer projectId;
 
     @ApiModelProperty(value = "序号")
-    @NotNull
     private Integer sort;
 
     @ApiModelProperty(value = "延迟时长")
-    @NotNull
-    private Integer delay;
+    private int delay = 0;
 
     @ApiModelProperty(value = "返回值示例")
     private String sample;
@@ -104,7 +110,7 @@ public class CaseInfo implements Serializable {
     private Integer groupId;
 
     @ApiModelProperty(value = "所有者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer owner;
 
     @ApiModelProperty(value = "创建时间")
@@ -112,7 +118,7 @@ public class CaseInfo implements Serializable {
     private LocalDateTime createdAt;
 
     @ApiModelProperty(value = "创建者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer createdBy;
 
     @ApiModelProperty(value = "更新时间")
@@ -120,7 +126,7 @@ public class CaseInfo implements Serializable {
     private LocalDateTime updatedAt;
 
     @ApiModelProperty(value = "更新者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer updatedBy;
 
 }

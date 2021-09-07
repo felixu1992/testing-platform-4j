@@ -72,6 +72,8 @@ public enum ErrorCode {
 
     CASE_GROUP_NOT_FOUND(5000, "当前用例分组不存在"),
     CASE_GROUP_DUPLICATE_NAME(5001, "当前用例分组名称重复"),
+
+    CASE_NOT_FOUND(5100, "当前用例不存在"),
     ;
 
     private final int code;
