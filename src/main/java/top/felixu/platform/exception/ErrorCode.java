@@ -67,6 +67,11 @@ public enum ErrorCode {
 
     PROJECT_NOT_FOUND(4100, "当前项目不存在"),
     PROJECT_DUPLICATE_NAME(4101, "项目名称已经被使用"),
+
+    /* ------------------- 用例错误 --------------------*/
+
+    CASE_GROUP_NOT_FOUND(5000, "当前用例分组不存在"),
+    CASE_GROUP_DUPLICATE_NAME(5001, "当前用例分组名称重复"),
     ;
 
     private final int code;
