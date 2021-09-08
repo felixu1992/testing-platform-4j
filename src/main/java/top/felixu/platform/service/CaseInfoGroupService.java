@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.CASE_GROUP_CACHE;
-import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.CASE_GROUP_LIST_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.CASE_GROUP;
+import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.CASE_GROUP_LIST;
 import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.NAME;
 
 /**
@@ -28,19 +28,19 @@ import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.NAME
 @Service
 public class CaseInfoGroupService extends ServiceImpl<CaseInfoGroupMapper, CaseInfoGroup> implements IService<CaseInfoGroup> {
 
-    @Cacheable(cacheNames = NAME, key = CASE_GROUP_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #id", unless = "#result == null", sync = true)
     public CaseInfoGroup getCaseInfoGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = CASE_GROUP_LIST_CACHE + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
+    @Cacheable(cacheNames = NAME, key = CASE_GROUP_LIST + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
     public List<CaseInfoGroup> getCaseInfoGroupList() {
         return list();
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CASE_GROUP_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-            evict = @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST_CACHE + " + #result.getOwner()")
+            cacheable = @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            evict = @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST + " + #result.getOwner()")
     )
     public CaseInfoGroup create(CaseInfoGroup group) {
         save(group);
@@ -48,8 +48,8 @@ public class CaseInfoGroupService extends ServiceImpl<CaseInfoGroupMapper, CaseI
     }
 
     @Caching(
-            put = @CachePut(cacheNames = NAME, key = CASE_GROUP_CACHE + " + #result.getId()", unless = "#result == null"),
-            evict = @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST_CACHE + " + #result.getOwner()")
+            put = @CachePut(cacheNames = NAME, key = CASE_GROUP + " + #result.getId()", unless = "#result == null"),
+            evict = @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST + " + #result.getOwner()")
     )
     public CaseInfoGroup update(CaseInfoGroup group) {
         updateById(group);
@@ -58,8 +58,8 @@ public class CaseInfoGroupService extends ServiceImpl<CaseInfoGroupMapper, CaseI
 
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST_CACHE + " + #group.getOwner()"),
-                    @CacheEvict(cacheNames = NAME, key = CASE_GROUP_CACHE + " + #group.getId()")
+                    @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST + " + #group.getOwner()"),
+                    @CacheEvict(cacheNames = NAME, key = CASE_GROUP + " + #group.getId()")
             }
     )
     public void delete(CaseInfoGroup group) {

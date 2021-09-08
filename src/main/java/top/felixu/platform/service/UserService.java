@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static top.felixu.platform.constants.CacheKeyConstants.User.NAME;
-import static top.felixu.platform.constants.CacheKeyConstants.User.USER_CACHE;
-import static top.felixu.platform.constants.CacheKeyConstants.User.CHILD_USER_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.User.USER;
+import static top.felixu.platform.constants.CacheKeyConstants.User.CHILD_USER;
 
 /**
  * 服务实现类
@@ -30,12 +30,12 @@ import static top.felixu.platform.constants.CacheKeyConstants.User.CHILD_USER_CA
 @Service
 public class UserService extends ServiceImpl<UserMapper, User> implements IService<User> {
 
-    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = USER + " + #id", unless = "#result == null", sync = true)
     public User getUserByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.USER_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #secret", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = USER + " + #secret", unless = "#result == null", sync = true)
     public User getUserBySecretAndCheck(String secret) {
         User user = getOne(Wrappers.<User>lambdaQuery().eq(User::getSecret, secret));
         if (null == user)
@@ -43,7 +43,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
         return user;
     }
 
-    @Cacheable(cacheNames = NAME, key = CHILD_USER_CACHE + " + #user.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CHILD_USER + " + #user.getId()", unless = "#result == null", sync = true)
     public List<User> getChildUserList(User user) {
         if (user.getRole() == RoleTypeEnum.SUPER_ADMIN)
             return list();
@@ -53,10 +53,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
     }
 
     @Caching(
-            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER_CACHE + " + #result.getParentId()"),
+            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER + " + #result.getParentId()"),
             cacheable = {
-                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-                    @Cacheable(cacheNames = NAME, key = USER_CACHE + " + #result.getSecret()", unless = "#result == null", sync = true)
+                    @Cacheable(cacheNames = NAME, key = USER + " + #result.getId()", unless = "#result == null", sync = true),
+                    @Cacheable(cacheNames = NAME, key = USER + " + #result.getSecret()", unless = "#result == null", sync = true)
             }
     )
     public User create(User user) {
@@ -65,10 +65,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
     }
 
     @Caching(
-            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER_CACHE + " + #user.getParentId()"),
+            evict = @CacheEvict(cacheNames = NAME, key = CHILD_USER + " + #user.getParentId()"),
             put = {
-                    @CachePut(cacheNames = NAME, key = USER_CACHE + " + #user.getId()", unless = "#result == null"),
-                    @CachePut(cacheNames = NAME, key = USER_CACHE + " + #user.getSecret()", unless = "#result == null")
+                    @CachePut(cacheNames = NAME, key = USER + " + #user.getId()", unless = "#result == null"),
+                    @CachePut(cacheNames = NAME, key = USER + " + #user.getSecret()", unless = "#result == null")
             }
     )
     public User update(User user) {
@@ -79,9 +79,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements IServi
 
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = USER_CACHE + " + #user.getId()"),
-                    @CacheEvict(cacheNames = NAME, key = USER_CACHE + " + #user.getSecret()"),
-                    @CacheEvict(cacheNames = NAME, key = CHILD_USER_CACHE + " + #user.getParentId()")
+                    @CacheEvict(cacheNames = NAME, key = USER + " + #user.getId()"),
+                    @CacheEvict(cacheNames = NAME, key = USER + " + #user.getSecret()"),
+                    @CacheEvict(cacheNames = NAME, key = CHILD_USER + " + #user.getParentId()")
             }
     )
     public void delete(User user) {

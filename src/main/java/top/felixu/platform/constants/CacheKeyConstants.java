@@ -14,52 +14,53 @@ public interface CacheKeyConstants {
 
     interface User {
         String NAME = "USER";
-        String USER_CACHE = "'USER-CACHE-'";
-        String CHILD_USER_CACHE = "'CHILD-USER-CACHE-'";
+        String USER = "'USER-'";
+        String CHILD_USER = "'CHILD-USER-'";
     }
 
     interface ContactorGroup {
         String NAME = "CONTACTOR-GROUP";
-        String CONTACTOR_GROUP_CACHE = "'CONTACTOR-GROUP-CACHE-'";
-        String CONTACTOR_GROUP_LIST_CACHE = "'CONTACTOR-GROUP-LIST-CACHE-'";
+        String CONTACTOR_GROUP = "'CONTACTOR-GROUP-'";
+        String CONTACTOR_GROUP_LIST = "'CONTACTOR-GROUP-LIST-'";
     }
 
     interface Contactor {
         String NAME = "CONTACTOR";
-        String CONTACTOR_CACHE = "'CONTACTOR-CACHE-'";
+        String CONTACTOR = "'CONTACTOR-'";
     }
 
     interface FileGroup {
         String NAME = "FILE-GROUP";
-        String FILE_GROUP_CACHE = "'FILE-GROUP-CACHE-'";
-        String FILE_GROUP_LIST_CACHE = "'FILE-GROUP-LIST-CACHE-'";
+        String FILE_GROUP = "'FILE-GROUP-'";
+        String FILE_GROUP_LIST = "'FILE-GROUP-LIST-'";
     }
 
     interface File {
         String NAME = "FILE";
-        String FILE_CACHE = "'FILE-CACHE-'";
+        String FILE = "'FILE-'";
     }
 
     interface ProjectGroup {
         String NAME = "PROJECT-GROUP";
-        String PROJECT_GROUP_CACHE = "'PROJECT-GROUP-CACHE-'";
-        String PROJECT_GROUP_LIST_CACHE = "'PROJECT-GROUP-LIST-CACHE-'";
+        String PROJECT_GROUP = "'PROJECT-GROUP-'";
+        String PROJECT_GROUP_LIST = "'PROJECT-GROUP-LIST-'";
     }
 
     interface Project {
         String NAME = "PROJECT";
-        String PROJECT_CACHE = "'PROJECT-CACHE-'";
+        String PROJECT = "'PROJECT-'";
     }
 
     interface CaseInfoGroup {
         String NAME = "CASE-GROUP";
-        String CASE_GROUP_CACHE = "'CASE-GROUP-CACHE-'";
-        String CASE_GROUP_LIST_CACHE = "'CASE-GROUP-LIST-CACHE-'";
+        String CASE_GROUP = "'CASE-GROUP-'";
+        String CASE_GROUP_LIST = "'CASE-GROUP-LIST-'";
     }
 
     interface CaseInfo {
         String NAME = "CASE";
-        String CASE_CACHE = "'CASE-CACHE-'";
-        String PROJECT_CASE_CACHE = "'PROJECT-CACHE-'";
+        String CASE = "'CASE-'";
+        String PROJECT_GROUP_CASE_MAP = "'PROJECT-GROUP-CASE-MAP-'";
+        String PROJECT_CASE_LIST = "PROJECT-CASE-";
     }
 }

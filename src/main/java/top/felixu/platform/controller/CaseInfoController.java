@@ -1,6 +1,9 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -18,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.felixu.platform.service.CaseInfoService;
+import top.felixu.platform.service.manager.CaseInfoManager;
+
 import javax.validation.groups.Default;
 
 /**
@@ -27,34 +32,41 @@ import javax.validation.groups.Default;
  * @since 2021-08-28
  */
 @RestController
+@Api(tags = "用例管理")
 @RequiredArgsConstructor
 @RequestMapping("/api/case-info")
 public class CaseInfoController {
 
-    private final CaseInfoService caseInfoService;
+    private final CaseInfoManager caseInfoManager;
 
     @GetMapping("/{id}")
-    public CaseInfo get(@PathVariable Long id) {
-        return caseInfoService.getById(id);
+    @ApiOperation("查询用例详情")
+    public ResponseDTO<CaseInfo> get(@PathVariable Integer id) {
+        return ResponseDTO.success(caseInfoManager.getCaseInfoById(id));
     }
 
     @GetMapping
-    public IPage<CaseInfo> page(CaseInfo caseInfo, PageRequestForm form) {
-        return caseInfoService.page(form.toPage(), new QueryWrapper<>(caseInfo));
+    @ApiOperation("分页查询用例")
+    public ResponseDTO<IPage<CaseInfo>> page(CaseInfo caseInfo, PageRequestForm form) {
+        return ResponseDTO.success(caseInfoManager.page(caseInfo, form));
     }
 
+    @ApiOperation("创建用例")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean create(@Validated({Create.class, Default.class}) @RequestBody CaseInfo caseInfo) {
-        return caseInfoService.save(caseInfo);
+    public ResponseDTO<CaseInfo> create(@Validated({Create.class, Default.class}) @RequestBody CaseInfo caseInfo) {
+        return ResponseDTO.success(caseInfoManager.create(caseInfo));
     }
 
+    @ApiOperation("更新用例")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody CaseInfo caseInfo) {
-        return caseInfoService.updateById(caseInfo);
+    public ResponseDTO<CaseInfo> update(@Validated({Update.class, Default.class}) @RequestBody CaseInfo caseInfo) {
+        return ResponseDTO.success(caseInfoManager.update(caseInfo));
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Long id) {
-        return caseInfoService.removeById(id);
+    @ApiOperation("根据 id 删除用例")
+    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+        caseInfoManager.delete(id);
+        return ResponseDTO.success();
     }
 }

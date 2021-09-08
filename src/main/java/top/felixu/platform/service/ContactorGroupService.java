@@ -1,6 +1,5 @@
 package top.felixu.platform.service;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.cache.annotation.CacheEvict;
@@ -12,13 +11,12 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.mapper.ContactorGroupMapper;
 import top.felixu.platform.model.entity.ContactorGroup;
 import org.springframework.stereotype.Service;
-import top.felixu.platform.util.UserHolderUtils;
 
 import java.util.List;
 import java.util.Optional;
 
-import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP_CACHE;
-import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP_LIST_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP;
+import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.CONTACTOR_GROUP_LIST;
 import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.NAME;
 
 /**
@@ -30,19 +28,19 @@ import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.NAM
 @Service
 public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, ContactorGroup> implements IService<ContactorGroup> {
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #id", unless = "#result == null", sync = true)
     public ContactorGroup getContactGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_LIST_CACHE + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
+    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_LIST + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
     public List<ContactorGroup> getContactGroupList() {
         return list();
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-            evict = @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST_CACHE + " + #result.getOwner()")
+            cacheable = @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            evict = @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST + " + #result.getOwner()")
     )
     public ContactorGroup create(ContactorGroup group) {
         save(group);
@@ -50,8 +48,8 @@ public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, Con
     }
 
     @Caching(
-            put = @CachePut(cacheNames = NAME, key = CONTACTOR_GROUP_CACHE + " + #result.getId()", unless = "#result == null"),
-            evict = @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST_CACHE + " + #result.getOwner()")
+            put = @CachePut(cacheNames = NAME, key = CONTACTOR_GROUP + " + #result.getId()", unless = "#result == null"),
+            evict = @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST + " + #result.getOwner()")
     )
     public ContactorGroup update(ContactorGroup group) {
         updateById(group);
@@ -60,8 +58,8 @@ public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, Con
 
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST_CACHE + " + #group.getOwner()"),
-                    @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_CACHE + " + #group.getId()")
+                    @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST + " + #group.getOwner()"),
+                    @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP + " + #group.getId()")
             }
     )
     public void delete(ContactorGroup group) {

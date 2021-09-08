@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.CollectionUtils;
-import top.felixu.platform.constants.CacheKeyConstants;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.mapper.ContactorMapper;
@@ -22,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static top.felixu.platform.constants.CacheKeyConstants.Contactor.CONTACTOR_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.Contactor.CONTACTOR;
 import static top.felixu.platform.constants.CacheKeyConstants.Contactor.NAME;
 
 /**
@@ -34,7 +33,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.Contactor.NAME;
 @Service
 public class ContactorService extends ServiceImpl<ContactorMapper, Contactor> implements IService<Contactor> {
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #id", unless = "#result == null", sync = true)
     public Contactor getContactorByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_NOT_FOUND));
     }
@@ -57,19 +56,19 @@ public class ContactorService extends ServiceImpl<ContactorMapper, Contactor> im
         return result;
     }
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR_CACHE + " + #result.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #result.getId()", unless = "#result == null", sync = true)
     public Contactor create(Contactor contactor) {
         save(contactor);
         return contactor;
     }
 
-    @CachePut(cacheNames = NAME, key = CONTACTOR_CACHE + " + #result.getId()", unless = "#result == null")
+    @CachePut(cacheNames = NAME, key = CONTACTOR + " + #result.getId()", unless = "#result == null")
     public Contactor update(Contactor contactor) {
         updateById(contactor);
         return contactor;
     }
 
-    @CacheEvict(cacheNames = NAME, key = CONTACTOR_CACHE + " + #contactor.getId()")
+    @CacheEvict(cacheNames = NAME, key = CONTACTOR + " + #contactor.getId()")
     public void delete(Contactor contactor) {
         removeById(contactor.getId());
     }

@@ -76,6 +76,8 @@ public enum ErrorCode {
     CASE_GROUP_DUPLICATE_NAME(5001, "当前用例分组名称重复"),
 
     CASE_NOT_FOUND(5100, "当前用例不存在"),
+    CASE_DUPLICATE_NAME(5101, "用例名称已经被使用"),
+    CASE_DRAG_TARGET(5102, "用例拖动缺少落点位置"),
     ;
 
     private final int code;

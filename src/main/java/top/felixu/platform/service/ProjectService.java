@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static top.felixu.platform.constants.CacheKeyConstants.Project.NAME;
-import static top.felixu.platform.constants.CacheKeyConstants.Project.PROJECT_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.Project.PROJECT;
 
 /**
  * 项目信息 服务实现类
@@ -33,7 +33,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.Project.PROJECT_CA
 @Service
 public class ProjectService extends ServiceImpl<ProjectMapper, Project> implements IService<Project> {
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT + " + #id", unless = "#result == null", sync = true)
     public Project getProjectByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.PROJECT_NOT_FOUND));
     }
@@ -56,19 +56,19 @@ public class ProjectService extends ServiceImpl<ProjectMapper, Project> implemen
         return result;
     }
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_CACHE + " + #result.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT + " + #result.getId()", unless = "#result == null", sync = true)
     public Project create(Project project) {
         save(project);
         return project;
     }
 
-    @CachePut(cacheNames = NAME, key = PROJECT_CACHE + " + #result.getId()", unless = "#result == null")
+    @CachePut(cacheNames = NAME, key = PROJECT + " + #result.getId()", unless = "#result == null")
     public Project update(Project project) {
         updateById(project);
         return project;
     }
 
-    @CacheEvict(cacheNames = NAME, key = PROJECT_CACHE + " + #project.getId()")
+    @CacheEvict(cacheNames = NAME, key = PROJECT + " + #project.getId()")
     public void delete(Project project) {
         removeById(project.getId());
     }

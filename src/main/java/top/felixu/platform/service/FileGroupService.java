@@ -15,8 +15,8 @@ import top.felixu.platform.model.entity.FileGroup;
 import java.util.List;
 import java.util.Optional;
 
-import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.FILE_GROUP_CACHE;
-import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.FILE_GROUP_LIST_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.FILE_GROUP;
+import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.FILE_GROUP_LIST;
 import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.NAME;
 
 /**
@@ -28,19 +28,19 @@ import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.NAME;
 @Service
 public class FileGroupService extends ServiceImpl<FileGroupMapper, FileGroup> implements IService<FileGroup> {
 
-    @Cacheable(cacheNames = NAME, key = FILE_GROUP_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #id", unless = "#result == null", sync = true)
     public FileGroup getFileGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.FILE_GROUP_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = FILE_GROUP_LIST_CACHE + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
+    @Cacheable(cacheNames = NAME, key = FILE_GROUP_LIST + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
     public List<FileGroup> getFileGroupList() {
         return list();
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = FILE_GROUP_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-            evict = @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST_CACHE + " + #result.getOwner()")
+            cacheable = @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            evict = @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST + " + #result.getOwner()")
     )
     public FileGroup create(FileGroup group) {
         save(group);
@@ -48,8 +48,8 @@ public class FileGroupService extends ServiceImpl<FileGroupMapper, FileGroup> im
     }
 
     @Caching(
-            put = @CachePut(cacheNames = NAME, key = FILE_GROUP_CACHE + " + #result.getId()", unless = "#result == null"),
-            evict = @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST_CACHE + " + #result.getOwner()")
+            put = @CachePut(cacheNames = NAME, key = FILE_GROUP + " + #result.getId()", unless = "#result == null"),
+            evict = @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST + " + #result.getOwner()")
     )
     public FileGroup update(FileGroup group) {
         updateById(group);
@@ -58,8 +58,8 @@ public class FileGroupService extends ServiceImpl<FileGroupMapper, FileGroup> im
 
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST_CACHE + " + #group.getOwner()"),
-                    @CacheEvict(cacheNames = NAME, key = FILE_GROUP_CACHE + " + #group.getId()")
+                    @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST + " + #group.getOwner()"),
+                    @CacheEvict(cacheNames = NAME, key = FILE_GROUP + " + #group.getId()")
             }
     )
     public void delete(FileGroup group) {

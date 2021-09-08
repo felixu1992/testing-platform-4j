@@ -23,9 +23,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.CASE_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.CASE;
 import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.NAME;
-import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.PROJECT_CASE_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.PROJECT_CASE_LIST;
+import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.PROJECT_GROUP_CASE_MAP;
 
 /**
  * 用例信息 服务实现类
@@ -36,7 +37,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.PROJECT_C
 @Service
 public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> implements IService<CaseInfo> {
 
-    @Cacheable(cacheNames = NAME, key = CASE_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CASE + " + #id", unless = "#result == null", sync = true)
     public CaseInfo getCaseInfoByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CASE_NOT_FOUND));
     }
@@ -58,7 +59,12 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
                 .eq(CaseInfo::getGroupId, groupId));
     }
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_CASE_CACHE + " + #projectId", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #projectId", unless = "#result == null", sync = true)
+    public List<CaseInfo> listByProjectId(@NonNull Integer projectId) {
+        return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId));
+    }
+
+    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #projectId", unless = "#result == null", sync = true)
     public Map<Integer, List<CaseInfo>> mapByGroupIds(@NonNull Integer projectId, Set<Integer> groupIds) {
         if (CollectionUtils.isEmpty(groupIds))
             return Collections.emptyMap();
@@ -71,8 +77,11 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CASE_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_CACHE + " + #result.getProjectId()")
+            cacheable = @Cacheable(cacheNames = NAME, key = CASE + " + #result.getId()", unless = "#result == null", sync = true),
+            evict = {
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #result.getProjectId()"),
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #result.getProjectId()")
+            }
     )
     public CaseInfo create(CaseInfo caseInfo) {
         save(caseInfo);
@@ -80,18 +89,28 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
     }
 
     @Caching(
-            put = @CachePut(cacheNames = NAME, key = CASE_CACHE + " + #result.getId()", unless = "#result == null"),
-            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_CACHE + " + #result.getProjectId()")
+            put = @CachePut(cacheNames = NAME, key = CASE + " + #result.getId()", unless = "#result == null"),
+            evict = {
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #result.getProjectId()"),
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #result.getProjectId()")
+            }
     )
     public CaseInfo update(CaseInfo caseInfo) {
         updateById(caseInfo);
         return caseInfo;
     }
 
+    @CacheEvict(cacheNames = NAME)
+    public void batchUpdate(List<CaseInfo> caseInfo) {
+        // TODO: 09/08 批量更新时清空了所有用例缓存，看看有没有别的方式避免
+        updateBatchById(caseInfo);
+    }
+
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = CASE_CACHE + " + #caseInfo.getId()"),
-                    @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_CACHE + " + #caseInfo.getProjectId()")
+                    @CacheEvict(cacheNames = NAME, key = CASE + " + #caseInfo.getId()"),
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #caseInfo.getProjectId()"),
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #caseInfo.getProjectId()"),
             }
     )
     public void delete(CaseInfo caseInfo) {

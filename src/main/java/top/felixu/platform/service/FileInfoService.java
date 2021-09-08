@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static top.felixu.platform.constants.CacheKeyConstants.File.FILE_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.File.FILE;
 import static top.felixu.platform.constants.CacheKeyConstants.File.NAME;
 
 /**
@@ -33,7 +33,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.File.NAME;
 @Service
 public class FileInfoService extends ServiceImpl<FileInfoMapper, FileInfo> implements IService<FileInfo> {
 
-    @Cacheable(cacheNames = NAME, key = FILE_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE + " + #id", unless = "#result == null", sync = true)
     public FileInfo getFileInfoByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.FILE_NOT_FOUND));
     }
@@ -56,19 +56,19 @@ public class FileInfoService extends ServiceImpl<FileInfoMapper, FileInfo> imple
         return result;
     }
 
-    @Cacheable(cacheNames = NAME, key = FILE_CACHE + " + #result.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE + " + #result.getId()", unless = "#result == null", sync = true)
     public FileInfo create(FileInfo fileInfo) {
         save(fileInfo);
         return fileInfo;
     }
 
-    @CachePut(cacheNames = NAME, key = FILE_CACHE + " + #result.getId()", unless = "#result == null")
+    @CachePut(cacheNames = NAME, key = FILE + " + #result.getId()", unless = "#result == null")
     public FileInfo update(FileInfo fileInfo) {
         updateById(fileInfo);
         return fileInfo;
     }
 
-    @CacheEvict(cacheNames = NAME, key = FILE_CACHE + " + #fileInfo.getId()")
+    @CacheEvict(cacheNames = NAME, key = FILE + " + #fileInfo.getId()")
     public void delete(FileInfo fileInfo) {
         removeById(fileInfo.getId());
     }

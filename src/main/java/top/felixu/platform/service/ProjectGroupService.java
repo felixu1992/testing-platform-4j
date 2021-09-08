@@ -9,7 +9,6 @@ import org.springframework.cache.annotation.Caching;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.mapper.ProjectGroupMapper;
-import top.felixu.platform.model.entity.ContactorGroup;
 import top.felixu.platform.model.entity.ProjectGroup;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.NAME;
-import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJECT_GROUP_CACHE;
-import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJECT_GROUP_LIST_CACHE;
+import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJECT_GROUP;
+import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJECT_GROUP_LIST;
 
 /**
  * 项目分组 服务实现类
@@ -29,19 +28,19 @@ import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJE
 @Service
 public class ProjectGroupService extends ServiceImpl<ProjectGroupMapper, ProjectGroup> implements IService<ProjectGroup> {
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CACHE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #id", unless = "#result == null", sync = true)
     public ProjectGroup getProjectGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_LIST_CACHE + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
+    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_LIST + " + T(top.felixu.platform.util.UserHolderUtils).getOwner()")
     public List<ProjectGroup> getProjectGroupList() {
         return list();
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CACHE + " + #result.getId()", unless = "#result == null", sync = true),
-            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST_CACHE + " + #result.getOwner()")
+            cacheable = @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST + " + #result.getOwner()")
     )
     public ProjectGroup create(ProjectGroup group) {
         save(group);
@@ -49,8 +48,8 @@ public class ProjectGroupService extends ServiceImpl<ProjectGroupMapper, Project
     }
 
     @Caching(
-            put = @CachePut(cacheNames = NAME, key = PROJECT_GROUP_CACHE + " + #result.getId()", unless = "#result == null"),
-            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST_CACHE + " + #result.getOwner()")
+            put = @CachePut(cacheNames = NAME, key = PROJECT_GROUP + " + #result.getId()", unless = "#result == null"),
+            evict = @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST + " + #result.getOwner()")
     )
     public ProjectGroup update(ProjectGroup group) {
         updateById(group);
@@ -59,8 +58,8 @@ public class ProjectGroupService extends ServiceImpl<ProjectGroupMapper, Project
 
     @Caching(
             evict = {
-                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST_CACHE + " + #group.getOwner()"),
-                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_CACHE + " + #group.getId()")
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST + " + #group.getOwner()"),
+                    @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP + " + #group.getId()")
             }
     )
     public void delete(ProjectGroup group) {
