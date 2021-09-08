@@ -10,6 +10,7 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.User;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ContactorGroupService;
 import top.felixu.platform.service.ContactorService;
 
@@ -24,6 +25,8 @@ public class ContactorManager {
     private final ContactorService contactorService;
 
     private final ContactorGroupService contactorGroupService;
+
+    private final CaseInfoService caseInfoService;
 
     public Contactor getContactorById(Integer id) {
         return contactorService.getContactorByIdAndCheck(id);
@@ -51,7 +54,8 @@ public class ContactorManager {
 
     public void delete(Integer id) {
         Contactor contactor = contactorService.getContactorByIdAndCheck(id);
-        // TODO: 09/03 是否被用例使用(用例、项目)
+        if (caseInfoService.countByContactorId(id) > 0)
+            throw new PlatformException(ErrorCode.CONTACTOR_USED_BY_CASE);
         contactorService.delete(contactor);
     }
 

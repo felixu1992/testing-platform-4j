@@ -12,6 +12,7 @@ import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ProjectContactorService;
 import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
@@ -32,6 +33,8 @@ public class ProjectManager {
     private final ProjectGroupService projectGroupService;
 
     private final ProjectContactorService projectContactorService;
+
+    private final CaseInfoService caseInfoService;
 
     public Project getProjectById(Integer id) {
         return projectService.getProjectByIdAndCheck(id);
@@ -62,7 +65,8 @@ public class ProjectManager {
 
     public void delete(Integer id) {
         Project project = projectService.getProjectByIdAndCheck(id);
-        // TODO: 09/06 判断是否有用例
+        if (caseInfoService.countByProjectId(id) > 0)
+            throw new PlatformException(ErrorCode.PROJECT_USED_BY_CASE);
         projectService.delete(project);
     }
 

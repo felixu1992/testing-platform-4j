@@ -46,6 +46,7 @@ public enum ErrorCode {
     CONTACTOR_NOT_FOUND(2100, "当前联系不存在"),
     CONTACTOR_DUPLICATE_EMAIL(2101, "联系人邮箱已经被使用"),
     CONTACTOR_DUPLICATE_PHONE(2102, "联系人手机号已经被使用"),
+    CONTACTOR_USED_BY_CASE(2103, "当前联系人正在被用例使用"),
 
     /* ------------------- 文件错误 --------------------*/
 
@@ -67,6 +68,7 @@ public enum ErrorCode {
 
     PROJECT_NOT_FOUND(4100, "当前项目不存在"),
     PROJECT_DUPLICATE_NAME(4101, "项目名称已经被使用"),
+    PROJECT_USED_BY_CASE(4102, "当前项目下存在用例"),
 
     /* ------------------- 用例错误 --------------------*/
 

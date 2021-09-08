@@ -45,6 +45,14 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
         return count(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getGroupId, groupId));
     }
 
+    public int countByContactorId(Integer contactorId) {
+        return count(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getDeveloper, contactorId));
+    }
+
+    public int countByProjectId(Integer projectId) {
+        return count(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId));
+    }
+
     public List<CaseInfo> listByGroupId(@NonNull Integer projectId, Integer groupId) {
         return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId)
                 .eq(CaseInfo::getGroupId, groupId));
