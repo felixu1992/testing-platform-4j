@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.form.CaseCopyForm;
+import top.felixu.platform.model.form.CaseSortForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -57,10 +59,23 @@ public class CaseInfoController {
         return ResponseDTO.success(caseInfoManager.create(caseInfo));
     }
 
+    @ApiOperation("创建用例")
+    @PostMapping(value = "/copy", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseDTO<CaseInfo> copy(@Validated @RequestBody CaseCopyForm form) {
+        return ResponseDTO.success(caseInfoManager.copy(form));
+    }
+
     @ApiOperation("更新用例")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO<CaseInfo> update(@Validated({Update.class, Default.class}) @RequestBody CaseInfo caseInfo) {
         return ResponseDTO.success(caseInfoManager.update(caseInfo));
+    }
+
+    @ApiOperation("用例排序")
+    @PutMapping(value = "/sort", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseDTO<Void> sort(@Validated @RequestBody CaseSortForm form) {
+        caseInfoManager.sort(form);
+        return ResponseDTO.success();
     }
 
     @DeleteMapping("/{id}")

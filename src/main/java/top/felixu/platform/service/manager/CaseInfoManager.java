@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.enums.SortEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.CaseInfo;
-import top.felixu.platform.model.entity.Contactor;
+import top.felixu.platform.model.form.CaseCopyForm;
 import top.felixu.platform.model.form.CaseSortForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.service.CaseInfoGroupService;
@@ -16,7 +17,7 @@ import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ContactorService;
 import top.felixu.platform.service.ProjectService;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * @author felixu
@@ -48,6 +49,17 @@ public class CaseInfoManager {
         return caseInfoService.create(caseInfo);
     }
 
+    public CaseInfo copy(CaseCopyForm form) {
+        CaseInfo original = caseInfoService.getCaseInfoByIdAndCheck(form.getId());
+        CaseInfo caseInfo = BeanUtils.map(original, CaseInfo.class);
+        caseInfo.setId(null);
+        caseInfo.setCreatedAt(null);
+        caseInfo.setCreatedBy(null);
+        caseInfo.setUpdatedAt(null);
+        caseInfo.setUpdatedBy(null);
+        return create(caseInfo);
+    }
+
     public CaseInfo update(CaseInfo caseInfo) {
         check(caseInfo);
         return caseInfoService.update(caseInfo);
@@ -65,8 +77,38 @@ public class CaseInfoManager {
          * 4. 重新计算所有 sort，批量更新
          */
         if (form.getOperation() == SortEnum.DRAG && form.getTarget() == null)
-            throw new PlatformException(ErrorCode.CASE_DRAG_TARGET);
-
+            throw new PlatformException(ErrorCode.CASE_DRAG_MISS_TARGET);
+        CaseInfo source = caseInfoService.getCaseInfoByIdAndCheck(form.getSource());
+        List<CaseInfo> caseInfos = caseInfoService.listByProjectId(source.getProjectId());
+        CaseInfo target;
+        switch (form.getOperation()) {
+            case TOP:
+                target = caseInfos.get(0);
+                break;
+            case BOTTOM:
+                target = caseInfos.get(caseInfos.size() - 1);
+                break;
+            case UP:
+                target = caseInfos.get(caseInfos.indexOf(source) - 1);
+                break;
+            case DOWN:
+                target = caseInfos.get(caseInfos.indexOf(source) + 1);
+                break;
+            case DRAG:
+                target = caseInfoService.getCaseInfoByIdAndCheck(form.getTarget());
+                break;
+            default:
+                throw new PlatformException(ErrorCode.CASE_MOVE_OPERATION_ERROR);
+        }
+        caseInfos.remove(source);
+        if (form.getOperation() == SortEnum.BOTTOM)
+            caseInfos.add(source);
+        else
+            caseInfos.add(caseInfos.indexOf(target), source);
+        for (int i = 0; i < caseInfos.size(); i++) {
+            caseInfos.get(i).setSort(i + 1);
+        }
+        caseInfoService.batchUpdate(caseInfos);
     }
 
     private int getNextSort(Integer projectId) {

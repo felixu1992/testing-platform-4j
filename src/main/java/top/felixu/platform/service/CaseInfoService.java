@@ -56,12 +56,12 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
 
     public List<CaseInfo> listByGroupId(@NonNull Integer projectId, Integer groupId) {
         return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId)
-                .eq(CaseInfo::getGroupId, groupId));
+                .eq(CaseInfo::getGroupId, groupId).orderByAsc(CaseInfo::getSort));
     }
 
     @Cacheable(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #projectId", unless = "#result == null", sync = true)
     public List<CaseInfo> listByProjectId(@NonNull Integer projectId) {
-        return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId));
+        return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId).orderByAsc(CaseInfo::getSort));
     }
 
     @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #projectId", unless = "#result == null", sync = true)
@@ -69,7 +69,8 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
         if (CollectionUtils.isEmpty(groupIds))
             return Collections.emptyMap();
         Map<Integer, List<CaseInfo>> collect = list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId)
-                .in(CaseInfo::getGroupId, groupIds)).stream()
+                .in(CaseInfo::getGroupId, groupIds).orderByAsc(CaseInfo::getSort))
+                .stream()
                 .collect(Collectors.groupingBy(CaseInfo::getGroupId));
         Map<Integer, List<CaseInfo>> result = new HashMap<>(groupIds.size());
         groupIds.forEach(groupId -> result.put(groupId, Optional.ofNullable(collect.get(groupId)).orElse(Collections.emptyList())));
