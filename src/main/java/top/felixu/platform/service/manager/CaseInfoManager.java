@@ -9,7 +9,9 @@ import top.felixu.platform.enums.SortEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseCopyForm;
+import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.CaseSortForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.service.CaseInfoGroupService;
@@ -109,6 +111,20 @@ public class CaseInfoManager {
             caseInfos.get(i).setSort(i + 1);
         }
         caseInfoService.batchUpdate(caseInfos);
+    }
+
+    public Record execute(CaseExecuteForm form) {
+        /*
+         * 1. 如果有 caseId，那就是执行单个用例
+         * 2. 如果没有 caseId，有 groupId 那就是按分组执行
+         * 3. 如果没有 groupId 那就执行这个项目
+         * 4. 执行单个用例的时候，去找到所有依赖的用例，然后先执行依赖用例获得结果
+         * 5. 执行用例前需要处理注入的参数和路径参数
+         * 6. 结果处理并校验用例
+         * 7. 写 report 和 record
+         * 8. 返回执行情况
+         */
+        return null;
     }
 
     private int getNextSort(Integer projectId) {
