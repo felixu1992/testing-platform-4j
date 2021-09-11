@@ -19,7 +19,9 @@ import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ContactorService;
 import top.felixu.platform.service.ProjectService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author felixu
@@ -124,6 +126,14 @@ public class CaseInfoManager {
          * 7. 写 report 和 record
          * 8. 返回执行情况
          */
+        List<CaseInfo> cases = caseInfoService.listByProjectId(form.getProjectId());
+        List<CaseInfo> caseInfos = new ArrayList<>();
+        if (form.getGroupId() != null)
+            caseInfos = cases.stream().filter(caseInfo -> caseInfo.getGroupId().equals(form.getGroupId())).collect(Collectors.toList());
+        else if (form.getCaseId() != null)
+            caseInfos = cases.stream().filter(caseInfo -> caseInfo.getId().equals(form.getCaseId())).collect(Collectors.toList());
+        else
+            throw new PlatformException(ErrorCode.NOT_HAVE_CASES_NEED_EXECUTE);
         return null;
     }
 
