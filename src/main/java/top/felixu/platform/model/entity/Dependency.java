@@ -11,15 +11,27 @@ import lombok.Data;
 @Data
 public class Dependency {
 
+    /**
+     * 需要被插入的位置
+     */
     private String[] dependKey;
 
+    /**
+     * 需要被插入的值
+     */
     private DependValue dependValue;
 
     @Data
     public static class DependValue {
 
+        /**
+         * 依赖的用例
+         */
         private Integer depend;
 
+        /**
+         * 取值过程
+         */
         private String[] steps;
     }
 }

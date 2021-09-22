@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import javax.validation.constraints.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -55,7 +56,8 @@ public class CaseInfo implements Serializable {
     private String path;
 
     @ApiModelProperty(value = "请求参数")
-    private String params;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Map<String, Object> params;
 
     @ApiModelProperty(value = "请求头")
     private String headers;

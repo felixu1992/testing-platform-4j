@@ -80,6 +80,7 @@ public enum ErrorCode {
     CASE_DRAG_MISS_TARGET(5102, "用例拖动缺少落点位置"),
     CASE_MOVE_OPERATION_ERROR(5103, "未知的移动操作"),
     NOT_HAVE_CASES_NEED_EXECUTE(5104, "没有可以执行的用例"),
+    CASE_HOST_IS_ERROR(5105, "用例[{0}]的 host 不合法"),
     ;
 
     private final int code;

@@ -3,6 +3,7 @@ package top.felixu.platform.model.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import javax.validation.constraints.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,7 +45,8 @@ public class Project implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "项目通用请求头")
-    private String headers;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Map<String, String> headers;
 
     @ApiModelProperty(value = "项目通用请求地址")
     private String host;
