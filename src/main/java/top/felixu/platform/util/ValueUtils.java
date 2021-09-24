@@ -1,8 +1,11 @@
 package top.felixu.platform.util;
 
 import org.apache.commons.lang3.StringUtils;
+import top.felixu.platform.model.entity.Dependency;
+import top.felixu.platform.model.entity.Report;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,11 +23,25 @@ public class ValueUtils {
     }
 
     public static Object getValue(String[] steps, Map<String, Object> content) {
-        Object result = null;
-        for (int i = 0; i < steps.length; i++) {
-            String step = steps[i];
-            if (isNumber(step))
-                result = content.get(step);
+        Object result = content;
+        // 循环取值步骤
+        for (String step : steps) {
+            if (result == null)
+                return null;
+            // 判断当前结果的数据类型，是对象，还是数组
+            if (result instanceof List && isNumber(step)) {
+                List<Object> temp = ((ArrayList<Object>) result);
+                int index = Integer.parseInt(step);
+                if (temp.size() <= index)
+                    return null;
+                result = temp.get(index);
+            // 基本类型还想取值，明显搞错了
+            } else if (result instanceof String || result instanceof Integer) {
+                return null;
+            // 正常情况都是 Map
+            } else {
+                result = ((Map<String, Object>) result).get(step);
+            }
         }
         return result;
     }

@@ -72,7 +72,7 @@ public class ExecuteCaseUtils {
         report.setCaseId(caseInfo.getId());
         report.setId(null);
         report.setStatus(CaseStatusEnum.FAILED);
-        reportMap.put(report.getId(), report);
+        reportMap.put(report.getCaseId(), report);
         // 判断当前用例是否需要执行
         if (!Boolean.TRUE.equals(caseInfo.getRun())) {
             // 不需要执行
@@ -98,8 +98,13 @@ public class ExecuteCaseUtils {
         // 计算真正的 url
         String url = buildUrl(project, caseInfo, params);
         // 是否需要延时
-        if (caseInfo.getDelay() > 0)
-            Thread.sleep(caseInfo.getDelay() * 1000L);
+        if (caseInfo.getDelay() > 0) {
+            try {
+                Thread.sleep(caseInfo.getDelay() * 1000L);
+            } catch (InterruptedException e) {
+                // TODO: 09/24 异常
+            }
+        }
         // 计算用例执行结果
     }
 
