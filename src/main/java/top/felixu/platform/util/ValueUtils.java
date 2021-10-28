@@ -1,8 +1,6 @@
 package top.felixu.platform.util;
 
 import org.apache.commons.lang3.StringUtils;
-import top.felixu.platform.model.entity.Dependency;
-import top.felixu.platform.model.entity.Report;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,31 +13,58 @@ import java.util.Map;
  */
 public class ValueUtils {
 
-    public static void setValue(Map<String, Object> params, String[] steps, Object value) {
-        /*
-         * 1. 从 content 中取值
-         * 2. 往 params 中插值
-         */
-        Object target = getValue(new String[]{steps[0]}, params);
-        for (int i = 1; i < steps.length; i++) {
+    public static void setValue(Map<String, Object> params, String[] steps, Object value) throws InstantiationException, IllegalAccessException {
+        Object result = params;
+        for (int i = 0; i < steps.length; i++) {
             boolean last = i == steps.length - 1;
-            Object temp = target;
             String step = steps[i];
-            // 判断当前结果的数据类型，是对象，还是数组
-            if (temp instanceof List && isNumber(step)) {
-                List<Object> temp = ((ArrayList<Object>) result);
-                int index = Integer.parseInt(step);
-                if (temp.size() <= index)
-                    return null;
-                result = temp.get(index);
-                // 基本类型还想取值，明显搞错了
-            } else if (result instanceof String || result instanceof Integer) {
-                return null;
-                // 正常情况都是 Map
+            /**
+             * 1. 如果不是最后一个，也不是 map 或者 list 应该类型错误
+             */
+            // 最后一步直接插入字段
+            if (last) {
+                // TODO 判断最后一位的类型
+                ((Map<String, Object>) result).put(step, value);
             } else {
-                result = ((Map<String, Object>) result).get(step);
+                String next = steps[i + 1];
+                // 是数字，按数组处理
+                if (isNumber(step)) {
+                    // 不是数组要报错
+                    if (result instanceof List) {
+                        // 取对应位置
+                        int index = Integer.parseInt(step);
+                        List<Object> temp = (ArrayList<Object>) result;
+                        // 如果位数不够，需要进行填充
+                        if (temp.size() <= index) {
+                            // 如果原有数组有元素，取对应元素类型填充，若无，按下一个步骤的类型来进行填充
+                            Class clazz = temp.size() > 0 ? temp.get(0).getClass() : (isNumber(next) ? ArrayList.class : HashMap.class);
+                            for (int j = 0; j < index - temp.size() - 1; j++)
+                                temp.add(clazz.newInstance());
+                        }
+                        // 取新值进行下一步
+                        result = temp.get(index);
+                        continue;
+                    }
+                    // TODO throw exception
+                } else {
+
+                }
+                // 判断类型是否为 map 或者 list
+                if (result instanceof List && isNumber(step)) {
+
+                } else if (result instanceof Map) {
+                    Object temp = ((Map<String, Object>) result).get(step);
+                    if (temp == null) {
+                        temp = new HashMap<>();
+                        ((Map<String, Object>) result).put(step, temp);
+                    }
+                    result = temp;
+                } else {
+                    // TODO throw exception
+                }
             }
         }
+        params.put(steps[0], target);
     }
 
     public static Object getValue(String[] steps, Map<String, Object> content) {
