@@ -5,6 +5,7 @@ import top.felixu.platform.model.entity.Dependency;
 import top.felixu.platform.model.entity.Report;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,12 +15,31 @@ import java.util.Map;
  */
 public class ValueUtils {
 
-    public static void setValue(Map<String, Object> params, String[] steps, Map<String, Object> content) {
+    public static void setValue(Map<String, Object> params, String[] steps, Object value) {
         /*
          * 1. 从 content 中取值
          * 2. 往 params 中插值
          */
-
+        Object target = getValue(new String[]{steps[0]}, params);
+        for (int i = 1; i < steps.length; i++) {
+            boolean last = i == steps.length - 1;
+            Object temp = target;
+            String step = steps[i];
+            // 判断当前结果的数据类型，是对象，还是数组
+            if (temp instanceof List && isNumber(step)) {
+                List<Object> temp = ((ArrayList<Object>) result);
+                int index = Integer.parseInt(step);
+                if (temp.size() <= index)
+                    return null;
+                result = temp.get(index);
+                // 基本类型还想取值，明显搞错了
+            } else if (result instanceof String || result instanceof Integer) {
+                return null;
+                // 正常情况都是 Map
+            } else {
+                result = ((Map<String, Object>) result).get(step);
+            }
+        }
     }
 
     public static Object getValue(String[] steps, Map<String, Object> content) {
@@ -35,10 +55,10 @@ public class ValueUtils {
                 if (temp.size() <= index)
                     return null;
                 result = temp.get(index);
-            // 基本类型还想取值，明显搞错了
+                // 基本类型还想取值，明显搞错了
             } else if (result instanceof String || result instanceof Integer) {
                 return null;
-            // 正常情况都是 Map
+                // 正常情况都是 Map
             } else {
                 result = ((Map<String, Object>) result).get(step);
             }
