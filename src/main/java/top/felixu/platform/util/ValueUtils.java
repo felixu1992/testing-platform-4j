@@ -13,58 +13,54 @@ import java.util.Map;
  */
 public class ValueUtils {
 
+    public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        setValue(map, new String[]{"aaa", "2", "bbb"}, "wocao");
+        System.out.println(map);
+        System.out.println(getValue(new String[]{"aaa", "2", "bbb"}, map));
+    }
+
     public static void setValue(Map<String, Object> params, String[] steps, Object value) throws InstantiationException, IllegalAccessException {
         Object result = params;
         for (int i = 0; i < steps.length; i++) {
             boolean last = i == steps.length - 1;
             String step = steps[i];
-            /**
-             * 1. 如果不是最后一个，也不是 map 或者 list 应该类型错误
-             */
-            // 最后一步直接插入字段
-            if (last) {
-                // TODO 判断最后一位的类型
-                ((Map<String, Object>) result).put(step, value);
-            } else {
-                String next = steps[i + 1];
-                // 是数字，按数组处理
-                if (isNumber(step)) {
-                    // 不是数组要报错
-                    if (result instanceof List) {
-                        // 取对应位置
-                        int index = Integer.parseInt(step);
-                        List<Object> temp = (ArrayList<Object>) result;
-                        // 如果位数不够，需要进行填充
-                        if (temp.size() <= index) {
-                            // 如果原有数组有元素，取对应元素类型填充，若无，按下一个步骤的类型来进行填充
-                            Class clazz = temp.size() > 0 ? temp.get(0).getClass() : (isNumber(next) ? ArrayList.class : HashMap.class);
-                            for (int j = 0; j < index - temp.size() - 1; j++)
-                                temp.add(clazz.newInstance());
-                        }
-                        // 取新值进行下一步
+            // 是数字，按数组处理
+            if (isNumber(step)) {
+                // 不是数组要报错
+                if (result instanceof List) {
+                    // 取对应位置
+                    int index = Integer.parseInt(step);
+                    List<Object> temp = (ArrayList<Object>) result;
+                    // 如果位数不够，需要进行填充
+                    if (temp.size() <= index) {
+                        // 如果原有数组有元素，取对应元素类型填充，若无，按下一个步骤的类型来进行填充
+                        Class clazz = last ? value.getClass() : temp.size() > 0 ? temp.get(0).getClass() : (isNumber(steps[i + 1]) ? ArrayList.class : HashMap.class);
+                        int max = temp.size() - 1;
+                        for (int j = 0; j < index - max; j++)
+                            temp.add(clazz.newInstance());
+                    }
+                    // 取新值进行下一步
+                    if (last)
+                        temp.add(index, value);
+                    else
                         result = temp.get(index);
-                        continue;
-                    }
-                    // TODO throw exception
-                } else {
-
                 }
-                // 判断类型是否为 map 或者 list
-                if (result instanceof List && isNumber(step)) {
-
-                } else if (result instanceof Map) {
-                    Object temp = ((Map<String, Object>) result).get(step);
-                    if (temp == null) {
-                        temp = new HashMap<>();
-                        ((Map<String, Object>) result).put(step, temp);
+                // TODO throw exception
+            } else {
+                // 不是 map 报错
+                if (result instanceof Map) {
+                    if (last)
+                        ((Map<String, Object>) result).put(step, value);
+                    else {
+                        String next = steps[i + 1];
+                        result = ((Map<String, Object>) result).computeIfAbsent(step, t -> isNumber(next) ? new ArrayList<>() : new HashMap<>());
                     }
-                    result = temp;
-                } else {
-                    // TODO throw exception
                 }
+                // TODO: 10/29 throw exception
             }
+
         }
-        params.put(steps[0], target);
     }
 
     public static Object getValue(String[] steps, Map<String, Object> content) {

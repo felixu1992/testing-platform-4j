@@ -1,12 +1,9 @@
 package top.felixu.platform.util;
 
-import cn.hutool.core.util.ReUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.enums.CaseStatusEnum;
