@@ -81,6 +81,7 @@ public enum ErrorCode {
     CASE_MOVE_OPERATION_ERROR(5103, "未知的移动操作"),
     NOT_HAVE_CASES_NEED_EXECUTE(5104, "没有可以执行的用例"),
     CASE_HOST_IS_ERROR(5105, "用例[{0}]的 host 不合法"),
+    CASE_BUILD_PARAM_ERROR(5106, "用例参数构建失败")
     ;
 
     private final int code;

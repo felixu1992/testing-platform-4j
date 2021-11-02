@@ -13,13 +13,6 @@ import java.util.Map;
  */
 public class ValueUtils {
 
-    public static void main(String[] args) throws InstantiationException, IllegalAccessException {
-        Map<String, Object> map = new HashMap<>();
-        setValue(map, new String[]{"aaa", "2", "bbb"}, "wocao");
-        System.out.println(map);
-        System.out.println(getValue(new String[]{"aaa", "2", "bbb"}, map));
-    }
-
     public static void setValue(Map<String, Object> params, String[] steps, Object value) throws InstantiationException, IllegalAccessException {
         Object result = params;
         for (int i = 0; i < steps.length; i++) {

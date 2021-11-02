@@ -1,11 +1,13 @@
 package top.felixu.platform.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
+import top.felixu.common.func.ConsumerWrapper;
 import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * @author felixu
  * @since 2021.09.11
  */
+@Slf4j
 public class ExecuteCaseUtils {
 
     /**
@@ -78,18 +81,9 @@ public class ExecuteCaseUtils {
         }
         // 得到请求参数
         Map<String, Object> params = ValueUtils.nullAs(caseInfo.getParams(), new HashMap<>());
-        // 如果依赖的用例集合不为空
-        if (!CollectionUtils.isEmpty(dependencies)) {
-            dependencies.parallelStream()
-                    .map(Dependency::getDependValue)
-                    .map(Dependency.DependValue::getDepend)
-                    .forEach(dependencyId -> {
-                        // 如果依赖的用例没有执行过
-                        if (reportMap.get(dependencyId) == null || !reportMap.get(dependencyId).isExecuted())
-                            doExecute(project, caseMap, reportMap, caseMap.get(dependencyId));
-                    });
-            // 计算真正的入参
-        }
+        // 计算真正地入参
+        if (!CollectionUtils.isEmpty(dependencies))
+            buildParams(params, dependencies, reportMap, project, caseMap);
         // 计算请求头
         HttpHeaders headers = buildHeaders(project.getHeaders(), report.getHeaders());
         // 计算真正的 url
@@ -105,7 +99,7 @@ public class ExecuteCaseUtils {
         // 计算用例执行结果
     }
 
-    private static void request() {
+    private static void request(String url, HttpHeaders headers, Map<String, Object> params) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
 //        RequestCallback callback = request -> {
 //
@@ -113,14 +107,19 @@ public class ExecuteCaseUtils {
 //        restTemplate.execute()
     }
 
-    private static Map<String, Object> buildParams(Map<String, Object> params, List<Dependency> dependencies, Map<Integer, Report> reportMap) {
-        if (params == null)
-            params = new HashMap<>();
-        dependencies.parallelStream().forEach(dependency -> {
-            Dependency.DependValue depend = dependency.getDependValue();
-
-        });
-        return params;
+    private static void buildParams(Map<String, Object> params, List<Dependency> dependencies,
+                                    Map<Integer, Report> reportMap, Project project, Map<Integer, CaseInfo> caseMap) {
+        // 计算真正地入参
+        dependencies.forEach(ConsumerWrapper.wrapper(dependency -> {
+            // 确定依赖的用例已经执行过了
+            Integer depend = dependency.getDependValue().getDepend();
+            if (reportMap.get(depend) == null || !reportMap.get(depend).isExecuted())
+                doExecute(project, caseMap, reportMap, caseMap.get(depend));
+            // 得到需要插入的值
+            Object value = ValueUtils.getValue(dependency.getDependValue().getSteps(),
+                    reportMap.get(depend).getResponseContent());
+            ValueUtils.setValue(params, dependency.getDependKey(), value);
+        }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
     }
 
     private static HttpHeaders buildHeaders(Map<String, String> parentHeaders, Map<String, String> selfHeaders) {
@@ -143,15 +142,15 @@ public class ExecuteCaseUtils {
     }
 
     private static String buildUrl(Project project, CaseInfo caseInfo, Map<String, Object> params) {
+        // 得到真正的 host
         String host = ValueUtils.nullAs(caseInfo.getHost(), project.getHost());
         if (ObjectUtils.isEmpty(host))
             throw new PlatformException(ErrorCode.CASE_HOST_IS_ERROR, caseInfo.getName());
-        Map<String, String> patterns = new HashMap<>();
-        final String[] path = {caseInfo.getPath()};
-        Matcher matcher = Pattern.compile("[{](.*?)[}]", Pattern.DOTALL).matcher(path[0]);
+        // 替换 url 中的占位符
+        String url = caseInfo.getPath();
+        Matcher matcher = Pattern.compile("[{](.*?)[}]", Pattern.DOTALL).matcher(url);
         while (matcher.find())
-            patterns.put(matcher.group(1), matcher.group());
-        patterns.forEach((k, v) -> path[0] = path[0].replace(v, ValueUtils.nullAs(String.valueOf(params.get(k)), v)));
-        return host + path[0];
+            url = url.replace(matcher.group(), ValueUtils.nullAs(String.valueOf(params.get(matcher.group(1))), matcher.group()));
+        return host + url;
     }
 }
