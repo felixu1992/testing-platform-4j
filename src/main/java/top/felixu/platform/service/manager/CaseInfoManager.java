@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.felixu.common.bean.BeanUtils;
+import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.SortEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.Record;
+import top.felixu.platform.model.entity.Report;
 import top.felixu.platform.model.form.CaseCopyForm;
 import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.CaseSortForm;
@@ -18,6 +22,9 @@ import top.felixu.platform.service.CaseInfoGroupService;
 import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ContactorService;
 import top.felixu.platform.service.ProjectService;
+import top.felixu.platform.service.RecordService;
+import top.felixu.platform.service.ReportService;
+import top.felixu.platform.util.ExecuteCaseUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +45,10 @@ public class CaseInfoManager {
     private final CaseInfoGroupService caseInfoGroupService;
 
     private final ContactorService contactorService;
+
+    private final RecordService recordService;
+
+    private final ReportService reportService;
 
     public CaseInfo getCaseInfoById(Integer id) {
         return caseInfoService.getCaseInfoByIdAndCheck(id);
@@ -115,26 +126,36 @@ public class CaseInfoManager {
         caseInfoService.batchUpdate(caseInfos);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Record execute(CaseExecuteForm form) {
-        /*
-         * 1. 如果有 caseId，那就是执行单个用例
-         * 2. 如果没有 caseId，有 groupId 那就是按分组执行
-         * 3. 如果没有 groupId 那就执行这个项目
-         * 4. 执行单个用例的时候，去找到所有依赖的用例，然后先执行依赖用例获得结果
-         * 5. 执行用例前需要处理注入的参数和路径参数
-         * 6. 结果处理并校验用例
-         * 7. 写 report 和 record
-         * 8. 返回执行情况
-         */
+        // 查询所属项目
+        Project project = projectService.getProjectByIdAndCheck(form.getProjectId());
+        // 查询项目下所有用例
         List<CaseInfo> cases = caseInfoService.listByProjectId(form.getProjectId());
-        List<CaseInfo> caseInfos = new ArrayList<>();
-        if (form.getGroupId() != null)
-            caseInfos = cases.stream().filter(caseInfo -> caseInfo.getGroupId().equals(form.getGroupId())).collect(Collectors.toList());
-        else if (form.getCaseId() != null)
+        List<CaseInfo> caseInfos;
+        // 如果有用例，执行单个用例
+        if (form.getCaseId() != null)
             caseInfos = cases.stream().filter(caseInfo -> caseInfo.getId().equals(form.getCaseId())).collect(Collectors.toList());
+        // 如果有分组，按分组查
+        else if (form.getGroupId() != null)
+            caseInfos = cases.stream().filter(caseInfo -> caseInfo.getGroupId().equals(form.getGroupId())).collect(Collectors.toList());
         else
-            throw new PlatformException(ErrorCode.NOT_HAVE_CASES_NEED_EXECUTE);
-        return null;
+            caseInfos = cases;
+        // 执行用例得到结果集
+        List<Report> reports = ExecuteCaseUtils.execute(project, cases, caseInfos);
+        // 创建记录
+        Record record = new Record();
+        record.setGroupId(project.getGroupId());
+        record.setProjectId(project.getId());
+        record.setRemark(project.getRemark());
+        record.setPassed((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.PASSED).count());
+        record.setFailed((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.FAILED).count());
+        record.setIgnored((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.IGNORED).count());
+        record.setTotal(reports.size());
+        // 存储结果和记录
+        recordService.save(record);
+        reportService.saveBatch(reports);
+        return record;
     }
 
     private int getNextSort(Integer projectId) {

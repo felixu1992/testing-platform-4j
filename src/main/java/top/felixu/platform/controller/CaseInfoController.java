@@ -59,7 +59,7 @@ public class CaseInfoController {
         return ResponseDTO.success(caseInfoManager.create(caseInfo));
     }
 
-    @ApiOperation("创建用例")
+    @ApiOperation("复制用例")
     @PostMapping(value = "/copy", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseDTO<CaseInfo> copy(@Validated @RequestBody CaseCopyForm form) {
         return ResponseDTO.success(caseInfoManager.copy(form));
