@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.entity.Record;
+import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
+import top.felixu.platform.model.validation.ProjectExecute;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.model.entity.Project;
 import org.springframework.http.MediaType;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.felixu.platform.service.ProjectService;
+import top.felixu.platform.service.manager.CaseInfoManager;
 import top.felixu.platform.service.manager.ProjectManager;
 
 import javax.validation.groups.Default;
@@ -38,6 +42,8 @@ import javax.validation.groups.Default;
 public class ProjectController {
 
     private final ProjectManager projectManager;
+
+    private final CaseInfoManager caseInfoManager;
 
     @GetMapping("/{id}")
     @ApiOperation("查询项目详情")
@@ -58,7 +64,12 @@ public class ProjectController {
     }
 
     // TODO: 09/06 复制 复制项目和用例
-    // TODO: 09/06 执行用例
+
+    @ApiOperation("用例执行")
+    @PostMapping("/execute")
+    public ResponseDTO<Record> execute(@Validated({ProjectExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
+        return ResponseDTO.success(caseInfoManager.execute(form));
+    }
     // TODO: 09/06 导入
     // TODO: 09/06 导出
 

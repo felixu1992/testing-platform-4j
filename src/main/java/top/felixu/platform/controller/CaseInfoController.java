@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseCopyForm;
+import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.CaseSortForm;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.validation.CaseExecute;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.model.entity.CaseInfo;
@@ -83,5 +86,11 @@ public class CaseInfoController {
     public ResponseDTO<Void> delete(@PathVariable Integer id) {
         caseInfoManager.delete(id);
         return ResponseDTO.success();
+    }
+
+    @PostMapping("/execute")
+    @ApiOperation("执行用例")
+    public ResponseDTO<Record> execute(@Validated({CaseExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
+        return ResponseDTO.success(caseInfoManager.execute(form));
     }
 }

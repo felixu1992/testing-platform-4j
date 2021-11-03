@@ -3,6 +3,7 @@ package top.felixu.platform.model.form;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import top.felixu.platform.model.validation.CaseExecute;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("用例执行")
 public class CaseExecuteForm {
 
+    @NotNull(groups = CaseExecute.class)
     @ApiModelProperty("用例 id")
     private Integer caseId;
 
