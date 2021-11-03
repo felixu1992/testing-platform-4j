@@ -8,16 +8,19 @@ import org.springframework.util.CollectionUtils;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.form.ProjectCopyForm;
 import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ProjectContactorService;
 import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +52,7 @@ public class ProjectManager {
         projectGroupService.getProjectGroupByIdAndCheck(project.getGroupId());
         check(project);
         Project result = projectService.create(project);
-        savaProjectContactorRelations(project, result.getId());
+        savaProjectContactorRelations(project.getContactorIds(), result.getId());
         return result;
     }
 
@@ -59,7 +62,7 @@ public class ProjectManager {
         // 校验分组是否存在
         projectGroupService.getProjectGroupByIdAndCheck(original.getGroupId());
         check(original);
-        savaProjectContactorRelations(project, project.getId());
+        savaProjectContactorRelations(project.getContactorIds(), project.getId());
         return projectService.update(original);
     }
 
@@ -70,9 +73,34 @@ public class ProjectManager {
         projectService.delete(project);
     }
 
-    private void savaProjectContactorRelations(Project project, Integer id) {
-        projectContactorService.update(CollectionUtils.isEmpty(project.getContactorIds()) ? Collections.emptyList() :
-                project.getContactorIds().stream().map(contactorId -> {
+    public Project copy(ProjectCopyForm form) {
+        // 拷贝项目
+        Project original = projectService.getProjectByIdAndCheck(form.getId());
+        Project project = BeanUtils.map(original, Project.class);
+        project.setName(form.getName());
+        project.setId(null);
+        Project result = projectService.create(project);
+        // 拷贝联系人
+        List<Integer> contactorIds = projectContactorService.getContactorsByProjectId(form.getId());
+        savaProjectContactorRelations(contactorIds, result.getId());
+        // 拷贝用例
+        List<CaseInfo> caseInfos = caseInfoService.listByProjectId(form.getId());
+        caseInfos.forEach(caseInfo -> {
+            caseInfo.setProjectId(result.getId());
+            // TODO: 11/03 设置为项目的默认分类
+            caseInfo.setId(null);
+            caseInfo.setCreatedAt(null);
+            caseInfo.setCreatedBy(null);
+            caseInfo.setUpdatedAt(null);
+            caseInfo.setUpdatedBy(null);
+        });
+        caseInfoService.saveBatch(caseInfos);
+        return result;
+    }
+
+    private void savaProjectContactorRelations(List<Integer> contactorIds, Integer id) {
+        projectContactorService.update(CollectionUtils.isEmpty(contactorIds) ? Collections.emptyList() :
+                contactorIds.stream().map(contactorId -> {
                     ProjectContactor relation = new ProjectContactor();
                     relation.setProjectId(id);
                     relation.setContactorId(contactorId);

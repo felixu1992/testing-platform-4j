@@ -7,6 +7,7 @@ import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.form.ProjectCopyForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.ProjectExecute;
 import top.felixu.platform.model.validation.Update;
@@ -63,7 +64,11 @@ public class ProjectController {
         return ResponseDTO.success(projectManager.create(project));
     }
 
-    // TODO: 09/06 复制 复制项目和用例
+    @ApiOperation("创建项目")
+    @PostMapping("/copy")
+    public ResponseDTO<Project> copy(@Validated @RequestBody ProjectCopyForm form) {
+        return ResponseDTO.success(projectManager.copy(form));
+    }
 
     @ApiOperation("用例执行")
     @PostMapping("/execute")
