@@ -32,7 +32,7 @@ public class Md5Utils {
             }
             return new String(str);
         } catch (Exception e) {
-            log.error("Sign Error:" + e.getLocalizedMessage(), e);
+            log.error("---> Sign Error:" + e.getLocalizedMessage(), e);
             return "";
         }
     }

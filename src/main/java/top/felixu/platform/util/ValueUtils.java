@@ -1,6 +1,8 @@
 package top.felixu.platform.util;
 
 import org.apache.commons.lang3.StringUtils;
+import top.felixu.platform.exception.ErrorCode;
+import top.felixu.platform.exception.PlatformException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +41,7 @@ public class ValueUtils {
                     else
                         result = temp.get(index);
                 }
-                // TODO throw exception
+                throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
             } else {
                 // 不是 map 报错
                 if (result instanceof Map) {
@@ -50,7 +52,7 @@ public class ValueUtils {
                         result = ((Map<String, Object>) result).computeIfAbsent(step, t -> isNumber(next) ? new ArrayList<>() : new HashMap<>());
                     }
                 }
-                // TODO: 10/29 throw exception
+                throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
             }
 
         }

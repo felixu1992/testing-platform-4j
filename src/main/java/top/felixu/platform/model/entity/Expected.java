@@ -11,17 +11,37 @@ import lombok.Data;
 @Data
 public class Expected {
 
+    /**
+     * 预期校验的 key
+     */
     private String[] expectKey;
 
+    /**
+     * 预期的值
+     */
     private ExpectValue expectValue;
 
     @Data
     public static class ExpectValue {
 
+        /**
+         * 取值过程
+         */
         private String[] steps;
 
-        private String value;
+        /**
+         * 依赖的用例
+         */
+        private Integer depend;
 
+        /**
+         * 固定值
+         */
+        private Object value;
+
+        /**
+         * 是否是固定值
+         */
         private boolean fixed;
     }
 }

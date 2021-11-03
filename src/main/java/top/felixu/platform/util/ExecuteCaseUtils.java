@@ -2,6 +2,7 @@ package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -9,10 +10,12 @@ import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.func.ConsumerWrapper;
 import top.felixu.platform.enums.CaseStatusEnum;
+import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.Dependency;
+import top.felixu.platform.model.entity.Expected;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.Report;
 
@@ -92,19 +95,67 @@ public class ExecuteCaseUtils {
         if (caseInfo.getDelay() > 0) {
             try {
                 Thread.sleep(caseInfo.getDelay() * 1000L);
-            } catch (InterruptedException e) {
-                // TODO: 09/24 异常
+            } catch (InterruptedException ex) {
+                log.error("---> Delayed execution request failed: {}", ex.getLocalizedMessage());
             }
         }
+        // 执行请求，获得请求结果
+        request(caseInfo.getMethod(), url, headers, params, report);
         // 计算用例执行结果
+        checkStatus(project, report, caseMap, reportMap);
     }
 
-    private static void request(String url, HttpHeaders headers, Map<String, Object> params) {
+    private static void checkStatus(Project project, Report report, Map<Integer, CaseInfo> caseMap, Map<Integer, Report> reportMap) {
+        // 需要校验状态码，状态码没过，直接失败
+        if (report.getCheckStatus() && !report.getExpectedHttpStatus().equals(report.getHttpStatus())) {
+            report.setStatus(CaseStatusEnum.FAILED);
+            return;
+        }
+        // 没有需要校验的结果，直接成功
+        List<Expected> expects = report.getExpects();
+        if (CollectionUtils.isEmpty(expects)) {
+            report.setStatus(CaseStatusEnum.PASSED);
+            return;
+        }
+        // 根据预期结果，计算是成功还是失败
+        report.setStatus(expects.stream().allMatch(expected -> {
+            // 得到要校验的结果
+            Object result = ValueUtils.getValue(expected.getExpectKey(), report.getResponseContent());
+            // 计算需要对比的值
+            Object expect;
+            Expected.ExpectValue expectValue = expected.getExpectValue();
+            // 固定值对比
+            if (expectValue.isFixed()) {
+                Object value = expectValue.getValue();
+                if (value instanceof String && ValueUtils.isNumber((String) value))
+                    expect = Integer.valueOf((String) value);
+                else
+                    expect = value;
+            } else {
+                // 动态取值对比
+                Integer depend = expectValue.getDepend();
+                if (reportMap.get(depend) == null || !reportMap.get(depend).isExecuted())
+                    doExecute(project, caseMap, reportMap, caseMap.get(depend));
+                expect = ValueUtils.getValue(expectValue.getSteps(), reportMap.get(depend).getResponseContent());
+            }
+            // 全是空，成功
+            if (expect == null && result == null)
+                return true;
+            // 全不是空，对比结果
+            if (expect != null && result != null)
+                return expect.equals(result);
+            // 其他情况失败
+            return false;
+        }) ? CaseStatusEnum.PASSED : CaseStatusEnum.FAILED);
+    }
+
+    private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Report report) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
 //        RequestCallback callback = request -> {
 //
 //        }
 //        restTemplate.execute()
+        // TODO: 11/03 给 report 填充上结果和返回的状态码
     }
 
     private static void buildParams(Map<String, Object> params, List<Dependency> dependencies,

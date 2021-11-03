@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import top.felixu.platform.enums.CaseStatusEnum;
+import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -45,7 +46,7 @@ public class Report implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "请求方式")
-    private String method;
+    private HttpMethodEnum method;
 
     @ApiModelProperty(value = "请求地址")
     private String host;
