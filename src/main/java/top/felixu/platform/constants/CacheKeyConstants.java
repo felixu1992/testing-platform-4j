@@ -54,6 +54,7 @@ public interface CacheKeyConstants {
     interface CaseInfoGroup {
         String NAME = "CASE-GROUP";
         String CASE_GROUP = "'CASE-GROUP-'";
+        String DEFAULT_GROUP = "'DEFAULT-CASE-GROUP-'";
         String CASE_GROUP_LIST = "'CASE-GROUP-LIST-'";
     }
 

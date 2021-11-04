@@ -6,14 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.felixu.common.bean.BeanUtils;
+import top.felixu.platform.constants.DefaultConstants;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.CaseInfoGroup;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.form.ProjectCopyForm;
+import top.felixu.platform.service.CaseInfoGroupService;
 import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ProjectContactorService;
 import top.felixu.platform.service.ProjectGroupService;
@@ -39,6 +42,8 @@ public class ProjectManager {
 
     private final CaseInfoService caseInfoService;
 
+    private final CaseInfoGroupService caseInfoGroupService;
+
     public Project getProjectById(Integer id) {
         return projectService.getProjectByIdAndCheck(id);
     }
@@ -53,6 +58,11 @@ public class ProjectManager {
         check(project);
         Project result = projectService.create(project);
         savaProjectContactorRelations(project.getContactorIds(), result.getId());
+        // 创建用例默认分类
+        CaseInfoGroup group = new CaseInfoGroup();
+        group.setName(DefaultConstants.CaseGroup.NAME);
+        group.setProjectId(result.getId());
+        caseInfoGroupService.create(group);
         return result;
     }
 
@@ -87,7 +97,7 @@ public class ProjectManager {
         List<CaseInfo> caseInfos = caseInfoService.listByProjectId(form.getId());
         caseInfos.forEach(caseInfo -> {
             caseInfo.setProjectId(result.getId());
-            // TODO: 11/03 设置为项目的默认分类
+            caseInfo.setGroupId(caseInfoGroupService.getDefaultCaseInfoGroup(result.getId()).getId());
             caseInfo.setId(null);
             caseInfo.setCreatedAt(null);
             caseInfo.setCreatedBy(null);

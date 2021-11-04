@@ -35,6 +35,10 @@ public class CaseInfoGroup implements Serializable {
     @NotBlank
     private String name;
 
+    @ApiModelProperty(value = "项目 id")
+    @NotNull
+    private Integer projectId;
+
     @ApiModelProperty(value = "拥有者")
     @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer owner;
