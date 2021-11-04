@@ -84,7 +84,8 @@ public class CaseInfoGroupManager {
     }
 
     private void check(CaseInfoGroup group) {
-        CaseInfoGroup one = caseInfoGroupService.getOne(Wrappers.<CaseInfoGroup>lambdaQuery().eq(CaseInfoGroup::getName, group.getName()));
+        CaseInfoGroup one = caseInfoGroupService.getOne(Wrappers.<CaseInfoGroup>lambdaQuery()
+                .eq(CaseInfoGroup::getName, group.getName()).eq(CaseInfoGroup::getProjectId, group.getProjectId()));
         if (one != null && (group.getId() == null || !group.getId().equals(one.getId())))
             throw new PlatformException(ErrorCode.CASE_GROUP_DUPLICATE_NAME);
     }
