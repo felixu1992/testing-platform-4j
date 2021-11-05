@@ -3,6 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ContactorDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -45,7 +46,7 @@ public class ContactorController {
 
     @GetMapping
     @ApiOperation("分页查询联系人")
-    public ResponseDTO<IPage<Contactor>> page(Contactor contactor, PageRequestForm form) {
+    public ResponseDTO<IPage<ContactorDTO>> page(Contactor contactor, PageRequestForm form) {
         return ResponseDTO.success(contactorManager.page(contactor, form));
     }
 

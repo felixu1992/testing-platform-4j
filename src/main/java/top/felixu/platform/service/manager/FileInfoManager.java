@@ -2,6 +2,7 @@ package top.felixu.platform.service.manager;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,9 @@ import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.parameter.Joiners;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.dto.FileInfoDTO;
 import top.felixu.platform.model.entity.Contactor;
+import top.felixu.platform.model.entity.FileGroup;
 import top.felixu.platform.model.entity.FileInfo;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.properties.PlatformProperties;
@@ -22,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author felixu
@@ -42,8 +47,14 @@ public class FileInfoManager {
         return fileInfoService.getFileInfoByIdAndCheck(id);
     }
 
-    public IPage<FileInfo> page(FileInfo fileInfo, PageRequestForm form) {
-        return fileInfoService.page(form.toPage(), Wrappers.lambdaQuery(fileInfo));
+    public IPage<FileInfoDTO> page(FileInfo fileInfo, PageRequestForm form) {
+        Page<FileInfo> page = fileInfoService.page(form.toPage(), Wrappers.lambdaQuery(fileInfo));
+        Map<Integer, String> groupMap = fileGroupService.getFileGroupList().stream().collect(Collectors.toMap(FileGroup::getId, FileGroup::getName));
+        return page.convert(item -> {
+            FileInfoDTO dto = BeanUtils.map(item, FileInfoDTO.class);
+            dto.setGroupName(groupMap.get(dto.getGroupId()));
+            return dto;
+        });
     }
 
     public FileInfo create(FileInfo fileInfo, MultipartFile file) {
@@ -69,7 +80,7 @@ public class FileInfoManager {
             try {
                 // 删除旧文件
                 Files.deleteIfExists(Paths.get(original.getPath()));
-                upload(file);
+                original.setPath(upload(file));
             } catch (IOException ex) {
                 log.error(ErrorCode.FILE_UPDATE_FAILED.getMessage(), ex);
                 throw new PlatformException(ErrorCode.FILE_UPDATE_FAILED);

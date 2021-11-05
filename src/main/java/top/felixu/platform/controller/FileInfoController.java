@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import top.felixu.platform.model.dto.FileInfoDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -37,7 +38,7 @@ import javax.validation.groups.Default;
 @RestController
 @Api(tags = "文件管理")
 @RequiredArgsConstructor
-@RequestMapping("/api/file-info")
+@RequestMapping("/api/file")
 public class FileInfoController {
 
     private final FileInfoManager fileInfoManager;
@@ -50,21 +51,30 @@ public class FileInfoController {
 
     @GetMapping
     @ApiOperation("分页查询文件")
-    public ResponseDTO<IPage<FileInfo>> page(FileInfo fileInfo, PageRequestForm form) {
+    public ResponseDTO<IPage<FileInfoDTO>> page(FileInfo fileInfo, PageRequestForm form) {
         return ResponseDTO.success(fileInfoManager.page(fileInfo, form));
     }
 
     @ApiOperation("上传文件")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseDTO<FileInfo> create(@Validated({Create.class, Default.class}) @RequestPart FileInfo fileInfo,
-                                        @RequestPart MultipartFile file) {
-        return ResponseDTO.success(fileInfoManager.create(fileInfo, file));
+    @PostMapping
+    public ResponseDTO<FileInfo> create(@RequestParam String name, @RequestParam Integer groupId,
+                                        @RequestParam(required = false) String remark, @RequestPart MultipartFile files) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName(name);
+        fileInfo.setGroupId(groupId);
+        fileInfo.setRemark(remark);
+        return ResponseDTO.success(fileInfoManager.create(fileInfo, files));
     }
 
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseDTO<FileInfo> update(@Validated({Update.class, Default.class}) @RequestPart FileInfo fileInfo,
-                                        @RequestPart(required = false) MultipartFile file) {
-        return ResponseDTO.success(fileInfoManager.update(fileInfo, file));
+    public ResponseDTO<FileInfo> update(@RequestParam Integer id, @RequestParam String name, @RequestParam Integer groupId,
+                                        @RequestParam(required = false) String remark, @RequestPart(required = false) MultipartFile files) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId(id);
+        fileInfo.setName(name);
+        fileInfo.setGroupId(groupId);
+        fileInfo.setRemark(remark);
+        return ResponseDTO.success(fileInfoManager.update(fileInfo, files));
     }
 
     @DeleteMapping("/{id}")

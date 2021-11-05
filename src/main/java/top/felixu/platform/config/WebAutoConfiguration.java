@@ -19,11 +19,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.felixu.common.date.DateFormatter;
+import top.felixu.common.parameter.Joiners;
 import top.felixu.platform.interceptor.PermissionInterceptor;
 import top.felixu.platform.properties.PermissionProperties;
+import top.felixu.platform.properties.PlatformProperties;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -47,9 +51,20 @@ public class WebAutoConfiguration implements WebMvcConfigurer {
 
     private final PermissionInterceptor permissionInterceptor;
 
+    private final PlatformProperties platformProperties;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(permissionInterceptor).excludePathPatterns(permissionProperties.getIgnores());
+    }
+
+    /**
+     * 代理静态资源访问路径
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(Joiners.SLASH.join("", "preview/resource", "**"))
+                .addResourceLocations(Joiners.SLASH.join("file:" + platformProperties.getFileStorage(), ""));
     }
 
     @Bean

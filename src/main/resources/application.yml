@@ -1,6 +1,10 @@
 server:
   port: 20000
 spring:
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 500MB
   application:
     name: testing-platform
   profiles:

@@ -39,7 +39,7 @@ public class ContactorManager {
         return contactorService.getContactorByIdAndCheck(id);
     }
 
-    public IPage<Contactor> page(Contactor contactor, PageRequestForm form) {
+    public IPage<ContactorDTO> page(Contactor contactor, PageRequestForm form) {
         Page<Contactor> page = contactorService.page(form.toPage(), Wrappers.lambdaQuery(contactor));
         Map<Integer, String> groupMap = contactorGroupService.getContactGroupList().stream()
                 .collect(Collectors.toMap(ContactorGroup::getId, ContactorGroup::getName));

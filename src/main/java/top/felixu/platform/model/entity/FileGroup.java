@@ -39,7 +39,7 @@ public class FileGroup implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "拥有者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer owner;
 
     @ApiModelProperty(value = "创建时间")
@@ -47,7 +47,7 @@ public class FileGroup implements Serializable {
     private LocalDateTime createdAt;
 
     @ApiModelProperty(value = "创建者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private Integer createdBy;
 
     @ApiModelProperty(value = "更新时间")
@@ -55,7 +55,6 @@ public class FileGroup implements Serializable {
     private LocalDateTime updatedAt;
 
     @ApiModelProperty(value = "更新者")
-    @NotNull
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Integer updatedBy;
-
 }
