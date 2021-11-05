@@ -33,8 +33,15 @@ platform:
   mybatis:
     ignores:
       - platform_user
+  file-storage: D:\testing-platform
 mybatis-plus:
   global-config:
     banner: false
     db-config:
       id-type: auto
+logging:
+  level:
+    top:
+      felixu:
+        platform:
+          mapper: debug

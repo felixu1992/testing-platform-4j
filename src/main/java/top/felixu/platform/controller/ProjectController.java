@@ -3,6 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseExecuteForm;
@@ -54,7 +55,7 @@ public class ProjectController {
 
     @GetMapping
     @ApiOperation("分页查询项目列表")
-    public ResponseDTO<IPage<Project>> page(Project project, PageRequestForm form) {
+    public ResponseDTO<IPage<ProjectDTO>> page(Project project, PageRequestForm form) {
         return ResponseDTO.success(projectManager.page(project, form));
     }
 
@@ -64,7 +65,7 @@ public class ProjectController {
         return ResponseDTO.success(projectManager.create(project));
     }
 
-    @ApiOperation("创建项目")
+    @ApiOperation("创建项目副本")
     @PostMapping("/copy")
     public ResponseDTO<Project> copy(@Validated @RequestBody ProjectCopyForm form) {
         return ResponseDTO.success(projectManager.copy(form));

@@ -25,7 +25,7 @@ import lombok.Data;
  * @since 2021-08-28
  */
 @Data
-@TableName("platform_project")
+@TableName(value = "platform_project", autoResultMap = true)
 @ApiModel(description = "项目信息")
 public class Project implements Serializable {
 

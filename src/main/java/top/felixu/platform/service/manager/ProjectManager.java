@@ -2,6 +2,7 @@ package top.felixu.platform.service.manager;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -9,11 +10,13 @@ import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.constants.DefaultConstants;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.CaseInfoGroup;
 import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
+import top.felixu.platform.model.entity.ProjectGroup;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.form.ProjectCopyForm;
 import top.felixu.platform.service.CaseInfoGroupService;
@@ -24,6 +27,7 @@ import top.felixu.platform.service.ProjectService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -48,8 +52,15 @@ public class ProjectManager {
         return projectService.getProjectByIdAndCheck(id);
     }
 
-    public IPage<Project> page(Project project, PageRequestForm form) {
-        return projectService.page(form.toPage(), Wrappers.lambdaQuery(project));
+    public IPage<ProjectDTO> page(Project project, PageRequestForm form) {
+        Page<Project> page = projectService.page(form.toPage(), Wrappers.lambdaQuery(project));
+        Map<Integer, String> groupMap = projectGroupService.getProjectGroupList().stream()
+                .collect(Collectors.toMap(ProjectGroup::getId, ProjectGroup::getName));
+        return page.convert(item -> {
+            ProjectDTO dto = BeanUtils.map(item, ProjectDTO.class);
+            dto.setGroupName(groupMap.get(dto.getGroupId()));
+            return dto;
+        });
     }
 
     public Project create(Project project) {
