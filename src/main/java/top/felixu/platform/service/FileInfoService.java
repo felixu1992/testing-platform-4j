@@ -33,7 +33,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.File.NAME;
 @Service
 public class FileInfoService extends ServiceImpl<FileInfoMapper, FileInfo> implements IService<FileInfo> {
 
-    @Cacheable(cacheNames = NAME, key = FILE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE + " + #id", unless = "#result == null")
     public FileInfo getFileInfoByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.FILE_NOT_FOUND));
     }
@@ -56,7 +56,7 @@ public class FileInfoService extends ServiceImpl<FileInfoMapper, FileInfo> imple
         return result;
     }
 
-    @Cacheable(cacheNames = NAME, key = FILE + " + #result.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE + " + #result.getId()", unless = "#result == null")
     public FileInfo create(FileInfo fileInfo) {
         save(fileInfo);
         return fileInfo;

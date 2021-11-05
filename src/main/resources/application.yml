@@ -26,6 +26,11 @@ platform:
       - /error
       - /favicon.ico
       - /
+  mybatis:
+    ignores:
+      - platform_user
 mybatis-plus:
   global-config:
     banner: false
+    db-config:
+      id-type: auto

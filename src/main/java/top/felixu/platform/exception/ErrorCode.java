@@ -47,6 +47,7 @@ public enum ErrorCode {
     CONTACTOR_DUPLICATE_EMAIL(2101, "联系人邮箱已经被使用"),
     CONTACTOR_DUPLICATE_PHONE(2102, "联系人手机号已经被使用"),
     CONTACTOR_USED_BY_CASE(2103, "当前联系人正在被用例使用"),
+    CONTACTOR_DUPLICATE_NAME(2104, "当前联系人名称已经被使用"),
 
     /* ------------------- 文件错误 --------------------*/
 

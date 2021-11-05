@@ -28,7 +28,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.ContactorGroup.NAM
 @Service
 public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, ContactorGroup> implements IService<ContactorGroup> {
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #id", unless = "#result == null")
     public ContactorGroup getContactGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
@@ -39,7 +39,7 @@ public class ContactorGroupService extends ServiceImpl<ContactorGroupMapper, Con
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            cacheable = @Cacheable(cacheNames = NAME, key = CONTACTOR_GROUP + " + #result.getId()", unless = "#result == null"),
             evict = @CacheEvict(cacheNames = NAME, key = CONTACTOR_GROUP_LIST + " + #result.getOwner()")
     )
     public ContactorGroup create(ContactorGroup group) {

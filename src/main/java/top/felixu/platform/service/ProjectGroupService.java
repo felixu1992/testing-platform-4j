@@ -28,7 +28,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.ProjectGroup.PROJE
 @Service
 public class ProjectGroupService extends ServiceImpl<ProjectGroupMapper, ProjectGroup> implements IService<ProjectGroup> {
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #id", unless = "#result == null")
     public ProjectGroup getProjectGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
@@ -39,7 +39,7 @@ public class ProjectGroupService extends ServiceImpl<ProjectGroupMapper, Project
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            cacheable = @Cacheable(cacheNames = NAME, key = PROJECT_GROUP + " + #result.getId()", unless = "#result == null"),
             evict = @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_LIST + " + #result.getOwner()")
     )
     public ProjectGroup create(ProjectGroup group) {

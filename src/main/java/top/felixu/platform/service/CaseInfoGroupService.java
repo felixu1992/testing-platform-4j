@@ -31,12 +31,12 @@ import static top.felixu.platform.constants.CacheKeyConstants.CaseInfoGroup.NAME
 @Service
 public class CaseInfoGroupService extends ServiceImpl<CaseInfoGroupMapper, CaseInfoGroup> implements IService<CaseInfoGroup> {
 
-    @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #id", unless = "#result == null")
     public CaseInfoGroup getCaseInfoGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
     }
 
-    @Cacheable(cacheNames = NAME, key = DEFAULT_GROUP + " + #projectId", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = DEFAULT_GROUP + " + #projectId", unless = "#result == null")
     public CaseInfoGroup getDefaultCaseInfoGroup(Integer projectId) {
         return Optional.ofNullable(getOne(Wrappers.<CaseInfoGroup>lambdaQuery().eq(CaseInfoGroup::getProjectId, projectId)
                 .eq(CaseInfoGroup::getName, DefaultConstants.CaseGroup.NAME))).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_GROUP_NOT_FOUND));
@@ -48,7 +48,7 @@ public class CaseInfoGroupService extends ServiceImpl<CaseInfoGroupMapper, CaseI
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            cacheable = @Cacheable(cacheNames = NAME, key = CASE_GROUP + " + #result.getId()", unless = "#result == null"),
             evict = @CacheEvict(cacheNames = NAME, key = CASE_GROUP_LIST + " + #result.getOwner()")
     )
     public CaseInfoGroup create(CaseInfoGroup group) {

@@ -37,7 +37,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.CaseInfo.PROJECT_G
 @Service
 public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> implements IService<CaseInfo> {
 
-    @Cacheable(cacheNames = NAME, key = CASE + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CASE + " + #id", unless = "#result == null")
     public CaseInfo getCaseInfoByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CASE_NOT_FOUND));
     }
@@ -59,12 +59,12 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
                 .eq(CaseInfo::getGroupId, groupId).orderByAsc(CaseInfo::getSort));
     }
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #projectId", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #projectId", unless = "#result == null")
     public List<CaseInfo> listByProjectId(@NonNull Integer projectId) {
         return list(Wrappers.<CaseInfo>lambdaQuery().eq(CaseInfo::getProjectId, projectId).orderByAsc(CaseInfo::getSort));
     }
 
-    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #projectId", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #projectId", unless = "#result == null")
     public Map<Integer, List<CaseInfo>> mapByGroupIds(@NonNull Integer projectId, Set<Integer> groupIds) {
         if (CollectionUtils.isEmpty(groupIds))
             return Collections.emptyMap();
@@ -78,7 +78,7 @@ public class CaseInfoService extends ServiceImpl<CaseInfoMapper, CaseInfo> imple
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = CASE + " + #result.getId()", unless = "#result == null", sync = true),
+            cacheable = @Cacheable(cacheNames = NAME, key = CASE + " + #result.getId()", unless = "#result == null"),
             evict = {
                     @CacheEvict(cacheNames = NAME, key = PROJECT_GROUP_CASE_MAP + " + #result.getProjectId()"),
                     @CacheEvict(cacheNames = NAME, key = PROJECT_CASE_LIST + " + #result.getProjectId()")

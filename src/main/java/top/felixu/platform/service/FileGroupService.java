@@ -28,7 +28,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.FileGroup.NAME;
 @Service
 public class FileGroupService extends ServiceImpl<FileGroupMapper, FileGroup> implements IService<FileGroup> {
 
-    @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #id", unless = "#result == null")
     public FileGroup getFileGroupByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.FILE_GROUP_NOT_FOUND));
     }
@@ -39,7 +39,7 @@ public class FileGroupService extends ServiceImpl<FileGroupMapper, FileGroup> im
     }
 
     @Caching(
-            cacheable = @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #result.getId()", unless = "#result == null", sync = true),
+            cacheable = @Cacheable(cacheNames = NAME, key = FILE_GROUP + " + #result.getId()", unless = "#result == null"),
             evict = @CacheEvict(cacheNames = NAME, key = FILE_GROUP_LIST + " + #result.getOwner()")
     )
     public FileGroup create(FileGroup group) {

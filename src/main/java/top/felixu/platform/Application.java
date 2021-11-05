@@ -11,7 +11,7 @@ import top.felixu.platform.properties.PlatformProperties;
  * @author felixu
  * @since 2021.08.23
  */
-@EnableCaching
+//@EnableCaching
 @SpringBootApplication
 @EnableConfigurationProperties(PlatformProperties.class)
 public class Application {

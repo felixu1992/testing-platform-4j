@@ -33,7 +33,7 @@ import static top.felixu.platform.constants.CacheKeyConstants.Contactor.NAME;
 @Service
 public class ContactorService extends ServiceImpl<ContactorMapper, Contactor> implements IService<Contactor> {
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #id", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #id", unless = "#result == null")
     public Contactor getContactorByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.CONTACTOR_NOT_FOUND));
     }
@@ -56,7 +56,7 @@ public class ContactorService extends ServiceImpl<ContactorMapper, Contactor> im
         return result;
     }
 
-    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #result.getId()", unless = "#result == null", sync = true)
+    @Cacheable(cacheNames = NAME, key = CONTACTOR + " + #result.getId()", unless = "#result == null")
     public Contactor create(Contactor contactor) {
         save(contactor);
         return contactor;
