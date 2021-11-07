@@ -2,22 +2,25 @@ package top.felixu.platform.model.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import top.felixu.platform.enums.HttpMethodEnum;
-import top.felixu.platform.model.validation.Create;
-import top.felixu.platform.model.validation.Update;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.*;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import top.felixu.platform.enums.HttpMethodEnum;
+import top.felixu.platform.model.validation.Create;
+import top.felixu.platform.model.validation.Update;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用例信息
@@ -26,7 +29,7 @@ import lombok.Data;
  * @since 2021-08-28
  */
 @Data
-@TableName("platform_case_info")
+@TableName(value = "platform_case_info", autoResultMap = true)
 @ApiModel(description = "用例信息")
 public class CaseInfo implements Serializable {
 
@@ -45,7 +48,7 @@ public class CaseInfo implements Serializable {
     @ApiModelProperty(value = "用例描述")
     private String remark;
 
-    @NotBlank
+    @NotNull
     @ApiModelProperty(value = "请求方式")
     private HttpMethodEnum method;
 
@@ -61,13 +64,8 @@ public class CaseInfo implements Serializable {
     private Map<String, Object> params;
 
     @ApiModelProperty(value = "请求头")
-    private String headers;
-
-    @ApiModelProperty(value = "需要依赖的键")
-    private String extendKeys;
-
-    @ApiModelProperty(value = "需要依赖的值")
-    private String extendValues;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Map<String, String> headers;
 
     @ApiModelProperty(value = "接口依赖")
     @TableField(typeHandler = JacksonTypeHandler.class)
@@ -76,12 +74,6 @@ public class CaseInfo implements Serializable {
     @ApiModelProperty(value = "校验预期")
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<Expected> expects;
-
-    @ApiModelProperty(value = "校验预期的键")
-    private String expectedKeys;
-
-    @ApiModelProperty(value = "校验预期的值")
-    private String expectedValues;
 
     @ApiModelProperty(value = "校验预期的状态码")
     private Integer expectedHttpStatus = 200;
@@ -96,7 +88,8 @@ public class CaseInfo implements Serializable {
     private Integer developer;
 
     @ApiModelProperty(value = "项目 id")
-    @NotNull
+    @NotNull(groups = Create.class)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     private Integer projectId;
 
     @ApiModelProperty(value = "序号")
@@ -106,7 +99,8 @@ public class CaseInfo implements Serializable {
     private int delay = 0;
 
     @ApiModelProperty(value = "返回值示例")
-    private String sample;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Map<String, Object> sample;
 
     @ApiModelProperty(value = "用例分类")
     @NotNull

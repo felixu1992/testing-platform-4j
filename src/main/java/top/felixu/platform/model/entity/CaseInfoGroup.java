@@ -3,15 +3,18 @@ package top.felixu.platform.model.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
-import top.felixu.platform.model.validation.Create;
-import top.felixu.platform.model.validation.Update;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import javax.validation.constraints.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import top.felixu.platform.model.validation.Create;
+import top.felixu.platform.model.validation.Update;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 用例分类
@@ -36,7 +39,9 @@ public class CaseInfoGroup implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "项目 id")
-    @NotNull
+    @NotNull(groups = Create.class)
+    @Null(groups = Update.class)
+    @TableField(updateStrategy = FieldStrategy.NEVER)
     private Integer projectId;
 
     @ApiModelProperty(value = "拥有者")

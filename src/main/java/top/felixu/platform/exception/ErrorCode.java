@@ -43,7 +43,7 @@ public enum ErrorCode {
     CONTACTOR_GROUP_DUPLICATE_NAME(2001, "当前联系人分组名称重复"),
     CONTACTOR_GROUP_USED_BY_CONTACTOR(2002, "当前联系人分组下存在联系人"),
 
-    CONTACTOR_NOT_FOUND(2100, "当前联系不存在"),
+    CONTACTOR_NOT_FOUND(2100, "当前联系人不存在"),
     CONTACTOR_DUPLICATE_EMAIL(2101, "联系人邮箱已经被使用"),
     CONTACTOR_DUPLICATE_PHONE(2102, "联系人手机号已经被使用"),
     CONTACTOR_USED_BY_CASE(2103, "当前联系人正在被用例使用"),

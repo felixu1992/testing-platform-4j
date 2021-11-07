@@ -3,7 +3,19 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseCopyForm;
 import top.felixu.platform.model.form.CaseExecuteForm;
@@ -12,20 +24,6 @@ import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.CaseExecute;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
-import top.felixu.platform.model.entity.CaseInfo;
-import org.springframework.http.MediaType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.manager.CaseInfoManager;
 
 import javax.validation.groups.Default;
@@ -39,7 +37,7 @@ import javax.validation.groups.Default;
 @RestController
 @Api(tags = "用例管理")
 @RequiredArgsConstructor
-@RequestMapping("/api/case-info")
+@RequestMapping("/api/case")
 public class CaseInfoController {
 
     private final CaseInfoManager caseInfoManager;

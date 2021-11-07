@@ -26,7 +26,6 @@ import top.felixu.platform.service.RecordService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.util.ExecuteCaseUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -173,7 +172,7 @@ public class CaseInfoManager {
         // 判断分组是否存在
         caseInfoGroupService.getCaseInfoGroupByIdAndCheck(caseInfo.getGroupId());
         // 判断开发者是否存在
-        if (caseInfo.getDeveloper() == null)
+        if (caseInfo.getDeveloper() != null)
             contactorService.getContactorByIdAndCheck(caseInfo.getDeveloper());
         // 校验邮箱
         CaseInfo name = caseInfoService.getOne(Wrappers.<CaseInfo>lambdaQuery()
@@ -181,5 +180,6 @@ public class CaseInfoManager {
         if (name != null && (caseInfo.getId() == null || !caseInfo.getId().equals(name.getId())))
             throw new PlatformException(ErrorCode.CASE_DUPLICATE_NAME);
         // TODO: 09/08 校验依赖是否成环
+        // TODO 校验依赖结构是否完整
     }
 }
