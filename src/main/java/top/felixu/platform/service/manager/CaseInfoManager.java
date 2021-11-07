@@ -2,6 +2,7 @@ package top.felixu.platform.service.manager;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +11,9 @@ import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.SortEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.CaseInfoGroup;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.entity.Report;
@@ -28,6 +31,7 @@ import top.felixu.platform.util.ExecuteCaseUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +54,27 @@ public class CaseInfoManager {
 
     private final ReportService reportService;
 
-    public CaseInfo getCaseInfoById(Integer id) {
-        return caseInfoService.getCaseInfoByIdAndCheck(id);
+    public CaseInfoDTO getCaseInfoById(Integer id) {
+        CaseInfoDTO dto = BeanUtils.map(caseInfoService.getCaseInfoByIdAndCheck(id), CaseInfoDTO.class);
+        dto.setProjectName(projectService.getProjectByIdAndCheck(dto.getProjectId()).getName());
+        dto.setGroupName(caseInfoGroupService.getCaseInfoGroupByIdAndCheck(dto.getGroupId()).getName());
+        return dto;
     }
 
-    public IPage<CaseInfo> page(CaseInfo caseInfo, PageRequestForm form) {
-        return caseInfoService.page(form.toPage(), Wrappers.lambdaQuery(caseInfo).orderByAsc(CaseInfo::getSort));
+    public IPage<CaseInfoDTO> page(CaseInfo caseInfo, PageRequestForm form) {
+        if (caseInfo.getProjectId() == null)
+            throw new PlatformException(ErrorCode.PROJECT_MUST_BE_NOT_NULL);
+        Project project = projectService.getProjectByIdAndCheck(caseInfo.getProjectId());
+        Page<CaseInfo> page = caseInfoService.page(form.toPage(), Wrappers.lambdaQuery(caseInfo).orderByAsc(CaseInfo::getSort));
+        Map<Integer, String> groupMap = caseInfoGroupService.getCaseInfoGroupList()
+                .stream()
+                .collect(Collectors.toMap(CaseInfoGroup::getId, CaseInfoGroup::getName));
+        return page.convert(item -> {
+            CaseInfoDTO dto = BeanUtils.map(item, CaseInfoDTO.class);
+            dto.setProjectName(project.getName());
+            dto.setGroupName(groupMap.get(dto.getGroupId()));
+            return dto;
+        });
     }
 
     public CaseInfo create(CaseInfo caseInfo) {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.Record;
@@ -44,13 +45,13 @@ public class CaseInfoController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询用例详情")
-    public ResponseDTO<CaseInfo> get(@PathVariable Integer id) {
+    public ResponseDTO<CaseInfoDTO> get(@PathVariable Integer id) {
         return ResponseDTO.success(caseInfoManager.getCaseInfoById(id));
     }
 
     @GetMapping
     @ApiOperation("分页查询用例")
-    public ResponseDTO<IPage<CaseInfo>> page(CaseInfo caseInfo, PageRequestForm form) {
+    public ResponseDTO<IPage<CaseInfoDTO>> page(CaseInfo caseInfo, PageRequestForm form) {
         return ResponseDTO.success(caseInfoManager.page(caseInfo, form));
     }
 
