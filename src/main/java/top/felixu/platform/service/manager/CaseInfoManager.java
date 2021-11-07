@@ -26,6 +26,7 @@ import top.felixu.platform.service.RecordService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.util.ExecuteCaseUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ public class CaseInfoManager {
     }
 
     public IPage<CaseInfo> page(CaseInfo caseInfo, PageRequestForm form) {
-        return caseInfoService.page(form.toPage(), Wrappers.lambdaQuery(caseInfo));
+        return caseInfoService.page(form.toPage(), Wrappers.lambdaQuery(caseInfo).orderByAsc(CaseInfo::getSort));
     }
 
     public CaseInfo create(CaseInfo caseInfo) {
@@ -66,6 +67,7 @@ public class CaseInfoManager {
     public CaseInfo copy(CaseCopyForm form) {
         CaseInfo original = caseInfoService.getCaseInfoByIdAndCheck(form.getId());
         CaseInfo caseInfo = BeanUtils.map(original, CaseInfo.class);
+        caseInfo.setName(form.getName());
         caseInfo.setId(null);
         caseInfo.setCreatedAt(null);
         caseInfo.setCreatedBy(null);
@@ -87,8 +89,11 @@ public class CaseInfoManager {
         /*
          * 1. 如果是拖动，必须要有 target
          * 2. 其他情况计算 target
-         * 3. 将 source 从列表中移出，然后插入到 target 前面
-         * 4. 重新计算所有 sort，批量更新
+         * 3. 置顶：移出 source，插入最前面
+         * 4. 置底：移出 source，插入最后面
+         * 5. 上下移动：交换 source 和 target 位置
+         * 6. 拖动：移出 source，插入到 target 位置前面
+         * 7. 重新计算所有 sort，批量更新
          */
         if (form.getOperation() == SortEnum.DRAG && form.getTarget() == null)
             throw new PlatformException(ErrorCode.CASE_DRAG_MISS_TARGET);
@@ -96,29 +101,63 @@ public class CaseInfoManager {
         List<CaseInfo> caseInfos = caseInfoService.listByProjectId(source.getProjectId());
         CaseInfo target;
         switch (form.getOperation()) {
+            // 置顶，需要注意是否已经是第一个了
             case TOP:
                 target = caseInfos.get(0);
+                // 点击的就是第一个
+                if (form.getSource().equals(target.getId()))
+                    return;
+                // 移除起点元素
+                caseInfos.remove(source);
+                // 将起点元素插入到最前面
+                caseInfos.add(0, source);
                 break;
+            // 置底，需要注意是否已经是最后了
             case BOTTOM:
                 target = caseInfos.get(caseInfos.size() - 1);
+                // 点击的就是最后一个
+                if (form.getSource().equals(target.getId()))
+                    return;
+                // 移除起点元素
+                caseInfos.remove(source);
+                // 将起点元素插入到最后面
+                caseInfos.add(caseInfos.size() - 1, source);
                 break;
+            // 上移，注意是否是最上面的
             case UP:
-                target = caseInfos.get(caseInfos.indexOf(source) - 1);
+                int upIndex = caseInfos.indexOf(source);
+                // 最上面了，不用操作
+                if (upIndex ==0)
+                    return;
+                target = caseInfos.get(upIndex - 1);
+                // 交换位置
+                Collections.swap(caseInfos, caseInfos.indexOf(source), caseInfos.indexOf(target));
                 break;
+            // 下移，注意是否为最下面的
             case DOWN:
-                target = caseInfos.get(caseInfos.indexOf(source) + 1);
+                int downIndex = caseInfos.indexOf(source);
+                // 最下面了，不用操作
+                if (downIndex == caseInfos.size() - 1)
+                    return;
+                target = caseInfos.get(downIndex + 1);
+                // 交换位置
+                Collections.swap(caseInfos, caseInfos.indexOf(source), caseInfos.indexOf(target));
                 break;
+            // 拖动，直接查出目标位置
             case DRAG:
+                // 如果两个位置相同，不操作
+                if (form.getSource().equals(form.getTarget()))
+                    return;
                 target = caseInfoService.getCaseInfoByIdAndCheck(form.getTarget());
+                // 移除起点元素
+                caseInfos.remove(source);
+                // 将起点元素插入到落点元素到前面
+                caseInfos.add(caseInfos.indexOf(target), source);
                 break;
             default:
                 throw new PlatformException(ErrorCode.CASE_MOVE_OPERATION_ERROR);
         }
-        caseInfos.remove(source);
-        if (form.getOperation() == SortEnum.BOTTOM)
-            caseInfos.add(source);
-        else
-            caseInfos.add(caseInfos.indexOf(target), source);
+        // 重新构建顺序
         for (int i = 0; i < caseInfos.size(); i++) {
             caseInfos.get(i).setSort(i + 1);
         }
