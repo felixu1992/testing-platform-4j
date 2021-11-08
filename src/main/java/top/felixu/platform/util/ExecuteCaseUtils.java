@@ -1,11 +1,12 @@
 package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.func.ConsumerWrapper;
@@ -19,6 +20,9 @@ import top.felixu.platform.model.entity.Expected;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.Report;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,12 +155,27 @@ public class ExecuteCaseUtils {
 
     private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Report report) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
-//        RequestCallback callback = request -> {
-//
-//        }
-//        restTemplate.execute()
-        // TODO: 11/03 给 report 填充上结果和返回的状态码
+//        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, Object> realParam = new LinkedMultiValueMap(params);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity(realParam, headers);
+        URI uri;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            throw new PlatformException(ErrorCode.URI_FORMAT_ERROR);
+        }
+        ResponseEntity<Map> resp = restTemplate.exchange(uri, HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+        report.setHttpStatus(resp.getStatusCodeValue());
+        report.setResponseContent(resp.getBody());
     }
+
+//    public static void main(String[] args) {
+//        Report report = new Report();
+//        Map<String,Object> param = new HashMap<>(16);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Authorization", "token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmZWxpeHUiLCJ1c2VySWQiOjMsImlhdCI6MTYzNjM1MDIyOX0.GTTgO5a13Ot18G18tK1raHeTlhfxeh2RJvJVkx-CXw0iE8koevC_92scWBuJl3DKSYzXD-hLdvviIz-8xUfHQQ");
+//        request(HttpMethodEnum.GET, "http://localhost:20000/api/file-group/tree", headers, new HashMap<>(), report);
+//    }
 
     private static void buildParams(Map<String, Object> params, List<Dependency> dependencies,
                                     Map<Integer, Report> reportMap, Project project, Map<Integer, CaseInfo> caseMap) {
@@ -171,6 +190,7 @@ public class ExecuteCaseUtils {
                     reportMap.get(depend).getResponseContent());
             ValueUtils.setValue(params, dependency.getDependKey(), value);
         }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
+
     }
 
     private static HttpHeaders buildHeaders(Map<String, String> parentHeaders, Map<String, String> selfHeaders) {
