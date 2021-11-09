@@ -1,7 +1,11 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.form.UserProjectForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.model.entity.UserProject;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.felixu.platform.service.UserProjectService;
+import top.felixu.platform.service.manager.UserProjectManager;
 
 import javax.validation.groups.Default;
 
@@ -29,33 +34,16 @@ import javax.validation.groups.Default;
  */
 @RestController
 @RequiredArgsConstructor
+@Api(tags = "用户和项目关联关系")
 @RequestMapping("/api/user-project")
 public class UserProjectController {
 
-    private final UserProjectService userProjectService;
+    private final UserProjectManager userProjectManager;
 
-    @GetMapping("/{id}")
-    public UserProject get(@PathVariable Long id) {
-        return userProjectService.getById(id);
-    }
-
-    @GetMapping
-    public IPage<UserProject> page(UserProject userProject, PageRequestForm form) {
-        return userProjectService.page(form.toPage(), new QueryWrapper<>(userProject));
-    }
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean create(@Validated({Create.class, Default.class}) @RequestBody UserProject userProject) {
-        return userProjectService.save(userProject);
-    }
-
+    @ApiOperation("更新用户和项目的关联关系")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody UserProject userProject) {
-        return userProjectService.updateById(userProject);
-    }
-
-    @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Long id) {
-        return userProjectService.removeById(id);
+    public ResponseDTO<Void> updateRelation(@Validated @RequestBody UserProjectForm form) {
+        userProjectManager.updateRelation(form);
+        return ResponseDTO.success();
     }
 }

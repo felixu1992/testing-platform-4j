@@ -56,6 +56,12 @@ public class ProjectService extends ServiceImpl<ProjectMapper, Project> implemen
         return result;
     }
 
+    public List<Project> listByProjectIds(List<Integer> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds))
+            return Collections.emptyList();
+        return list(Wrappers.<Project>lambdaQuery().in(Project::getId, projectIds));
+    }
+
     @Cacheable(cacheNames = NAME, key = PROJECT + " + #result.getId()", unless = "#result == null")
     public Project create(Project project) {
         save(project);

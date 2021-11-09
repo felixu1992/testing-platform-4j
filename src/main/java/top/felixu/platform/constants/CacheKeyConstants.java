@@ -51,6 +51,11 @@ public interface CacheKeyConstants {
         String PROJECT = "'PROJECT-'";
     }
 
+    interface UserProject {
+        String NAME = "USER-PROJECT";
+        String RELATION = "'USER-PROJECT-'";
+    }
+
     interface CaseInfoGroup {
         String NAME = "CASE-GROUP";
         String CASE_GROUP = "'CASE-GROUP-'";
