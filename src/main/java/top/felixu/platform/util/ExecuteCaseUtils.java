@@ -17,6 +17,7 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.*;
 import top.felixu.platform.service.FileInfoService;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,7 +152,7 @@ public class ExecuteCaseUtils {
         MultiValueMap<String, Object> realParam = new LinkedMultiValueMap<>();
         params.forEach(realParam::add);
         HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(realParam, headers);
-        ResponseEntity<Map> resp = restTemplate.exchange(url, HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+        ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
         report.setHttpStatus(resp.getStatusCodeValue());
         report.setResponseContent(ValueUtils.nullAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
