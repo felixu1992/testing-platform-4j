@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.model.dto.CaseInfoDTO;
-import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseCopyForm;
@@ -45,51 +45,51 @@ public class CaseInfoController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询用例详情")
-    public ResponseDTO<CaseInfoDTO> get(@PathVariable Integer id) {
-        return ResponseDTO.success(caseInfoManager.getCaseInfoById(id));
+    public RespDTO<CaseInfoDTO> get(@PathVariable Integer id) {
+        return RespDTO.success(caseInfoManager.getCaseInfoById(id));
     }
 
     @GetMapping
     @ApiOperation("分页查询用例")
-    public ResponseDTO<IPage<CaseInfoDTO>> page(CaseInfo caseInfo, PageRequestForm form) {
-        return ResponseDTO.success(caseInfoManager.page(caseInfo, form));
+    public RespDTO<IPage<CaseInfoDTO>> page(CaseInfo caseInfo, PageRequestForm form) {
+        return RespDTO.success(caseInfoManager.page(caseInfo, form));
     }
 
     @ApiOperation("创建用例")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<CaseInfo> create(@Validated({Create.class, Default.class}) @RequestBody CaseInfo caseInfo) {
-        return ResponseDTO.success(caseInfoManager.create(caseInfo));
+    public RespDTO<CaseInfo> create(@Validated({Create.class, Default.class}) @RequestBody CaseInfo caseInfo) {
+        return RespDTO.success(caseInfoManager.create(caseInfo));
     }
 
     @ApiOperation("复制用例")
     @PostMapping(value = "/copy", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<CaseInfo> copy(@Validated @RequestBody CaseCopyForm form) {
-        return ResponseDTO.success(caseInfoManager.copy(form));
+    public RespDTO<CaseInfo> copy(@Validated @RequestBody CaseCopyForm form) {
+        return RespDTO.success(caseInfoManager.copy(form));
     }
 
     @ApiOperation("更新用例")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<CaseInfo> update(@Validated({Update.class, Default.class}) @RequestBody CaseInfo caseInfo) {
-        return ResponseDTO.success(caseInfoManager.update(caseInfo));
+    public RespDTO<CaseInfo> update(@Validated({Update.class, Default.class}) @RequestBody CaseInfo caseInfo) {
+        return RespDTO.success(caseInfoManager.update(caseInfo));
     }
 
     @ApiOperation("用例排序")
     @PutMapping(value = "/sort", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<Void> sort(@Validated @RequestBody CaseSortForm form) {
+    public RespDTO<Void> sort(@Validated @RequestBody CaseSortForm form) {
         caseInfoManager.sort(form);
-        return ResponseDTO.success();
+        return RespDTO.success();
     }
 
     @DeleteMapping("/{id}")
     @ApiOperation("根据 id 删除用例")
-    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+    public RespDTO<Void> delete(@PathVariable Integer id) {
         caseInfoManager.delete(id);
-        return ResponseDTO.success();
+        return RespDTO.success();
     }
 
     @PostMapping("/execute")
     @ApiOperation("执行用例")
-    public ResponseDTO<Record> execute(@Validated({CaseExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
-        return ResponseDTO.success(caseInfoManager.execute(form));
+    public RespDTO<Record> execute(@Validated({CaseExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
+        return RespDTO.success(caseInfoManager.execute(form));
     }
 }

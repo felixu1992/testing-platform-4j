@@ -3,7 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -41,38 +41,38 @@ public class ProjectGroupController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询项目分组详情")
-    public ResponseDTO<ProjectGroup> get(@PathVariable Integer id) {
-        return ResponseDTO.success(projectGroupManager.getProjectGroupById(id));
+    public RespDTO<ProjectGroup> get(@PathVariable Integer id) {
+        return RespDTO.success(projectGroupManager.getProjectGroupById(id));
     }
 
     @GetMapping
     @ApiOperation("分页查询项目分组")
-    public ResponseDTO<IPage<ProjectGroup>> page(ProjectGroup group, PageRequestForm form) {
-        return ResponseDTO.success(projectGroupManager.page(group, form));
+    public RespDTO<IPage<ProjectGroup>> page(ProjectGroup group, PageRequestForm form) {
+        return RespDTO.success(projectGroupManager.page(group, form));
     }
 
     @GetMapping("/tree")
     @ApiOperation("查询项目分组树")
-    public ResponseDTO<List<TreeNodeDTO>> tree() {
-        return ResponseDTO.success(projectGroupManager.tree());
+    public RespDTO<List<TreeNodeDTO>> tree() {
+        return RespDTO.success(projectGroupManager.tree());
     }
 
     @ApiOperation("创建项目分组")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<ProjectGroup> create(@Validated({Create.class, Default.class}) @RequestBody ProjectGroup group) {
-        return ResponseDTO.success(projectGroupManager.create(group));
+    public RespDTO<ProjectGroup> create(@Validated({Create.class, Default.class}) @RequestBody ProjectGroup group) {
+        return RespDTO.success(projectGroupManager.create(group));
     }
 
     @ApiOperation("更新项目分组")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<ProjectGroup> update(@Validated({Update.class, Default.class}) @RequestBody ProjectGroup group) {
-        return ResponseDTO.success(projectGroupManager.update(group));
+    public RespDTO<ProjectGroup> update(@Validated({Update.class, Default.class}) @RequestBody ProjectGroup group) {
+        return RespDTO.success(projectGroupManager.update(group));
     }
 
     @DeleteMapping("/{id}")
     @ApiOperation("删除指定的项目分组")
-    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+    public RespDTO<Void> delete(@PathVariable Integer id) {
         projectGroupManager.delete(id);
-        return ResponseDTO.success();
+        return RespDTO.success();
     }
 }

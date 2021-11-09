@@ -3,7 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import top.felixu.platform.model.dto.ResponseDTO;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -41,38 +41,38 @@ public class FileGroupController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询文件分组详情")
-    public ResponseDTO<FileGroup> get(@PathVariable Integer id) {
-        return ResponseDTO.success(fileGroupManager.getFileGroupById(id));
+    public RespDTO<FileGroup> get(@PathVariable Integer id) {
+        return RespDTO.success(fileGroupManager.getFileGroupById(id));
     }
 
     @GetMapping
     @ApiOperation("分页查询文件分组")
-    public ResponseDTO<IPage<FileGroup>> page(FileGroup group, PageRequestForm form) {
-        return ResponseDTO.success(fileGroupManager.page(group, form));
+    public RespDTO<IPage<FileGroup>> page(FileGroup group, PageRequestForm form) {
+        return RespDTO.success(fileGroupManager.page(group, form));
     }
 
     @GetMapping("/tree")
     @ApiOperation("查询文件分组树")
-    public ResponseDTO<List<TreeNodeDTO>> tree() {
-        return ResponseDTO.success(fileGroupManager.tree());
+    public RespDTO<List<TreeNodeDTO>> tree() {
+        return RespDTO.success(fileGroupManager.tree());
     }
 
     @ApiOperation("创建文件分组")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<FileGroup> create(@Validated({Create.class, Default.class}) @RequestBody FileGroup group) {
-        return ResponseDTO.success(fileGroupManager.create(group));
+    public RespDTO<FileGroup> create(@Validated({Create.class, Default.class}) @RequestBody FileGroup group) {
+        return RespDTO.success(fileGroupManager.create(group));
     }
 
     @ApiOperation("更新文件分组")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseDTO<FileGroup> update(@Validated({Update.class, Default.class}) @RequestBody FileGroup group) {
-        return ResponseDTO.success(fileGroupManager.update(group));
+    public RespDTO<FileGroup> update(@Validated({Update.class, Default.class}) @RequestBody FileGroup group) {
+        return RespDTO.success(fileGroupManager.update(group));
     }
 
     @ApiOperation("删除指定的文件分组")
     @DeleteMapping("/{id}")
-    public ResponseDTO<Void> delete(@PathVariable Integer id) {
+    public RespDTO<Void> delete(@PathVariable Integer id) {
         fileGroupManager.delete(id);
-        return ResponseDTO.success();
+        return RespDTO.success();
     }
 }

@@ -8,16 +8,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.constants.DefaultConstants;
+import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.ProjectDTO;
-import top.felixu.platform.model.dto.ProjectPackageDTO;
+import top.felixu.platform.model.dto.StatisticsDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.CaseInfoGroup;
-import top.felixu.platform.model.entity.Contactor;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.entity.ProjectGroup;
+import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.form.ProjectCopyForm;
 import top.felixu.platform.service.CaseInfoGroupService;
@@ -25,13 +26,14 @@ import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ProjectContactorService;
 import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
-import top.felixu.platform.util.FileUtils;
+import top.felixu.platform.service.RecordService;
+import top.felixu.platform.service.UserProjectService;
+import top.felixu.platform.util.UserHolderUtils;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.nio.charset.Charset;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +53,10 @@ public class ProjectManager {
     private final CaseInfoService caseInfoService;
 
     private final CaseInfoGroupService caseInfoGroupService;
+
+    private final UserProjectService userProjectService;
+
+    private final RecordService recordService;
 
     public Project getProjectById(Integer id) {
         return projectService.getProjectByIdAndCheck(id);
@@ -120,6 +126,23 @@ public class ProjectManager {
             caseInfo.setUpdatedBy(null);
         });
         caseInfoService.saveBatch(caseInfos);
+        return result;
+    }
+
+    public StatisticsDTO statistics() {
+        StatisticsDTO result = new StatisticsDTO(0, 0, 0);
+        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
+            List<Integer> projectIds = userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId());
+            if (CollectionUtils.isEmpty(projectIds))
+                return result;
+            result.setProjectNum(projectService.count(Wrappers.<Project>lambdaQuery().in(Project::getId, projectIds)));
+            result.setCaseNum(caseInfoService.count(Wrappers.<CaseInfo>lambdaQuery().in(CaseInfo::getProjectId, projectIds)));
+            result.setRecordNum(recordService.count(Wrappers.<Record>lambdaQuery().in(Record::getProjectId, projectIds)));
+        } else {
+            result.setProjectNum(projectService.count());
+            result.setCaseNum(caseInfoService.count());
+            result.setRecordNum(recordService.count());
+        }
         return result;
     }
 

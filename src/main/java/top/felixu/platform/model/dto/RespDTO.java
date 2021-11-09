@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseDTO<T> implements Serializable {
+public class RespDTO<T> implements Serializable {
 
     /**
      * 状态码
@@ -35,19 +35,19 @@ public class ResponseDTO<T> implements Serializable {
      */
     private T data;
 
-    public static <T> ResponseDTO<T> success() {
+    public static <T> RespDTO<T> success() {
         return success(null);
     }
 
-    public static <T> ResponseDTO<T> success(T data) {
+    public static <T> RespDTO<T> success(T data) {
         return build(ErrorCode.SUCCESS.getCode(), ErrorCode.SUCCESS.getMessage(), data);
     }
 
-    public static <T> ResponseDTO<T> fail(ErrorCode error) {
+    public static <T> RespDTO<T> fail(ErrorCode error) {
         return fail(error.getCode(), error.getMessage());
     }
 
-    public static <T> ResponseDTO<T> fail(BindingResult result) {
+    public static <T> RespDTO<T> fail(BindingResult result) {
         String errorMsg = result.getAllErrors().stream().map(objectError -> {
             FieldError error = (FieldError) objectError;
             return error.getField() + ": " + error.getDefaultMessage();
@@ -55,11 +55,11 @@ public class ResponseDTO<T> implements Serializable {
         return fail(ErrorCode.PARAM_ERROR.getCode(), errorMsg);
     }
 
-    public static <T> ResponseDTO<T> fail(int code, String message) {
+    public static <T> RespDTO<T> fail(int code, String message) {
         return build(code, message, null);
     }
 
-    private static <T> ResponseDTO<T> build(int code, String message, T data) {
-        return new ResponseDTO<T>(code, message, data);
+    private static <T> RespDTO<T> build(int code, String message, T data) {
+        return new RespDTO<T>(code, message, data);
     }
 }
