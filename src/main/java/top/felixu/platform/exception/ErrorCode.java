@@ -84,6 +84,7 @@ public enum ErrorCode {
     CASE_BUILD_PARAM_ERROR(5105, "用例参数构建失败"),
     PARAM_WRITE_VALUE_ERROR(5106, "往参数中写入值失败"),
     PROJECT_MUST_BE_NOT_NULL(5107, "查询用例要求 PROJECT ID 不能为空"),
+    URI_FORMAT_ERROR(5108, "URL 格式化错误")
     ;
 
     private final int code;

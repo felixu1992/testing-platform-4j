@@ -3,6 +3,8 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.ResponseDTO;
 import top.felixu.platform.model.entity.Record;
@@ -29,6 +31,7 @@ import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.manager.CaseInfoManager;
 import top.felixu.platform.service.manager.ProjectManager;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.groups.Default;
 
 /**
@@ -77,7 +80,20 @@ public class ProjectController {
         return ResponseDTO.success(caseInfoManager.execute(form));
     }
     // TODO: 09/06 导入
+
+    @ApiOperation("项目导入")
+    @PostMapping("/import")
+    public ResponseDTO<Void> importProject() {
+        return ResponseDTO.success();
+    }
+
+
     // TODO: 09/06 导出
+    @ApiOperation("项目导出")
+    @GetMapping("/export/{id}")
+    public void export(@ApiParam("项目ID") @PathVariable("id") String id, @ApiIgnore HttpServletResponse response) {
+        projectManager.export(id, response);
+    }
 
     @ApiOperation("更新项目")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

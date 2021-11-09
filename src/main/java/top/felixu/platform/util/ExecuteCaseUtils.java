@@ -1,6 +1,7 @@
 package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,11 +15,8 @@ import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
-import top.felixu.platform.model.entity.CaseInfo;
-import top.felixu.platform.model.entity.Dependency;
-import top.felixu.platform.model.entity.Expected;
-import top.felixu.platform.model.entity.Project;
-import top.felixu.platform.model.entity.Report;
+import top.felixu.platform.model.entity.*;
+import top.felixu.platform.service.FileInfoService;
 
 import java.io.File;
 import java.net.URI;
@@ -190,7 +188,16 @@ public class ExecuteCaseUtils {
                     reportMap.get(depend).getResponseContent());
             ValueUtils.setValue(params, dependency.getDependKey(), value);
         }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
-
+        //获取文件参数
+        FileInfoService fileInfoService = ApplicationUtils.getBean(FileInfoService.class);
+        params.entrySet().parallelStream().forEach(entry -> {
+            Object val = entry.getValue();
+            if (val instanceof String && ((String) val).startsWith("file:")) {
+                FileInfo fileInfo = fileInfoService.getById(((String) val).split(":")[1]);
+                FileSystemResource fsr = new FileSystemResource(fileInfo.getPath());
+                entry.setValue(fsr);
+            }
+        });
     }
 
     private static HttpHeaders buildHeaders(Map<String, String> parentHeaders, Map<String, String> selfHeaders) {
