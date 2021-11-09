@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.model.dto.RespDTO;
+import top.felixu.platform.model.dto.UserDTO;
 import top.felixu.platform.model.entity.User;
 import top.felixu.platform.model.form.ChangePasswordForm;
 import top.felixu.platform.model.form.LoginForm;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.form.UserForm;
 import top.felixu.platform.model.validation.ChangePassword;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -55,7 +57,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ApiOperation("查询用户详情")
-    public RespDTO<User> get(@PathVariable Integer id) {
+    public RespDTO<UserDTO> get(@PathVariable Integer id) {
         return RespDTO.success(userManager.getUserById(id));
     }
 
@@ -67,13 +69,13 @@ public class UserController {
 
     @ApiOperation("创建用户")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RespDTO<User> create(@Validated({Create.class, Default.class}) @RequestBody User user) {
+    public RespDTO<User> create(@Validated({Create.class, Default.class}) @RequestBody UserForm user) {
         return RespDTO.success(userManager.create(user));
     }
 
     @ApiOperation("修改用户信息")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RespDTO<User> update(@Validated({Update.class, Default.class}) @RequestBody User user) {
+    public RespDTO<User> update(@Validated({Update.class, Default.class}) @RequestBody UserForm user) {
         return RespDTO.success(userManager.update(user));
     }
 
