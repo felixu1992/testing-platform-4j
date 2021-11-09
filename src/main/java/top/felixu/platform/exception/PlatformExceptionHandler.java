@@ -50,7 +50,7 @@ public class PlatformExceptionHandler {
     public ResponseEntity<RespDTO<?>> handleBusinessEx(PlatformException ex, HttpServletRequest request) {
         log.error("---> 业务异常: {} {}", request.getMethod(), request.getRequestURI());
         log.error("---> error message: ", ex);
-        return new ResponseEntity<>(RespDTO.fail(ex.getCode(), ex.getMessage()), HttpStatus.OK);
+        return new ResponseEntity<>(RespDTO.fail(ex.getCode(), ex.getMessage(), null), HttpStatus.OK);
     }
 
     /*------------------------------- 参数校验出错的处理 -------------------------------*/
@@ -63,7 +63,7 @@ public class PlatformExceptionHandler {
         log.error("---> error message：", ex);
         ErrorCode error = ErrorCode.MISSING_PARAM;
         String message = name + ": " + error.getMessage();
-        return new ResponseEntity<>(RespDTO.fail(error.getCode(), message), HttpStatus.OK);
+        return new ResponseEntity<>(RespDTO.fail(error.getCode(), message, null), HttpStatus.OK);
     }
 
     @ExceptionHandler(BindException.class)
@@ -134,9 +134,9 @@ public class PlatformExceptionHandler {
         log.error("---> error message：", ex);
         ErrorCode error = ErrorCode.FAILED;
         if (isProd) {
-            return new ResponseEntity<>(RespDTO.fail(error.getCode(), INTERNAL_SERVER_ERROR_MESSAGE_DEFAULT), HttpStatus.OK);
+            return new ResponseEntity<>(RespDTO.fail(error.getCode(), INTERNAL_SERVER_ERROR_MESSAGE_DEFAULT, null), HttpStatus.OK);
         }
         String message = Throwables.getStackTraceAsString(ex);
-        return new ResponseEntity<>(RespDTO.fail(error.getCode(), message), HttpStatus.OK);
+        return new ResponseEntity<>(RespDTO.fail(error.getCode(), message, null), HttpStatus.OK);
     }
 }

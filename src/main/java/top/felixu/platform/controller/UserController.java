@@ -19,6 +19,7 @@ import top.felixu.platform.model.entity.User;
 import top.felixu.platform.model.form.ChangePasswordForm;
 import top.felixu.platform.model.form.LoginForm;
 import top.felixu.platform.model.form.PageRequestForm;
+import top.felixu.platform.model.validation.ChangePassword;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.service.manager.UserManager;
@@ -42,7 +43,7 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation("用户登录，只支持邮箱加密码登录")
     public RespDTO<User> login(@Validated @RequestBody LoginForm form) {
-        return RespDTO.success(userManager.login(form));
+        return userManager.login(form);
     }
 
     @DeleteMapping("/logout")
@@ -90,8 +91,14 @@ public class UserController {
 
     @ApiOperation("修改密码")
     @PutMapping("/change/{id}/password")
-    public RespDTO<User> changePassword(@PathVariable Integer id, @Validated @RequestBody ChangePasswordForm form) {
+    public RespDTO<User> changePassword(@PathVariable Integer id, @Validated({ChangePassword.class, Default.class}) @RequestBody ChangePasswordForm form) {
         return RespDTO.success(userManager.changePassword(id, form));
+    }
+
+    @ApiOperation("修改默认密码")
+    @PutMapping("/change/{id}/default/password")
+    public RespDTO<User> changeDefaultPassword(@PathVariable Integer id, @Validated @RequestBody ChangePasswordForm form) {
+        return RespDTO.success(userManager.changeDefaultPassword(id, form));
     }
 
     @DeleteMapping("/{id}")

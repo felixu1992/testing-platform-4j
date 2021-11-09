@@ -36,6 +36,7 @@ public enum ErrorCode {
     NEW_PASSWORD_SAME_ORIGINAL(1006, "您的新密码不可以与旧密码一致"),
     USER_DUPLICATE_EMAIL(1007, "用户邮箱已经被使用"),
     USER_DUPLICATE_PHONE(1008, "用户手机号已经被使用"),
+    CURRENT_PASSWORD_NOT_DEFAULT(1009, "当前密码并非默认密码"),
 
     /* ------------------- 联系人错误 --------------------*/
 

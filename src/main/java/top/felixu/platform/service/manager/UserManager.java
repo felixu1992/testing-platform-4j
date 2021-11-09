@@ -11,6 +11,7 @@ import top.felixu.platform.constants.CacheKeyConstants;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.entity.User;
 import top.felixu.platform.model.form.ChangePasswordForm;
 import top.felixu.platform.model.form.LoginForm;
@@ -38,19 +39,19 @@ public class UserManager {
 
     private final PermissionProperties properties;
 
-    public User login(LoginForm form) {
+    public RespDTO<User> login(LoginForm form) {
         // 根据帐号密码，查询用户
         User user = userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getEmail, form.getEmail())
                 .eq(User::getPassword, Md5Utils.encode(form.getPassword())));
         if (null == user)
             throw new PlatformException(ErrorCode.LOGIN_FAILED);
         if (user.getPassword().equals(properties.getDefaultPassword()))
-            throw new PlatformException(ErrorCode.DEFAULT_PASSWORD_NOT_SUPPORT);
+            return RespDTO.fail(ErrorCode.DEFAULT_PASSWORD_NOT_SUPPORT.getCode(), ErrorCode.DEFAULT_PASSWORD_NOT_SUPPORT.getMessage(), user);
         // 登录成功，设置 token
         user.setToken(JwtUtils.generate(user.getId()));
         // 缓存 token，并设置过期时间(这个会顶掉之前的登录，一个帐号只能一处登录)
         redisTemplate.opsForValue().set(CacheKeyConstants.Token.PREFIX + user.getId(), user.getToken(), properties.getTimeout());
-        return user;
+        return RespDTO.success(user);
     }
 
     public void logout() {
@@ -123,14 +124,30 @@ public class UserManager {
             throw new PlatformException(ErrorCode.ONLY_SUPPORT_CHANGE_SELF_PASSWORD);
         // TODO: 08/28 可以加个密码规则
         User user = userService.getUserByIdAndCheck(id);
+        // 判断旧密码是否正确
         if (!user.getPassword().equals(Md5Utils.encode(form.getOriginalPassword())))
             throw new PlatformException(ErrorCode.ORIGINAL_PASSWORD_IS_WRONG);
+        // 判断新密码是否还是默认密码
         String newPassword = Md5Utils.encode(form.getNewPassword());
         if (properties.getDefaultPassword().equals(newPassword))
             throw new PlatformException(ErrorCode.CAN_NOT_USE_DEFAULT_PASSWORD);
+        // 判断是否和原密码相同
         if (user.getPassword().equals(newPassword))
             throw new PlatformException(ErrorCode.NEW_PASSWORD_SAME_ORIGINAL);
         user.setPassword(newPassword);
+        redisTemplate.delete(CacheKeyConstants.Token.PREFIX + id);
+        return userService.update(user);
+    }
+
+    public User changeDefaultPassword(Integer id, ChangePasswordForm form) {
+        // TODO: 08/28 可以加个密码规则
+        User user = userService.getUserByIdAndCheck(id);
+        // 判断密码是否为默认密码
+        if (!user.getPassword().equals(properties.getDefaultPassword()))
+            throw new PlatformException(ErrorCode.CURRENT_PASSWORD_NOT_DEFAULT);
+        user.setPassword(Md5Utils.encode(form.getNewPassword()));
+        redisTemplate.delete(CacheKeyConstants.Token.PREFIX + id);
+        UserHolderUtils.setUser(user);
         return userService.update(user);
     }
 

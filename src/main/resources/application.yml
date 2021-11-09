@@ -30,6 +30,7 @@ platform:
       - /error
       - /favicon.ico
       - /
+      - /api/user/change/**/default/password
   mybatis:
     ignores:
       - platform_user

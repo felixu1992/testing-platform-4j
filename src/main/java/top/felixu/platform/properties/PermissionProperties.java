@@ -35,13 +35,12 @@ public class PermissionProperties {
      */
     private String secret = "Testing-Platform";
 
-
     /**
      * 默认密码 e7181c3101c7dba1fce03b2edf3e0d05 123456
      * 经过 {@link top.felixu.platform.util.Md5Utils#encode(String)} 加密后的结果
      * 如需自行指定默认密码，请按照上面提到的方式生成
      */
-    private String defaultPassword = "";
+    private String defaultPassword = "e7181c3101c7dba1fce03b2edf3e0d05";
 
     /**
      * 忽略拦截的路径

@@ -44,7 +44,7 @@ public class RespDTO<T> implements Serializable {
     }
 
     public static <T> RespDTO<T> fail(ErrorCode error) {
-        return fail(error.getCode(), error.getMessage());
+        return fail(error.getCode(), error.getMessage(), null);
     }
 
     public static <T> RespDTO<T> fail(BindingResult result) {
@@ -52,11 +52,11 @@ public class RespDTO<T> implements Serializable {
             FieldError error = (FieldError) objectError;
             return error.getField() + ": " + error.getDefaultMessage();
         }).collect(Collectors.joining(" & "));
-        return fail(ErrorCode.PARAM_ERROR.getCode(), errorMsg);
+        return fail(ErrorCode.PARAM_ERROR.getCode(), errorMsg, null);
     }
 
-    public static <T> RespDTO<T> fail(int code, String message) {
-        return build(code, message, null);
+    public static <T> RespDTO<T> fail(int code, String message, T data) {
+        return build(code, message, data);
     }
 
     private static <T> RespDTO<T> build(int code, String message, T data) {
