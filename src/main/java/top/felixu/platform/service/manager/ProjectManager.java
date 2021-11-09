@@ -1,6 +1,5 @@
 package top.felixu.platform.service.manager;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -156,33 +155,33 @@ public class ProjectManager {
      */
     public void export(String id, HttpServletResponse response) {
         //查找该项目的数据
-        Map<Integer, List<CaseInfo>> map = new HashMap<>();
-        List<CaseInfo> caseInfoList = caseInfoService.list(Wrappers.lambdaQuery(new CaseInfo()).eq(CaseInfo::getProjectId, id).select());
-        caseInfoList.parallelStream().forEach(ca3e -> {
-            List<CaseInfo> list = map.get(ca3e.getGroupId());
-            if (list == null || list.isEmpty()) {
-                list = new ArrayList<>(16);
-            }
-            list.add(ca3e);
-        });
-        List<ProjectPackageDTO> packageList = caseInfoGroupService
-                .list(Wrappers.lambdaQuery(new CaseInfoGroup()).eq(CaseInfoGroup::getProjectId, id).select())
-                .parallelStream().map(group -> new ProjectPackageDTO(group, map.get(group.getId())))
-                .collect(Collectors.toList());
-        //写成json文件
-        String filePath = "file/";
-        String fileName = LocalDateTime.now().toString() + "-" + id + ".json";
-        File jsonFile = new File(filePath + fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(jsonFile);
-            fos.write(JSON.toJSONString(packageList).getBytes(Charset.forName("UTF-8")));
-            //打成zip包
-            FileUtils.zipFile("file/", fileName, "file/");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        Map<Integer, List<CaseInfo>> map = new HashMap<>();
+//        List<CaseInfo> caseInfoList = caseInfoService.list(Wrappers.lambdaQuery(new CaseInfo()).eq(CaseInfo::getProjectId, id).select());
+//        caseInfoList.parallelStream().forEach(ca3e -> {
+//            List<CaseInfo> list = map.get(ca3e.getGroupId());
+//            if (list == null || list.isEmpty()) {
+//                list = new ArrayList<>(16);
+//            }
+//            list.add(ca3e);
+//        });
+//        List<ProjectPackageDTO> packageList = caseInfoGroupService
+//                .list(Wrappers.lambdaQuery(new CaseInfoGroup()).eq(CaseInfoGroup::getProjectId, id).select())
+//                .parallelStream().map(group -> new ProjectPackageDTO(group, map.get(group.getId())))
+//                .collect(Collectors.toList());
+//        //写成json文件
+//        String filePath = "file/";
+//        String fileName = LocalDateTime.now().toString() + "-" + id + ".json";
+//        File jsonFile = new File(filePath + fileName);
+//        try {
+//            FileOutputStream fos = new FileOutputStream(jsonFile);
+//            fos.write(JSON.toJSONString(packageList).getBytes(Charset.forName("UTF-8")));
+//            //打成zip包
+//            FileUtils.zipFile("file/", fileName, "file/");
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         //zip包推流
     }

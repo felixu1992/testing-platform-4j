@@ -44,8 +44,4 @@ public class Md5Utils {
     private static byte[] salt(String rawKey) {
         return (rawKey + SALT).getBytes();
     }
-
-    public static void main(String[] args) {
-        System.out.println(encode("123456"));
-    }
 }

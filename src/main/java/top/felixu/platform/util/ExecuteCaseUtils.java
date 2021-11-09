@@ -7,7 +7,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.func.ConsumerWrapper;
@@ -18,9 +17,6 @@ import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.entity.*;
 import top.felixu.platform.service.FileInfoService;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,8 +83,7 @@ public class ExecuteCaseUtils {
         // 得到请求参数
         Map<String, Object> params = ValueUtils.nullAs(caseInfo.getParams(), new HashMap<>());
         // 计算真正地入参
-        if (!CollectionUtils.isEmpty(dependencies))
-            buildParams(params, dependencies, reportMap, project, caseMap);
+        buildParams(params, dependencies, reportMap, project, caseMap);
         // 计算请求头
         HttpHeaders headers = buildHeaders(project.getHeaders(), report.getHeaders());
         // 计算真正的 url
@@ -153,47 +148,36 @@ public class ExecuteCaseUtils {
 
     private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Report report) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
-//        RestTemplate restTemplate = new RestTemplate();
-        MultiValueMap<String, Object> realParam = new LinkedMultiValueMap(params);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity(realParam, headers);
-        URI uri;
-        try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
-            throw new PlatformException(ErrorCode.URI_FORMAT_ERROR);
-        }
-        ResponseEntity<Map> resp = restTemplate.exchange(uri, HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+        MultiValueMap<String, Object> realParam = new LinkedMultiValueMap<>();
+        params.forEach(realParam::add);
+        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(realParam, headers);
+        ResponseEntity<Map> resp = restTemplate.exchange(url, HttpMethod.valueOf(method.getDesc()), entity, Map.class);
         report.setHttpStatus(resp.getStatusCodeValue());
-        report.setResponseContent(resp.getBody());
+        report.setResponseContent(ValueUtils.nullAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
-
-//    public static void main(String[] args) {
-//        Report report = new Report();
-//        Map<String,Object> param = new HashMap<>(16);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Authorization", "token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJmZWxpeHUiLCJ1c2VySWQiOjMsImlhdCI6MTYzNjM1MDIyOX0.GTTgO5a13Ot18G18tK1raHeTlhfxeh2RJvJVkx-CXw0iE8koevC_92scWBuJl3DKSYzXD-hLdvviIz-8xUfHQQ");
-//        request(HttpMethodEnum.GET, "http://localhost:20000/api/file-group/tree", headers, new HashMap<>(), report);
-//    }
 
     private static void buildParams(Map<String, Object> params, List<Dependency> dependencies,
                                     Map<Integer, Report> reportMap, Project project, Map<Integer, CaseInfo> caseMap) {
-        // 计算真正地入参
-        dependencies.forEach(ConsumerWrapper.wrapper(dependency -> {
-            // 确定依赖的用例已经执行过了
-            Integer depend = dependency.getDependValue().getDepend();
-            if (reportMap.get(depend) == null || !reportMap.get(depend).isExecuted())
-                doExecute(project, caseMap, reportMap, caseMap.get(depend));
-            // 得到需要插入的值
-            Object value = ValueUtils.getValue(dependency.getDependValue().getSteps(),
-                    reportMap.get(depend).getResponseContent());
-            ValueUtils.setValue(params, dependency.getDependKey(), value);
-        }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
-        //获取文件参数
+        if (!CollectionUtils.isEmpty(dependencies)) {
+            // 计算真正地入参
+            dependencies.forEach(ConsumerWrapper.wrapper(dependency -> {
+                // 确定依赖的用例已经执行过了
+                Integer depend = dependency.getDependValue().getDepend();
+                if (reportMap.get(depend) == null || !reportMap.get(depend).isExecuted())
+                    doExecute(project, caseMap, reportMap, caseMap.get(depend));
+                // 得到需要插入的值
+                Object value = ValueUtils.getValue(dependency.getDependValue().getSteps(),
+                        reportMap.get(depend).getResponseContent());
+                ValueUtils.setValue(params, dependency.getDependKey(), value);
+            }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
+        }
+        // 获取文件参数
         FileInfoService fileInfoService = ApplicationUtils.getBean(FileInfoService.class);
         params.entrySet().parallelStream().forEach(entry -> {
-            Object val = entry.getValue();
-            if (val instanceof String && ((String) val).startsWith("file:")) {
-                FileInfo fileInfo = fileInfoService.getById(((String) val).split(":")[1]);
+            Object value = entry.getValue();
+            if (value instanceof String && ((String) value).startsWith("file:")) {
+                String val = (String) value;
+                FileInfo fileInfo = fileInfoService.getFileInfoByIdAndCheck(Integer.valueOf(val.replace("file:", "")));
                 FileSystemResource fsr = new FileSystemResource(fileInfo.getPath());
                 entry.setValue(fsr);
             }
