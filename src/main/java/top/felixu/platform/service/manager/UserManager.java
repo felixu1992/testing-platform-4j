@@ -100,7 +100,8 @@ public class UserManager {
         user.setPassword(properties.getDefaultPassword());
         user.setSecret(Base64Utils.encodeToString(RandomStringUtils.make().getBytes(StandardCharsets.UTF_8)));
         userService.create(user);
-        updateRelation(user.getId(), user.getProjectIds());
+        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ADMIN)
+            updateRelation(user.getId(), user.getProjectIds());
         return user;
     }
 
@@ -114,7 +115,8 @@ public class UserManager {
         other.setSecret(null);
         checkAuthority(self, other.getId());
         userService.update(other);
-        updateRelation(user.getId(), user.getProjectIds());
+        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ADMIN)
+            updateRelation(user.getId(), user.getProjectIds());
         return other;
     }
 
@@ -180,11 +182,6 @@ public class UserManager {
     }
 
     private void updateRelation(Integer id, List<Integer> projectIds) {
-        // 是否有操作权限，仅自己的管理员可操作
-        User target = userService.getUserByIdAndCheck(id);
-        if (UserHolderUtils.getCurrentRole() != RoleTypeEnum.ADMIN
-                || !UserHolderUtils.getCurrentUserId().equals(target.getParentId()))
-            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
         // 判断项目是否都存在
         if (!CollectionUtils.isEmpty(projectIds)) {
             List<Project> projects = projectService.listByProjectIds(projectIds);
