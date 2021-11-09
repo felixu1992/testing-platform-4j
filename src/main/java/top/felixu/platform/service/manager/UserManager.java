@@ -71,7 +71,7 @@ public class UserManager {
             throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
         if (self.getRole() == RoleTypeEnum.ADMIN)
             user.setParentId(self.getId());
-        return userService.page(form.toPage(), Wrappers.lambdaQuery(user));
+        return userService.page(form.toPage(), Wrappers.lambdaQuery(user).eq(self.getRole() == RoleTypeEnum.SUPER_ADMIN, User::getRole, RoleTypeEnum.ADMIN));
     }
 
     public User create(User user){

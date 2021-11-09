@@ -3,6 +3,7 @@ package top.felixu.platform.model.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -40,14 +41,17 @@ public class User implements Serializable {
 
     @NotBlank
     @ApiModelProperty("用户名")
+    @TableField(condition = SqlCondition.LIKE)
     private String username;
 
     @NotBlank
     @ApiModelProperty("邮箱")
+    @TableField(condition = SqlCondition.LIKE)
     private String email;
 
     @NotBlank
     @ApiModelProperty("手机号")
+    @TableField(condition = SqlCondition.LIKE)
     private String phone;
 
     @ApiModelProperty("密码")
