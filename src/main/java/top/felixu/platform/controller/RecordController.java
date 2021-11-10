@@ -3,6 +3,7 @@ package top.felixu.platform.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.RecordDTO;
 import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
@@ -40,8 +41,8 @@ public class RecordController {
 
     @GetMapping
     @ApiOperation("分页查询用例执行记录")
-    public RespDTO<IPage<Record>> page(Record record, PageRequestForm form) {
-        return RespDTO.success(recordService.page(form.toPage(), new QueryWrapper<>(record)));
+    public RespDTO<IPage<RecordDTO>> page(Record record, PageRequestForm form) {
+        return RespDTO.success();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
