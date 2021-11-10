@@ -16,10 +16,14 @@ public class WrapperUtils {
 
     public static <T, R, E> LambdaQueryWrapper<T> relation(LambdaQueryWrapper<T> wrapper, SFunction<T, R> column,
                                                            UserProjectService userProjectService) {
-        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
-            List<Integer> projectIds = userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId());
-            wrapper.in(!CollectionUtils.isEmpty(projectIds), column, projectIds);
-        }
+        if (UserHolderUtils.getCurrentRole() != RoleTypeEnum.ORDINARY)
+            return wrapper;
+        return relation(wrapper, column, userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId()), true);
+    }
+
+    public static <T, R, E> LambdaQueryWrapper<T> relation(LambdaQueryWrapper<T> wrapper, SFunction<T, R> column,
+                                                           List<Integer> projectIds, boolean condition) {
+        wrapper.in(condition && !CollectionUtils.isEmpty(projectIds), column, projectIds);
         return wrapper;
     }
 }

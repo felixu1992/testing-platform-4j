@@ -29,8 +29,10 @@ import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.RecordService;
 import top.felixu.platform.service.UserProjectService;
 import top.felixu.platform.util.UserHolderUtils;
+import top.felixu.platform.util.WrapperUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -131,18 +133,11 @@ public class ProjectManager {
 
     public StatisticsDTO statistics() {
         StatisticsDTO result = new StatisticsDTO(0, 0, 0);
-        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
-            List<Integer> projectIds = userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId());
-            if (CollectionUtils.isEmpty(projectIds))
-                return result;
-            result.setProjectNum(projectService.count(Wrappers.<Project>lambdaQuery().in(Project::getId, projectIds)));
-            result.setCaseNum(caseInfoService.count(Wrappers.<CaseInfo>lambdaQuery().in(CaseInfo::getProjectId, projectIds)));
-            result.setRecordNum(recordService.count(Wrappers.<Record>lambdaQuery().in(Record::getProjectId, projectIds)));
-        } else {
-            result.setProjectNum(projectService.count());
-            result.setCaseNum(caseInfoService.count());
-            result.setRecordNum(recordService.count());
-        }
+        boolean condition = UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY;
+        List<Integer> projectIds = condition ? userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId()) : new ArrayList<>();
+        result.setProjectNum(projectService.count(WrapperUtils.relation(Wrappers.<Project>lambdaQuery(), Project::getId, projectIds, condition)));
+        result.setCaseNum(caseInfoService.count(WrapperUtils.relation(Wrappers.<CaseInfo>lambdaQuery(), CaseInfo::getProjectId, projectIds, condition)));
+        result.setRecordNum(recordService.count(WrapperUtils.relation(Wrappers.<Record>lambdaQuery(), Record::getProjectId, projectIds, condition)));
         return result;
     }
 

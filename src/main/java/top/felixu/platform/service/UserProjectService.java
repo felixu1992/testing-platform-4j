@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import top.felixu.platform.enums.RoleTypeEnum;
+import top.felixu.platform.exception.ErrorCode;
+import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.mapper.UserProjectMapper;
 import top.felixu.platform.model.entity.UserProject;
 import org.springframework.stereotype.Service;
+import top.felixu.platform.util.UserHolderUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,5 +48,15 @@ public class UserProjectService extends ServiceImpl<UserProjectMapper, UserProje
             return relation;
         }).collect(Collectors.toList());
         saveBatch(relations);
+    }
+
+    public void checkAuthority(Integer projectId) {
+        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
+            UserProject relation = getOne(Wrappers.<UserProject>lambdaQuery()
+                    .eq(UserProject::getUserId, UserHolderUtils.getCurrentUserId())
+                    .eq(UserProject::getProjectId, projectId));
+            if (relation == null)
+                throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
+        }
     }
 }
