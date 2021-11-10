@@ -1,5 +1,6 @@
 package top.felixu.platform.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
@@ -13,48 +14,55 @@ import java.util.Map;
  * @author felixu
  * @since 2021.09.14
  */
+@Slf4j
 public class ValueUtils {
 
-    public static void setValue(Map<String, Object> params, String[] steps, Object value) throws InstantiationException, IllegalAccessException {
+    public static void setValue(Map<String, Object> params, String[] steps, Object value) {
         Object result = params;
-        for (int i = 0; i < steps.length; i++) {
-            boolean last = i == steps.length - 1;
-            String step = steps[i];
-            // 是数字，按数组处理
-            if (isNumber(step)) {
-                // 不是数组要报错
-                if (result instanceof List) {
-                    // 取对应位置
-                    int index = Integer.parseInt(step);
-                    List<Object> temp = (ArrayList<Object>) result;
-                    // 如果位数不够，需要进行填充
-                    if (temp.size() <= index) {
-                        // 如果原有数组有元素，取对应元素类型填充，若无，按下一个步骤的类型来进行填充
-                        Class clazz = last ? value.getClass() : temp.size() > 0 ? temp.get(0).getClass() : (isNumber(steps[i + 1]) ? ArrayList.class : HashMap.class);
-                        int max = temp.size() - 1;
-                        for (int j = 0; j < index - max; j++)
-                            temp.add(clazz.newInstance());
+        try {
+            for (int i = 0; i < steps.length; i++) {
+                boolean last = i == steps.length - 1;
+                String step = steps[i];
+                // 是数字，按数组处理
+                if (isNumber(step)) {
+                    // 不是数组要报错
+                    if (result instanceof List) {
+                        // 取对应位置
+                        int index = Integer.parseInt(step);
+                        List<Object> temp = (ArrayList<Object>) result;
+                        // 如果位数不够，需要进行填充
+                        if (temp.size() <= index) {
+                            // 如果原有数组有元素，取对应元素类型填充，若无，按下一个步骤的类型来进行填充
+                            Class clazz = last ? value.getClass() : temp.size() > 0 ? temp.get(0).getClass() : (isNumber(steps[i + 1]) ? ArrayList.class : HashMap.class);
+                            int max = temp.size() - 1;
+                            for (int j = 0; j < index - max; j++)
+                                temp.add(clazz.newInstance());
+                        }
+                        // 取新值进行下一步
+                        if (last)
+                            temp.add(index, value);
+                        else
+                            result = temp.get(index);
+                    } else {
+                        throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
                     }
-                    // 取新值进行下一步
-                    if (last)
-                        temp.add(index, value);
-                    else
-                        result = temp.get(index);
-                }
-                throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
-            } else {
-                // 不是 map 报错
-                if (result instanceof Map) {
-                    if (last)
-                        ((Map<String, Object>) result).put(step, value);
-                    else {
-                        String next = steps[i + 1];
-                        result = ((Map<String, Object>) result).computeIfAbsent(step, t -> isNumber(next) ? new ArrayList<>() : new HashMap<>());
+                } else {
+                    // 不是 map 报错
+                    if (result instanceof Map) {
+                        if (last)
+                            ((Map<String, Object>) result).put(step, value);
+                        else {
+                            String next = steps[i + 1];
+                            result = ((Map<String, Object>) result).computeIfAbsent(step, t -> isNumber(next) ? new ArrayList<>() : new HashMap<>());
+                        }
+                    } else {
+                        throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
                     }
                 }
-                throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
             }
-
+        } catch (InstantiationException | IllegalAccessException ex) {
+            log.error("---> 参数写入值失败：", ex);
+            throw new PlatformException(ErrorCode.PARAM_WRITE_VALUE_ERROR);
         }
     }
 
@@ -90,8 +98,10 @@ public class ValueUtils {
      * @param <T>   范型对象
      * @return 返回对象值
      */
-    public static <T> T nullAs(T value, T def) {
+    public static <T> T emptyAs(T value, T def) {
         if (value == null)
+            return def;
+        if (value instanceof String && ((String) value).isEmpty() && ((String) value).trim().isEmpty())
             return def;
         return value;
     }

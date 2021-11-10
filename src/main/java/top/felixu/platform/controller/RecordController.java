@@ -1,6 +1,9 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -29,29 +32,21 @@ import javax.validation.groups.Default;
  */
 @RestController
 @RequiredArgsConstructor
+@Api(tags = "用例执行记录管理")
 @RequestMapping("/api/record")
 public class RecordController {
 
     private final RecordService recordService;
 
-    @GetMapping("/{id}")
-    public Record get(@PathVariable Long id) {
-        return recordService.getById(id);
-    }
-
     @GetMapping
-    public IPage<Record> page(Record record, PageRequestForm form) {
-        return recordService.page(form.toPage(), new QueryWrapper<>(record));
+    @ApiOperation("分页查询用例执行记录")
+    public RespDTO<IPage<Record>> page(Record record, PageRequestForm form) {
+        return RespDTO.success(recordService.page(form.toPage(), new QueryWrapper<>(record)));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public boolean create(@Validated({Create.class, Default.class}) @RequestBody Record record) {
         return recordService.save(record);
-    }
-
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody Record record) {
-        return recordService.updateById(record);
     }
 
     @DeleteMapping("/{id}")

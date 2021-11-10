@@ -27,7 +27,7 @@ import lombok.Data;
  * @since 2021-08-28
  */
 @Data
-@TableName("platform_report")
+@TableName(value = "platform_report", autoResultMap = true)
 @ApiModel(description = "用例测试记录")
 public class Report implements Serializable {
 
@@ -92,6 +92,7 @@ public class Report implements Serializable {
     private Integer delay;
 
     @ApiModelProperty(value = "返回值示例")
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private String sample;
 
     @ApiModelProperty(value = "用例分类")

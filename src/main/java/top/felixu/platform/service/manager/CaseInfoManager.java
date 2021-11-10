@@ -211,6 +211,7 @@ public class CaseInfoManager {
         record.setTotal(reports.size());
         // 存储结果和记录
         recordService.save(record);
+        reports.forEach(report -> report.setRecordId(record.getId()));
         reportService.saveBatch(reports);
         return record;
     }

@@ -10,6 +10,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.func.ConsumerWrapper;
+import top.felixu.common.json.JsonUtils;
 import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.exception.ErrorCode;
@@ -82,7 +83,7 @@ public class ExecuteCaseUtils {
             return;
         }
         // 得到请求参数
-        Map<String, Object> params = ValueUtils.nullAs(caseInfo.getParams(), new HashMap<>());
+        Map<String, Object> params = ValueUtils.emptyAs(caseInfo.getParams(), new HashMap<>());
         // 计算真正地入参
         buildParams(params, dependencies, reportMap, project, caseMap);
         // 计算请求头
@@ -149,19 +150,24 @@ public class ExecuteCaseUtils {
 
     private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Report report) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
-        MultiValueMap<String, Object> realParam = new LinkedMultiValueMap<>();
-        params.forEach(realParam::add);
-        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(realParam, headers);
+        HttpEntity entity;
+        if (MediaType.MULTIPART_FORM_DATA.equalsTypeAndSubtype(headers.getContentType())) {
+            MultiValueMap<String, Object> realParam = new LinkedMultiValueMap<>();
+            params.forEach(realParam::add);
+            entity = new HttpEntity<>(realParam, headers);
+        } else {
+            entity = new HttpEntity<>(params, headers);
+        }
         ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
         report.setHttpStatus(resp.getStatusCodeValue());
-        report.setResponseContent(ValueUtils.nullAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
+        report.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
 
-    private static void buildParams(Map<String, Object> params, List<Dependency> dependencies,
-                                    Map<Integer, Report> reportMap, Project project, Map<Integer, CaseInfo> caseMap) {
+    private static void buildParams(Map<String, Object> params, List<Dependency> dependencies, Map<Integer, Report> reportMap,
+                                    Project project, Map<Integer, CaseInfo> caseMap) {
         if (!CollectionUtils.isEmpty(dependencies)) {
             // 计算真正地入参
-            dependencies.forEach(ConsumerWrapper.wrapper(dependency -> {
+            JsonUtils.fromJsonToList(JsonUtils.toAlwaysJson(dependencies), Dependency.class).forEach(dependency -> {
                 // 确定依赖的用例已经执行过了
                 Integer depend = dependency.getDependValue().getDepend();
                 if (reportMap.get(depend) == null || !reportMap.get(depend).isExecuted())
@@ -170,7 +176,7 @@ public class ExecuteCaseUtils {
                 Object value = ValueUtils.getValue(dependency.getDependValue().getSteps(),
                         reportMap.get(depend).getResponseContent());
                 ValueUtils.setValue(params, dependency.getDependKey(), value);
-            }, () -> new PlatformException(ErrorCode.CASE_BUILD_PARAM_ERROR)));
+            });
         }
         // 获取文件参数
         FileInfoService fileInfoService = ApplicationUtils.getBean(FileInfoService.class);
@@ -206,14 +212,14 @@ public class ExecuteCaseUtils {
 
     private static String buildUrl(Project project, CaseInfo caseInfo, Map<String, Object> params) {
         // 得到真正的 host
-        String host = ValueUtils.nullAs(caseInfo.getHost(), project.getHost());
+        String host = ValueUtils.emptyAs(caseInfo.getHost(), project.getHost());
         if (ObjectUtils.isEmpty(host))
             throw new PlatformException(ErrorCode.CASE_HOST_IS_ERROR, caseInfo.getName());
         // 替换 url 中的占位符
         String url = caseInfo.getPath();
         Matcher matcher = Pattern.compile("[{](.*?)[}]", Pattern.DOTALL).matcher(url);
         while (matcher.find())
-            url = url.replace(matcher.group(), ValueUtils.nullAs(String.valueOf(params.get(matcher.group(1))), matcher.group()));
+            url = url.replace(matcher.group(), ValueUtils.emptyAs(String.valueOf(params.get(matcher.group(1))), matcher.group()));
         return host + url;
     }
 }
