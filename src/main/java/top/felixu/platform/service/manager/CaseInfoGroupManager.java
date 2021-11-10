@@ -3,7 +3,6 @@ package top.felixu.platform.service.manager;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.felixu.common.bean.BeanUtils;
@@ -11,17 +10,12 @@ import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.TreeNodeDTO;
 import top.felixu.platform.model.entity.CaseInfoGroup;
-import top.felixu.platform.model.entity.Contactor;
-import top.felixu.platform.model.entity.ContactorGroup;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.service.CaseInfoGroupService;
-import top.felixu.platform.service.ContactorGroupService;
-import top.felixu.platform.service.ContactorService;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +45,7 @@ public class CaseInfoGroupManager {
         List<TreeNodeDTO> result = groups.stream().map(group -> {
             groupIds.add(group.getId());
             TreeNodeDTO dto = new TreeNodeDTO(group.getName(), group.getId(), group.getId());
-            dto.setDisable(Boolean.TRUE);
+            dto.setDisabled(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
         // TODO: 09/07 填充子节点，并且这个接口是否需要，存疑

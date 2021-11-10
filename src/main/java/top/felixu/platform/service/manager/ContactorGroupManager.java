@@ -50,7 +50,7 @@ public class ContactorGroupManager {
         List<TreeNodeDTO> result = groups.stream().map(group -> {
             groupIds.add(group.getId());
             TreeNodeDTO dto = new TreeNodeDTO(group.getName(), group.getId(), group.getId());
-            dto.setDisable(Boolean.TRUE);
+            dto.setDisabled(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
         Map<Integer, List<Contactor>> childrenMap = contactorService.mapByGroupIds(groupIds);
@@ -58,7 +58,9 @@ public class ContactorGroupManager {
             // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
             group.setChildren(childrenMap.get(group.getKey()).stream().map(contactor -> new TreeNodeDTO(contactor.getName(), contactor.getId(), contactor.getId())).collect(Collectors.toList()));
         });
-        return result;
+        return result.parallelStream()
+                .filter(group -> !CollectionUtils.isEmpty(group.getChildren()))
+                .collect(Collectors.toList());
     }
 
     public ContactorGroup create(ContactorGroup group) {

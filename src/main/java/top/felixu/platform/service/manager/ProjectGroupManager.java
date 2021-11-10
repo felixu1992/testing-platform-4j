@@ -9,8 +9,6 @@ import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
 import top.felixu.platform.model.dto.TreeNodeDTO;
-import top.felixu.platform.model.entity.Contactor;
-import top.felixu.platform.model.entity.ContactorGroup;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectGroup;
 import top.felixu.platform.model.form.PageRequestForm;
@@ -52,15 +50,20 @@ public class ProjectGroupManager {
         List<TreeNodeDTO> result = groups.stream().map(group -> {
             groupIds.add(group.getId());
             TreeNodeDTO dto = new TreeNodeDTO(group.getName(), group.getId(), group.getId());
-            dto.setDisable(Boolean.TRUE);
+            dto.setDisabled(Boolean.TRUE);
             return dto;
         }).collect(Collectors.toList());
         Map<Integer, List<Project>> childrenMap = projectService.mapByGroupIds(groupIds);
         result.parallelStream().forEach(group -> {
             // 没有判断从 Map 中取值的结果不为 null 的原因是 ContactorService#mapByGroupIds 保证了不会为 null
-            group.setChildren(childrenMap.get(group.getKey()).stream().map(project -> new TreeNodeDTO(project.getName(), project.getId(), project.getId())).collect(Collectors.toList()));
+            group.setChildren(childrenMap.get(group.getKey()).stream()
+                    .map(project -> new TreeNodeDTO(project.getName(), project.getId(), project.getId()))
+                    .collect(Collectors.toList()));
         });
-        return result;
+        // 去除空分组
+        return result.parallelStream()
+                .filter(group -> !CollectionUtils.isEmpty(group.getChildren()))
+                .collect(Collectors.toList());
     }
 
     public ProjectGroup create(ProjectGroup group) {

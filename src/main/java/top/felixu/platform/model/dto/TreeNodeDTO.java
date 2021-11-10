@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-@ApiModel("联系人分组树节点")
+@ApiModel("树节点")
 public class TreeNodeDTO {
 
     @ApiModelProperty("显示内容")
@@ -29,7 +29,7 @@ public class TreeNodeDTO {
     private Integer key;
 
     @ApiModelProperty("是否可以选中")
-    private Boolean disable = Boolean.FALSE;
+    private Boolean disabled = Boolean.FALSE;
 
     @ApiModelProperty("子节点")
     private List<TreeNodeDTO> children = new ArrayList<>();
