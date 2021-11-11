@@ -88,9 +88,9 @@ public enum ErrorCode {
     URI_FORMAT_ERROR(5108, "URL 格式化错误"),
 
     /* ------------------- 报告错误 --------------------*/
-    RECORD_NOT_FOUND(6000, "当前测试报告不存在"),
+    REPORT_NOT_FOUND(6000, "当前测试记录不存在"),
 
-    REPORT_NOT_FOUND(6100, "当前测试记录不存在")
+    RECORD_NOT_FOUND(6100, "当前测试报告不存在"),
     ;
 
     private final int code;

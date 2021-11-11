@@ -31,9 +31,15 @@ public class RecordManager {
 
     private final UserProjectService userProjectService;
 
+    public Record getRecordById(Integer id) {
+        Record record = recordService.getRecordByIdAndCheck(id);
+        userProjectService.checkAuthority(record.getProjectId());
+        return record;
+    }
+
     public IPage<RecordDTO> page(Record record, PageRequestForm form) {
-        // 查询所属 Record
-        Report report = reportService.getRecordByIdAndCheck(record.getRecordId());
+        // 查询所属 report
+        Report report = reportService.getReportByIdAndCheck(record.getRecordId());
         // 校验是否有此项目的权限
         userProjectService.checkAuthority(report.getProjectId());
         // 查询项目

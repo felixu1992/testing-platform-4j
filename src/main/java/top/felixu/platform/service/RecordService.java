@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static top.felixu.platform.constants.CacheKeyConstants.Report.NAME;
-import static top.felixu.platform.constants.CacheKeyConstants.Report.REPORT;
+import static top.felixu.platform.constants.CacheKeyConstants.Record.NAME;
+import static top.felixu.platform.constants.CacheKeyConstants.Record.RECORD;
 
 /**
  * 用例测试记录 服务实现类
@@ -23,8 +23,8 @@ import static top.felixu.platform.constants.CacheKeyConstants.Report.REPORT;
 @Service
 public class RecordService extends ServiceImpl<ReportMapper, Record> implements IService<Record> {
 
-    @Cacheable(cacheNames = NAME, key = REPORT + " + #id", unless = "#result == null")
-    public Record getReportByIdAndCheck(Integer id) {
+    @Cacheable(cacheNames = NAME, key = RECORD + " + #id", unless = "#result == null")
+    public Record getRecordByIdAndCheck(Integer id) {
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.RECORD_NOT_FOUND));
     }
 }
