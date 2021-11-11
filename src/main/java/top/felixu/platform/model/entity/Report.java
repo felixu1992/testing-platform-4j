@@ -93,7 +93,7 @@ public class Report implements Serializable {
 
     @ApiModelProperty(value = "返回值示例")
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private String sample;
+    private Map<String, Object> sample;
 
     @ApiModelProperty(value = "用例分类")
     private Integer groupId;
@@ -106,7 +106,7 @@ public class Report implements Serializable {
     private Map<String, Object> responseContent;
 
     @ApiModelProperty(value = "请求耗时")
-    private Integer timeUsed;
+    private Long timeUsed;
 
     @ApiModelProperty(value = "测试报告 id")
     private Integer recordId;

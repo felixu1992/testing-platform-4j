@@ -52,10 +52,9 @@ public class UserProjectService extends ServiceImpl<UserProjectMapper, UserProje
 
     public void checkAuthority(Integer projectId) {
         if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
-            UserProject relation = getOne(Wrappers.<UserProject>lambdaQuery()
+            if (count(Wrappers.<UserProject>lambdaQuery()
                     .eq(UserProject::getUserId, UserHolderUtils.getCurrentUserId())
-                    .eq(UserProject::getProjectId, projectId));
-            if (relation == null)
+                    .eq(UserProject::getProjectId, projectId)) <= 0)
                 throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
         }
     }

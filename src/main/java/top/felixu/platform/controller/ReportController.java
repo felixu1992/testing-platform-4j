@@ -1,6 +1,9 @@
 package top.felixu.platform.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import top.felixu.platform.model.dto.ReportDTO;
+import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.validation.Create;
 import top.felixu.platform.model.validation.Update;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.felixu.platform.service.ReportService;
+import top.felixu.platform.service.manager.ReportManager;
 
 import javax.validation.groups.Default;
 
@@ -29,33 +33,24 @@ import javax.validation.groups.Default;
  */
 @RestController
 @RequiredArgsConstructor
+@Api(tags = "用例执行报告")
 @RequestMapping("/api/report")
 public class ReportController {
 
-    private final ReportService reportService;
-
-    @GetMapping("/{id}")
-    public Report get(@PathVariable Long id) {
-        return reportService.getById(id);
-    }
+    private final ReportManager reportManager;
+//
+//    @GetMapping("/{id}")
+//    public Report get(@PathVariable Long id) {
+//        return reportService.getById(id);
+//    }
 
     @GetMapping
-    public IPage<Report> page(Report report, PageRequestForm form) {
-        return reportService.page(form.toPage(), new QueryWrapper<>(report));
+    public RespDTO<IPage<ReportDTO>> page(Report report, PageRequestForm form) {
+        return RespDTO.success(reportManager.page(report, form));
     }
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean create(@Validated({Create.class, Default.class}) @RequestBody Report report) {
-        return reportService.save(report);
-    }
-
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public boolean update(@Validated({Update.class, Default.class}) @RequestBody Report report) {
-        return reportService.updateById(report);
-    }
-
-    @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Long id) {
-        return reportService.removeById(id);
-    }
+//
+//    @DeleteMapping("/{id}")
+//    public boolean delete(@PathVariable Long id) {
+//        return reportService.removeById(id);
+//    }
 }

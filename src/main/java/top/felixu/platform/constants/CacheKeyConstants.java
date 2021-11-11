@@ -69,4 +69,14 @@ public interface CacheKeyConstants {
         String PROJECT_GROUP_CASE_MAP = "'PROJECT-GROUP-CASE-MAP-'";
         String PROJECT_CASE_LIST = "PROJECT-CASE-";
     }
+
+    interface Record {
+        String NAME = "RECORD";
+        String RECORD = "'RECORD-'";
+    }
+
+    interface Report {
+        String NAME = "REPORT";
+        String REPORT = "'REPORT-'";
+    }
 }

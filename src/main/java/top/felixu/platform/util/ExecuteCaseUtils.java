@@ -69,7 +69,7 @@ public class ExecuteCaseUtils {
         // 构建结果
         Report report = BeanUtils.map(caseInfo, Report.class);
         report.setExecuted(true);
-        report.setTimeUsed(0);
+        report.setTimeUsed(0L);
         report.setResponseContent(Collections.emptyMap());
         report.setHttpStatus(0);
         report.setCaseId(caseInfo.getId());
@@ -158,7 +158,10 @@ public class ExecuteCaseUtils {
         } else {
             entity = new HttpEntity<>(params, headers);
         }
+        // TODO: 11/11 执行报错需要处理
+        long start = System.currentTimeMillis();
         ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+        report.setTimeUsed(System.currentTimeMillis() - start);
         report.setHttpStatus(resp.getStatusCodeValue());
         report.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
