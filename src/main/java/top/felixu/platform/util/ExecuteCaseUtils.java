@@ -9,7 +9,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
-import top.felixu.common.func.ConsumerWrapper;
 import top.felixu.common.json.JsonUtils;
 import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.HttpMethodEnum;
@@ -45,10 +44,10 @@ public class ExecuteCaseUtils {
      * @param caseInfos  需要被执行的用例
      * @return 当前执行产生的结果
      */
-    public static List<Report> execute(Project project, List<CaseInfo> collection, List<CaseInfo> caseInfos) {
+    public static List<Record> execute(Project project, List<CaseInfo> collection, List<CaseInfo> caseInfos) {
         if (CollectionUtils.isEmpty(collection) || CollectionUtils.isEmpty(caseInfos))
             return Collections.emptyList();
-        Map<Integer, Report> reportMap = new HashMap<>();
+        Map<Integer, Record> reportMap = new HashMap<>();
         caseInfos.forEach(caseInfo ->
                 doExecute(project, collection.stream().collect(Collectors.toMap(CaseInfo::getId, Function.identity())), reportMap, caseInfo)
         );
@@ -63,23 +62,23 @@ public class ExecuteCaseUtils {
      * @param reportMap 执行过的用例集合
      * @param caseInfo  当前需要执行的用例
      */
-    private static void doExecute(Project project, Map<Integer, CaseInfo> caseMap, Map<Integer, Report> reportMap, CaseInfo caseInfo) {
+    private static void doExecute(Project project, Map<Integer, CaseInfo> caseMap, Map<Integer, Record> reportMap, CaseInfo caseInfo) {
         // 得到当前用例的依赖
         List<Dependency> dependencies = caseInfo.getDependencies();
         // 构建结果
-        Report report = BeanUtils.map(caseInfo, Report.class);
-        report.setExecuted(true);
-        report.setTimeUsed(0L);
-        report.setResponseContent(Collections.emptyMap());
-        report.setHttpStatus(0);
-        report.setCaseId(caseInfo.getId());
-        report.setId(null);
-        report.setStatus(CaseStatusEnum.FAILED);
-        reportMap.put(report.getCaseId(), report);
+        Record record = BeanUtils.map(caseInfo, Record.class);
+        record.setExecuted(true);
+        record.setTimeUsed(0L);
+        record.setResponseContent(Collections.emptyMap());
+        record.setHttpStatus(0);
+        record.setCaseId(caseInfo.getId());
+        record.setId(null);
+        record.setStatus(CaseStatusEnum.FAILED);
+        reportMap.put(record.getCaseId(), record);
         // 判断当前用例是否需要执行
         if (!Boolean.TRUE.equals(caseInfo.getRun())) {
             // 不需要执行
-            report.setStatus(CaseStatusEnum.IGNORED);
+            record.setStatus(CaseStatusEnum.IGNORED);
             return;
         }
         // 得到请求参数
@@ -87,7 +86,7 @@ public class ExecuteCaseUtils {
         // 计算真正地入参
         buildParams(params, dependencies, reportMap, project, caseMap);
         // 计算请求头
-        HttpHeaders headers = buildHeaders(project.getHeaders(), report.getHeaders());
+        HttpHeaders headers = buildHeaders(project.getHeaders(), record.getHeaders());
         // 计算真正的 url
         String url = buildUrl(project, caseInfo, params);
         // 是否需要延时
@@ -99,27 +98,27 @@ public class ExecuteCaseUtils {
             }
         }
         // 执行请求，获得请求结果
-        request(caseInfo.getMethod(), url, headers, params, report);
+        request(caseInfo.getMethod(), url, headers, params, record);
         // 计算用例执行结果
-        checkStatus(project, report, caseMap, reportMap);
+        checkStatus(project, record, caseMap, reportMap);
     }
 
-    private static void checkStatus(Project project, Report report, Map<Integer, CaseInfo> caseMap, Map<Integer, Report> reportMap) {
+    private static void checkStatus(Project project, Record record, Map<Integer, CaseInfo> caseMap, Map<Integer, Record> reportMap) {
         // 需要校验状态码，状态码没过，直接失败
-        if (report.getCheckStatus() && !report.getExpectedHttpStatus().equals(report.getHttpStatus())) {
-            report.setStatus(CaseStatusEnum.FAILED);
+        if (record.getCheckStatus() && !record.getExpectedHttpStatus().equals(record.getHttpStatus())) {
+            record.setStatus(CaseStatusEnum.FAILED);
             return;
         }
         // 没有需要校验的结果，直接成功
-        List<Expected> expects = report.getExpects();
+        List<Expected> expects = record.getExpects();
         if (CollectionUtils.isEmpty(expects)) {
-            report.setStatus(CaseStatusEnum.PASSED);
+            record.setStatus(CaseStatusEnum.PASSED);
             return;
         }
         // 根据预期结果，计算是成功还是失败
-        report.setStatus(expects.stream().allMatch(expected -> {
+        record.setStatus(expects.stream().allMatch(expected -> {
             // 得到要校验的结果
-            Object result = ValueUtils.getValue(expected.getExpectKey(), report.getResponseContent());
+            Object result = ValueUtils.getValue(expected.getExpectKey(), record.getResponseContent());
             // 计算需要对比的值
             Object expect;
             Expected.ExpectValue expectValue = expected.getExpectValue();
@@ -148,7 +147,7 @@ public class ExecuteCaseUtils {
         }) ? CaseStatusEnum.PASSED : CaseStatusEnum.FAILED);
     }
 
-    private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Report report) {
+    private static void request(HttpMethodEnum method, String url, HttpHeaders headers, Map<String, Object> params, Record record) {
         RestTemplate restTemplate = ApplicationUtils.getBean(RestTemplate.class);
         HttpEntity entity;
         if (MediaType.MULTIPART_FORM_DATA.equalsTypeAndSubtype(headers.getContentType())) {
@@ -161,12 +160,12 @@ public class ExecuteCaseUtils {
         // TODO: 11/11 执行报错需要处理
         long start = System.currentTimeMillis();
         ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
-        report.setTimeUsed(System.currentTimeMillis() - start);
-        report.setHttpStatus(resp.getStatusCodeValue());
-        report.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
+        record.setTimeUsed(System.currentTimeMillis() - start);
+        record.setHttpStatus(resp.getStatusCodeValue());
+        record.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
 
-    private static void buildParams(Map<String, Object> params, List<Dependency> dependencies, Map<Integer, Report> reportMap,
+    private static void buildParams(Map<String, Object> params, List<Dependency> dependencies, Map<Integer, Record> reportMap,
                                     Project project, Map<Integer, CaseInfo> caseMap) {
         if (!CollectionUtils.isEmpty(dependencies)) {
             // 计算真正地入参

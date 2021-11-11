@@ -15,8 +15,8 @@ import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.CaseInfoGroup;
 import top.felixu.platform.model.entity.Project;
-import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.entity.Report;
+import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.model.form.CaseCopyForm;
 import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.CaseSortForm;
@@ -25,8 +25,8 @@ import top.felixu.platform.service.CaseInfoGroupService;
 import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ContactorService;
 import top.felixu.platform.service.ProjectService;
-import top.felixu.platform.service.RecordService;
 import top.felixu.platform.service.ReportService;
+import top.felixu.platform.service.RecordService;
 import top.felixu.platform.util.ExecuteCaseUtils;
 
 import java.util.Collections;
@@ -50,9 +50,9 @@ public class CaseInfoManager {
 
     private final ContactorService contactorService;
 
-    private final RecordService recordService;
-
     private final ReportService reportService;
+
+    private final RecordService recordService;
 
     public CaseInfoDTO getCaseInfoById(Integer id) {
         CaseInfoDTO dto = BeanUtils.map(caseInfoService.getCaseInfoByIdAndCheck(id), CaseInfoDTO.class);
@@ -184,7 +184,7 @@ public class CaseInfoManager {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Record execute(CaseExecuteForm form) {
+    public Report execute(CaseExecuteForm form) {
         // 查询所属项目
         Project project = projectService.getProjectByIdAndCheck(form.getProjectId());
         // 查询项目下所有用例
@@ -199,21 +199,21 @@ public class CaseInfoManager {
         else
             caseInfos = cases;
         // 执行用例得到结果集
-        List<Report> reports = ExecuteCaseUtils.execute(project, cases, caseInfos);
+        List<Record> records = ExecuteCaseUtils.execute(project, cases, caseInfos);
         // 创建记录
-        Record record = new Record();
-        record.setGroupId(project.getGroupId());
-        record.setProjectId(project.getId());
-        record.setRemark(project.getRemark());
-        record.setPassed((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.PASSED).count());
-        record.setFailed((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.FAILED).count());
-        record.setIgnored((int) reports.stream().filter(report -> report.getStatus() == CaseStatusEnum.IGNORED).count());
-        record.setTotal(reports.size());
+        Report record1 = new Report();
+        record1.setGroupId(project.getGroupId());
+        record1.setProjectId(project.getId());
+        record1.setRemark(project.getRemark());
+        record1.setPassed((int) records.stream().filter(report -> report.getStatus() == CaseStatusEnum.PASSED).count());
+        record1.setFailed((int) records.stream().filter(report -> report.getStatus() == CaseStatusEnum.FAILED).count());
+        record1.setIgnored((int) records.stream().filter(report -> report.getStatus() == CaseStatusEnum.IGNORED).count());
+        record1.setTotal(records.size());
         // 存储结果和记录
-        recordService.save(record);
-        reports.forEach(report -> report.setRecordId(record.getId()));
-        reportService.saveBatch(reports);
-        return record;
+        reportService.save(record1);
+        records.forEach(report -> report.setRecordId(record1.getId()));
+        recordService.saveBatch(records);
+        return record1;
     }
 
     private int getNextSort(Integer projectId) {

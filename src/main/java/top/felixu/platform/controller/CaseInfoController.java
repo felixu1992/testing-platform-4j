@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.entity.CaseInfo;
-import top.felixu.platform.model.entity.Record;
+import top.felixu.platform.model.entity.Report;
 import top.felixu.platform.model.form.CaseCopyForm;
 import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.CaseSortForm;
@@ -89,7 +89,7 @@ public class CaseInfoController {
 
     @PostMapping("/execute")
     @ApiOperation("执行用例")
-    public RespDTO<Record> execute(@Validated({CaseExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
+    public RespDTO<Report> execute(@Validated({CaseExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
         return RespDTO.success(caseInfoManager.execute(form));
     }
 }

@@ -18,7 +18,7 @@ import top.felixu.platform.model.entity.CaseInfoGroup;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.entity.ProjectGroup;
-import top.felixu.platform.model.entity.Record;
+import top.felixu.platform.model.entity.Report;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.form.ProjectCopyForm;
 import top.felixu.platform.service.CaseInfoGroupService;
@@ -26,7 +26,7 @@ import top.felixu.platform.service.CaseInfoService;
 import top.felixu.platform.service.ProjectContactorService;
 import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
-import top.felixu.platform.service.RecordService;
+import top.felixu.platform.service.ReportService;
 import top.felixu.platform.service.UserProjectService;
 import top.felixu.platform.util.UserHolderUtils;
 import top.felixu.platform.util.WrapperUtils;
@@ -58,7 +58,7 @@ public class ProjectManager {
 
     private final UserProjectService userProjectService;
 
-    private final RecordService recordService;
+    private final ReportService reportService;
 
     public Project getProjectById(Integer id) {
         return projectService.getProjectByIdAndCheck(id);
@@ -137,7 +137,7 @@ public class ProjectManager {
         List<Integer> projectIds = condition ? userProjectService.getProjectIdsByUserId(UserHolderUtils.getCurrentUserId()) : new ArrayList<>();
         result.setProjectNum(projectService.count(WrapperUtils.relation(Wrappers.<Project>lambdaQuery(), Project::getId, projectIds, condition)));
         result.setCaseNum(caseInfoService.count(WrapperUtils.relation(Wrappers.<CaseInfo>lambdaQuery(), CaseInfo::getProjectId, projectIds, condition)));
-        result.setRecordNum(recordService.count(WrapperUtils.relation(Wrappers.<Record>lambdaQuery(), Record::getProjectId, projectIds, condition)));
+        result.setRecordNum(reportService.count(WrapperUtils.relation(Wrappers.<Report>lambdaQuery(), Report::getProjectId, projectIds, condition)));
         return result;
     }
 

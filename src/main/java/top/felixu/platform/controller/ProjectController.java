@@ -8,7 +8,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.dto.StatisticsDTO;
-import top.felixu.platform.model.entity.Record;
+import top.felixu.platform.model.entity.Report;
 import top.felixu.platform.model.form.CaseExecuteForm;
 import top.felixu.platform.model.form.PageRequestForm;
 import top.felixu.platform.model.form.ProjectCopyForm;
@@ -75,7 +75,7 @@ public class ProjectController {
 
     @ApiOperation("用例执行")
     @PostMapping("/execute")
-    public RespDTO<Record> execute(@Validated({ProjectExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
+    public RespDTO<Report> execute(@Validated({ProjectExecute.class, Default.class}) @RequestBody CaseExecuteForm form) {
         return RespDTO.success(caseInfoManager.execute(form));
     }
     // TODO: 09/06 导入
