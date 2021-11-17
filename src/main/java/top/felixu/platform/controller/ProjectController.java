@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.RespDTO;
@@ -18,15 +20,7 @@ import top.felixu.platform.model.validation.Update;
 import top.felixu.platform.model.entity.Project;
 import org.springframework.http.MediaType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import top.felixu.platform.service.manager.CaseInfoManager;
 import top.felixu.platform.service.manager.ProjectManager;
 
@@ -111,5 +105,12 @@ public class ProjectController {
     @ApiOperation("首页项目统计信息")
     public RespDTO<StatisticsDTO> statistics() {
         return RespDTO.success(projectManager.statistics());
+    }
+
+    @PostMapping("/v1/import")
+    @ApiOperation("兼容旧版本的导入")
+    public RespDTO<Void> importV1(@RequestPart("file") MultipartFile file) {
+        projectManager.importV1(file);
+        return RespDTO.success();
     }
 }

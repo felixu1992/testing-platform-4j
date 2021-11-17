@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.platform.constants.DefaultConstants;
 import top.felixu.platform.enums.RoleTypeEnum;
@@ -202,5 +203,9 @@ public class ProjectManager {
 //        }
 
         //zip包推流
+    }
+
+    public void importV1 (MultipartFile file) {
+
     }
 }

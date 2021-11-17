@@ -2,8 +2,17 @@ package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.ss.usermodel.*;
+import top.felixu.platform.model.entity.CaseInfo;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
@@ -75,5 +84,137 @@ public class FileUtils {
             is.close();
         }
 
+    }
+
+    /**
+     * @description 检查文件是否为excel
+     * @param fileName
+     * @author zhangyn
+     * @date 2021/6/3 5:39 下午
+     * @return boolean
+     */
+    public static boolean checkExcelFile(String fileName) {
+        if (null == fileName || "".equals(fileName)) {
+            return false;
+        }
+        return fileName.toLowerCase().matches(".*(\\.xls$|\\.xlsx$)");
+    }
+
+
+    /**
+     * @description extract data
+     * @param sheet
+     * @author zhangyn
+     * @date 2021/6/3 5:38 下午
+     * @return com.isyscore.bigdatagroup.udmp.data.api.vo.ExcelDataVo
+     */
+    public static CaseInfo parseExcelSheet(Sheet sheet) {
+        //todo
+//        List<String> colummList = new ArrayList<>(16);
+//        List<Object[]> columnValueList = new ArrayList<>();
+//        Row columnRow = sheet.getRow(6);
+//        if (null == columnRow) {
+//            throw new IllegalArgumentException("Sheet=[" + sheet.getSheetName() + "] - 数据格式不对，必须从第六行开始");
+//        }
+//        List<String> columnNameList = new ArrayList<>();
+//        List<CaseInfo> columnInfoList = new ArrayList<>();
+//        NumberFormat numberFormat = new DecimalFormat("#####.########");
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        int index = 6;
+//        Iterator<Cell> columnRowIterator = columnRow.iterator();
+//        while (index > 0) {
+//            columnRowIterator.next();
+//        }
+//        //此时 index = 0
+//        for (; columnRowIterator.hasNext(); index++) {
+//            Cell columnCell = columnRowIterator.next();
+//            columnNameList.add(columnCell.getStringCellValue());
+//            colummList.add(columnCell.getStringCellValue());
+//            ColumnInfoVo columnInfo = new ColumnInfoVo();
+//            columnInfo.setCnName(columnCell.getStringCellValue());
+//            columnInfo.setEnName("column" + index);
+//            columnInfo.setLength(10);
+//            columnInfo.setDataType("VARCHAR(255)");
+//            columnInfo.setComment(columnInfo.getComment());
+//            columnInfoList.add(columnInfo);
+//        }
+//        sheet.removeRow(columnRow);
+//        ExcelDataVo excelDataVo = new ExcelDataVo();
+//        excelDataVo.setTableName(sheet.getSheetName());
+//        excelDataVo.setColumnInfoList(columnInfoList);
+//        for (Iterator<Row> rowIterator = sheet.rowIterator(); rowIterator.hasNext(); ) {
+//            Row next = rowIterator.next();
+//            next.getRowNum();
+//            Object[] columnValues = new Object[columnNameList.size()];
+//            for (int i = 0; i < columnNameList.size(); i++) {
+//                Cell cell = next.getCell(i);
+//                if (null == cell) {
+//                    continue;
+//                }
+//                String cellValue = null;
+//                switch (cell.getCellTypeEnum()) {
+//                    case STRING: {
+//                        cellValue = cell.getStringCellValue().trim();
+//                        break;
+//                    }
+//                    case NUMERIC: {
+//                        double numericCellValue = cell.getNumericCellValue();
+//                        if (HSSFDateUtil.isCellDateFormatted(cell)) {
+//                            cellValue = sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
+//                        } else {
+//                            cellValue = numberFormat.format(numericCellValue);
+//                        }
+//                        break;
+//                    }
+//                    case BLANK:
+//                        _NONE:
+//                        {
+//                            cellValue = "";
+//                            break;
+//                        }
+//                    case BOOLEAN: {
+//                        cellValue = Boolean.valueOf(cell.getBooleanCellValue()).toString();
+//                        break;
+//                    }
+//                    case ERROR: {
+//                        cellValue = Byte.valueOf(cell.getErrorCellValue()).toString();
+//                        break;
+//                    }
+//                    case FORMULA: {
+//                        cellValue = "";
+//                        break;
+//                    }
+//                    default: {
+//                        cellValue = "";
+//                    }
+//                }
+//                cellValue = null == cellValue ? "" : cellValue;
+//                columnValues[i] = cellValue;
+//                columnInfoList.get(i).setMaxLength(cellValue.length());
+//            }
+//            columnValueList.add(columnValues);
+//            rowIterator.remove();
+//        }
+//        excelDataVo.setColumnValueList(columnValueList);
+//        return excelDataVo;
+        return null;
+    }
+
+    /**
+     * @description 迭代sheet
+     * @param inputStream
+     * @author zhangyn
+     * @date 2021/6/3 5:48 下午
+     * @return java.util.List<com.isyscore.bigdatagroup.udmp.data.api.vo.ExcelDataVo>
+     */
+    public static List<CaseInfo> parseExcel(InputStream inputStream) throws Exception {
+        List<CaseInfo> resultList = new ArrayList<>();
+        try (Workbook wb = WorkbookFactory.create(inputStream)) {
+            Iterator<Sheet> iterator = wb.sheetIterator();
+            while (iterator.hasNext()) {
+                resultList.add(parseExcelSheet(iterator.next()));
+            }
+        }
+        return resultList;
     }
 }
