@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import top.felixu.common.bean.BeanUtils;
 import top.felixu.common.json.JsonUtils;
@@ -157,12 +158,18 @@ public class ExecuteCaseUtils {
         } else {
             entity = new HttpEntity<>(params, headers);
         }
-        // TODO: 11/11 执行报错需要处理
         long start = System.currentTimeMillis();
-        ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+        try {
+            ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
+            record.setHttpStatus(resp.getStatusCodeValue());
+            record.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
+        } catch (RestClientException e) {
+            //吞掉异常标记为当前用例执行失败
+            log.error("请求：{} # {} 执行失败", url, method);
+            record.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            record.setResponseContent(new HashMap<>());
+        }
         record.setTimeUsed(System.currentTimeMillis() - start);
-        record.setHttpStatus(resp.getStatusCodeValue());
-        record.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
     }
 
     private static void buildParams(Map<String, Object> params, List<Dependency> dependencies, Map<Integer, Record> reportMap,
