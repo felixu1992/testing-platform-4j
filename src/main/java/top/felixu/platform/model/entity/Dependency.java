@@ -1,5 +1,6 @@
 package top.felixu.platform.model.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -22,6 +23,7 @@ public class Dependency {
     private DependValue dependValue;
 
     @Data
+    @Builder
     public static class DependValue {
 
         /**

@@ -3,8 +3,12 @@ package top.felixu.platform.service.manager;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.ImmutableList;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.felixu.common.bean.BeanUtils;
@@ -29,14 +33,18 @@ import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.service.UserProjectService;
+import top.felixu.platform.util.FileUtils;
 import top.felixu.platform.util.UserHolderUtils;
 import top.felixu.platform.util.WrapperUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +53,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectManager {
 
     private final ProjectService projectService;
@@ -205,7 +214,55 @@ public class ProjectManager {
         //zip包推流
     }
 
-    public void importV1 (MultipartFile file) {
+    @Transactional(rollbackFor = Exception.class)
+    public void importV1 (Integer id, MultipartFile file) {
+        List<CaseInfo> res;
+        try {
+            res = FileUtils.parseExcel(file.getInputStream());
+        }catch (Exception e) {
+            log.error("文件导入失败：{}", e);
+            throw new PlatformException(ErrorCode.IMPORT_ERROR);
+        }
+        //处理依赖关系，落库
+        Integer owner = UserHolderUtils.getOwner();
+        CaseInfoGroup group = new CaseInfoGroup();
+        group.setName(file.getName());
+        group.setProjectId(id);
+        group.setOwner(owner);
+        caseInfoGroupService.save(group);
+        for (int i = 0; i < res.size(); i++) {
+            CaseInfo caseInfo = res.get(i);
+            caseInfo.setProjectId(id);
+            caseInfo.setSort(i);
+            caseInfo.setGroupId(group.getId());
+            caseInfo.setOwner(owner);
+            caseInfo.setCheckStatus(false);
+            //旧版本的 expected_key 和 expected_val 是固定值，默认不会存在依赖关系，只需要关注入参就好
+            if (caseInfo.getDependencies() == null) {
+                caseInfoService.save(caseInfo);
+            }
+        }
 
+        //更新依赖
+        int i = 0;
+        for (; i < res.size(); i++) {
+            CaseInfo caseInfo = res.get(i);
+            caseInfo.setProjectId(id);
+            caseInfo.setSort(i);
+            caseInfo.setGroupId(group.getId());
+            caseInfo.setOwner(owner);
+            caseInfo.setCheckStatus(false);
+            //旧版本的 expected_key 和 expected_val 是固定值，默认不会存在依赖关系，只需要关注入参就好
+            if (caseInfo.getDependencies() != null) {
+                caseInfo.getDependencies().forEach(dept -> {
+                    final Integer index = dept.getDependValue().getDepend();
+                    dept.getDependValue().setDepend(res.get(index).getId());
+                });
+                caseInfoService.save(caseInfo);
+            }
+        }
+        log.info("导入完毕，共{}条记录", i);
     }
+
+
 }

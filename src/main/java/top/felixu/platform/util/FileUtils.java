@@ -2,17 +2,20 @@ package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.*;
+import top.felixu.common.json.JsonUtils;
+import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.Dependency;
+import top.felixu.platform.model.entity.Expected;
 
 import java.io.*;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
@@ -106,98 +109,103 @@ public class FileUtils {
      * @param sheet
      * @author zhangyn
      * @date 2021/6/3 5:38 下午
-     * @return com.isyscore.bigdatagroup.udmp.data.api.vo.ExcelDataVo
      */
-    public static CaseInfo parseExcelSheet(Sheet sheet) {
-        //todo
-//        List<String> colummList = new ArrayList<>(16);
-//        List<Object[]> columnValueList = new ArrayList<>();
-//        Row columnRow = sheet.getRow(6);
-//        if (null == columnRow) {
-//            throw new IllegalArgumentException("Sheet=[" + sheet.getSheetName() + "] - 数据格式不对，必须从第六行开始");
-//        }
-//        List<String> columnNameList = new ArrayList<>();
-//        List<CaseInfo> columnInfoList = new ArrayList<>();
-//        NumberFormat numberFormat = new DecimalFormat("#####.########");
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        int index = 6;
-//        Iterator<Cell> columnRowIterator = columnRow.iterator();
-//        while (index > 0) {
-//            columnRowIterator.next();
-//        }
-//        //此时 index = 0
-//        for (; columnRowIterator.hasNext(); index++) {
-//            Cell columnCell = columnRowIterator.next();
-//            columnNameList.add(columnCell.getStringCellValue());
-//            colummList.add(columnCell.getStringCellValue());
-//            ColumnInfoVo columnInfo = new ColumnInfoVo();
-//            columnInfo.setCnName(columnCell.getStringCellValue());
-//            columnInfo.setEnName("column" + index);
-//            columnInfo.setLength(10);
-//            columnInfo.setDataType("VARCHAR(255)");
-//            columnInfo.setComment(columnInfo.getComment());
-//            columnInfoList.add(columnInfo);
-//        }
-//        sheet.removeRow(columnRow);
-//        ExcelDataVo excelDataVo = new ExcelDataVo();
-//        excelDataVo.setTableName(sheet.getSheetName());
-//        excelDataVo.setColumnInfoList(columnInfoList);
-//        for (Iterator<Row> rowIterator = sheet.rowIterator(); rowIterator.hasNext(); ) {
-//            Row next = rowIterator.next();
-//            next.getRowNum();
-//            Object[] columnValues = new Object[columnNameList.size()];
-//            for (int i = 0; i < columnNameList.size(); i++) {
-//                Cell cell = next.getCell(i);
-//                if (null == cell) {
-//                    continue;
-//                }
-//                String cellValue = null;
-//                switch (cell.getCellTypeEnum()) {
-//                    case STRING: {
-//                        cellValue = cell.getStringCellValue().trim();
-//                        break;
-//                    }
-//                    case NUMERIC: {
-//                        double numericCellValue = cell.getNumericCellValue();
-//                        if (HSSFDateUtil.isCellDateFormatted(cell)) {
-//                            cellValue = sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
-//                        } else {
-//                            cellValue = numberFormat.format(numericCellValue);
-//                        }
-//                        break;
-//                    }
-//                    case BLANK:
-//                        _NONE:
-//                        {
-//                            cellValue = "";
-//                            break;
-//                        }
-//                    case BOOLEAN: {
-//                        cellValue = Boolean.valueOf(cell.getBooleanCellValue()).toString();
-//                        break;
-//                    }
-//                    case ERROR: {
-//                        cellValue = Byte.valueOf(cell.getErrorCellValue()).toString();
-//                        break;
-//                    }
-//                    case FORMULA: {
-//                        cellValue = "";
-//                        break;
-//                    }
-//                    default: {
-//                        cellValue = "";
-//                    }
-//                }
-//                cellValue = null == cellValue ? "" : cellValue;
-//                columnValues[i] = cellValue;
-//                columnInfoList.get(i).setMaxLength(cellValue.length());
-//            }
-//            columnValueList.add(columnValues);
-//            rowIterator.remove();
-//        }
-//        excelDataVo.setColumnValueList(columnValueList);
-//        return excelDataVo;
-        return null;
+    public static List<CaseInfo> parseExcelSheet(Sheet sheet) {
+        Row columnRow = sheet.getRow(5);
+        if (null == columnRow) {
+            throw new IllegalArgumentException("Sheet=[" + sheet.getSheetName() + "] - 数据格式不对，数据必须从第六行开始");
+        }
+        List<CaseInfo> res = new ArrayList<>();
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        int index = 5;
+        while (index > 0) {
+            rowIterator.next();
+            index--;
+        }
+        int ii = 0;
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            CaseInfo caseInfo = new CaseInfo();
+            //获取null的时候可以为空字符串
+            String desc = getVal(row.getCell(0), "");
+            String step = row.getCell(1).getStringCellValue();
+            caseInfo.setRemark(desc);
+            caseInfo.setName(desc + ":" + step);
+            caseInfo.setRun("NO".equalsIgnoreCase(getVal(row.getCell(2), "YES")) ? false : true);
+            caseInfo.setMethod(HttpMethodEnum.valueOf(getVal(row.getCell(3), "GET").toUpperCase()));
+            caseInfo.setHost(null);
+            caseInfo.setPath(getVal(row.getCell(5), ""));
+            log.info("第{}行", ii++);
+            caseInfo.setDelay(Integer.parseInt(getVal(row.getCell(6), "0")));
+            final String params = getVal(row.getCell(7), "");
+            caseInfo.setParams(StringUtils.isEmpty(params)? null : JsonUtils.fromJsonToMap(params));
+
+            if (StringUtils.isEmpty(getVal(row.getCell(8),""))) {
+                caseInfo.setDependencies(null);
+            }else {
+                String[] exKeys = row.getCell(8).getStringCellValue().split(",");
+                String[] exValues = row.getCell(9).getStringCellValue().split(",");
+                List<Dependency> dependencies = new ArrayList<>(16);
+                for (int i = 0; i < exKeys.length; i++) {
+                    Dependency dependency = new Dependency();
+                    dependency.setDependKey(exKeys[i].split("\\."));
+                    final String depend = exValues[i].split(":")[0];
+                    final String value = exValues[i].split(":")[1];
+                    dependency.setDependValue(Dependency.DependValue.builder().depend(Integer.parseInt(depend) - 5).steps(value.split(",")).build());
+                    dependencies.add(dependency);
+                }
+                caseInfo.setDependencies(dependencies);
+            }
+            final String headers = getVal(row.getCell(10), "");
+            caseInfo.setHeaders(StringUtils.isEmpty(headers) ? null :
+                    JsonUtils.fromJsonToMap(headers, String.class, String.class));
+
+            //11列和12列必定有值
+            String[] expKey = getVal(row.getCell(11), "").split(",");
+            List<Expected> expecteds = new ArrayList<>();
+            if (row.getCell(12).getCellType().equals(CellType.NUMERIC)) {
+                //证明只有一个值
+                expecteds.add(new Expected(expKey, Expected.ExpectValue.builder().value(new Double(row.getCell(12).getNumericCellValue()).intValue()).fixed(true).build()));
+            } else {
+                //证明有多个值，用 , 隔开
+                String[] expVal = row.getCell(12).getStringCellValue().split(",");
+                for (int i = 0; i < expKey.length; i++) {
+                    final String key = expKey[i];
+                    final String val = expVal[i];
+                    Expected expected = new Expected();
+                    expected.setExpectKey(key.split("\\."));
+                    //带有依赖
+                    if (val.contains(":") && val.contains("\\.")) {
+                        final String depend = val.split(":")[0];
+                        expected.setExpectValue(
+                                Expected.ExpectValue.builder()
+                                        .depend(Integer.parseInt(depend) - 5)
+                                        .steps(val.split(":")[1].split("."))
+                                        .fixed(false)
+                                        .build());
+                    } else {
+                        expected.setExpectValue(Expected.ExpectValue.builder()
+                                .fixed(true)
+                                .value(val)
+                                .build());
+                    }
+                    expecteds.add(expected);
+                }
+            }
+            caseInfo.setExpects(expecteds);
+            res.add(caseInfo);
+        }
+        return res;
+    }
+
+    private static String getVal(Cell cell, String defaultVal) {
+        String str = defaultVal;
+        if (cell != null) {
+            if (!StringUtils.isEmpty(cell.getStringCellValue())) {
+                str = cell.getStringCellValue();;
+            }
+        }
+        return str;
     }
 
     /**
@@ -212,7 +220,7 @@ public class FileUtils {
         try (Workbook wb = WorkbookFactory.create(inputStream)) {
             Iterator<Sheet> iterator = wb.sheetIterator();
             while (iterator.hasNext()) {
-                resultList.add(parseExcelSheet(iterator.next()));
+                resultList.addAll(parseExcelSheet(iterator.next()));
             }
         }
         return resultList;

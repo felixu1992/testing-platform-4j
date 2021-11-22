@@ -1,6 +1,9 @@
 package top.felixu.platform.model.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -9,6 +12,8 @@ import lombok.Data;
  * @since 2021.09.07
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Expected {
 
     /**
@@ -22,6 +27,7 @@ public class Expected {
     private ExpectValue expectValue;
 
     @Data
+    @Builder
     public static class ExpectValue {
 
         /**

@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+import sun.rmi.runtime.Log;
+import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.RespDTO;
 import top.felixu.platform.model.dto.StatisticsDTO;
@@ -107,10 +109,14 @@ public class ProjectController {
         return RespDTO.success(projectManager.statistics());
     }
 
-    @PostMapping("/v1/import")
+    @PostMapping("/v1/import/{id}")
     @ApiOperation("兼容旧版本的导入")
-    public RespDTO<Void> importV1(@RequestPart("file") MultipartFile file) {
-        projectManager.importV1(file);
+    public RespDTO<Void> importV1(@ApiParam("项目ID") @PathVariable("id")Integer id, @ApiParam("需要导入的文件") @RequestPart("file") MultipartFile file) {
+        try {
+            projectManager.importV1(id, file);
+        } catch (Exception e) {
+            RespDTO.fail(ErrorCode.IMPORT_ERROR);
+        }
         return RespDTO.success();
     }
 }

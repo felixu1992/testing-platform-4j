@@ -86,6 +86,7 @@ public enum ErrorCode {
     PARAM_WRITE_VALUE_ERROR(5106, "往参数中写入值失败"),
     PROJECT_MUST_BE_NOT_NULL(5107, "查询用例要求 PROJECT ID 不能为空"),
     URI_FORMAT_ERROR(5108, "URL 格式化错误"),
+    IMPORT_ERROR(5109, "旧版文件导入用例失败"),
 
     /* ------------------- 报告错误 --------------------*/
     REPORT_NOT_FOUND(6000, "当前测试记录不存在"),
