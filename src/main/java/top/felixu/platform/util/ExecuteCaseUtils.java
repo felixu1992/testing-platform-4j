@@ -163,9 +163,9 @@ public class ExecuteCaseUtils {
             ResponseEntity<Map> resp = restTemplate.exchange(URI.create(url), HttpMethod.valueOf(method.getDesc()), entity, Map.class);
             record.setHttpStatus(resp.getStatusCodeValue());
             record.setResponseContent(ValueUtils.emptyAs((Map<String, Object>) resp.getBody(), new HashMap<>()));
-        } catch (RestClientException e) {
+        } catch (RestClientException ex) {
             //吞掉异常标记为当前用例执行失败
-            log.error("请求：{} # {} 执行失败", url, method);
+            log.error("---> 请求：{} {} 执行失败: {}", url, method, ex.getLocalizedMessage());
             record.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             record.setResponseContent(new HashMap<>());
         }
