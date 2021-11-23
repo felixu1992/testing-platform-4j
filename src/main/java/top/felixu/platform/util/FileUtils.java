@@ -193,6 +193,8 @@ public class FileUtils {
                 }
             }
             caseInfo.setExpects(expecteds);
+            // 11/23，借助sort来设置依赖的索引
+            caseInfo.setSort(ii - 6);
             res.add(caseInfo);
         }
         return res;
