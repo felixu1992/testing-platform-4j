@@ -231,21 +231,29 @@ public class ProjectManager {
         group.setOwner(owner);
         caseInfoGroupService.save(group);
 
-        List<CaseInfo> nodependenies = res.stream().peek(caseInfo -> {
+        List<CaseInfo> nodependenies = new ArrayList<>(16);
+        List<CaseInfo> dependencies = new ArrayList<>(16);
+
+        for (int i = 0; i < res.size(); i++) {
+            CaseInfo caseInfo = res.get(i);
             caseInfo.setProjectId(id);
             caseInfo.setGroupId(group.getId());
             caseInfo.setOwner(owner);
             caseInfo.setCheckStatus(false);
-        }).filter(caseInfo -> caseInfo.getDependencies() == null).collect(Collectors.toList());
-
+            if (caseInfo.getDependencies() == null) {
+                nodependenies.add(caseInfo);
+            } else {
+                dependencies.add(caseInfo);
+            }
+        }
         caseInfoService.saveBatch(nodependenies);
 
-        List<CaseInfo> dependencies = res.stream().filter(caseInfo -> caseInfo.getDependencies() != null).peek(caseInfo -> {
+        for (CaseInfo caseInfo : dependencies) {
             caseInfo.getDependencies().forEach(dept -> {
                 final Integer index = dept.getDependValue().getDepend();
                 dept.getDependValue().setDepend(res.get(index).getId());
             });
-        }).collect(Collectors.toList());
+        }
 
         caseInfoService.saveBatch(dependencies);
 
