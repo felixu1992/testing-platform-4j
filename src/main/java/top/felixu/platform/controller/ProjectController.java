@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
-import sun.rmi.runtime.Log;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.RespDTO;

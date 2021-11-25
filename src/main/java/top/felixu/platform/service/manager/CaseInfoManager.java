@@ -233,7 +233,7 @@ public class CaseInfoManager {
         // 判断开发者是否存在
         if (caseInfo.getDeveloper() != null)
             contactorService.getContactorByIdAndCheck(caseInfo.getDeveloper());
-        // 校验邮箱
+        // 校验名称是否重复
         CaseInfo name = caseInfoService.getOne(Wrappers.<CaseInfo>lambdaQuery()
                 .eq(CaseInfo::getProjectId, caseInfo.getProjectId()).eq(CaseInfo::getName, caseInfo.getName()));
         if (name != null && (caseInfo.getId() == null || !caseInfo.getId().equals(name.getId())))

@@ -24,6 +24,7 @@ public enum ErrorCode {
     PARAM_TYPE_ERROR(104, "参数类型不合法"),
     MISSING_AUTHORITY(105, "权限不足"),
     REQUIRE_LOGIN(106, "请(重新)登录"),
+    INTERNAL_ERROR(107, "发生内部错误，{0}"),
 
     /* ------------------- 用户错误 --------------------*/
 

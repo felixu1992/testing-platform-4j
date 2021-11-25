@@ -2,7 +2,12 @@ package top.felixu.platform.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -15,7 +20,12 @@ import top.felixu.platform.enums.CaseStatusEnum;
 import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
-import top.felixu.platform.model.entity.*;
+import top.felixu.platform.model.entity.CaseInfo;
+import top.felixu.platform.model.entity.Dependency;
+import top.felixu.platform.model.entity.Expected;
+import top.felixu.platform.model.entity.FileInfo;
+import top.felixu.platform.model.entity.Project;
+import top.felixu.platform.model.entity.Record;
 import top.felixu.platform.service.FileInfoService;
 
 import java.net.URI;

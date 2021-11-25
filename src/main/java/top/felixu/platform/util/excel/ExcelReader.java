@@ -1,10 +1,11 @@
 package top.felixu.platform.util.excel;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import top.felixu.platform.exception.ErrorCode;
+import top.felixu.platform.exception.InternalException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +26,13 @@ public class ExcelReader {
         try {
             wb = new XSSFWorkbook(inputStream);
         } catch (Exception e) {
-            throw new InternalException("不是一个正确的xlsx文件");
+            throw new InternalException(ErrorCode.INTERNAL_ERROR, "不是一个正确的xlsx文件");
         }
         XSSFSheet sheet;
         try {
             sheet = wb.getSheetAt(sheetIndex);
         } catch (IllegalArgumentException e) {
-            throw new InternalException("缺少第" + (sheetIndex + 1) + "个sheet");
+            throw new InternalException(ErrorCode.INTERNAL_ERROR, "缺少第" + (sheetIndex + 1) + "个sheet");
         }
         List<T> result = readFormSheet(sheet, skip, dataSupplier, mappers);
         wb.close();

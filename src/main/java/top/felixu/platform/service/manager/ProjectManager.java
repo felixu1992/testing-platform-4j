@@ -21,7 +21,6 @@ import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
-import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.StatisticsDTO;
 import top.felixu.platform.model.entity.CaseInfo;
@@ -41,6 +40,7 @@ import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.service.UserProjectService;
+import top.felixu.platform.util.ApplicationUtils;
 import top.felixu.platform.util.UserHolderUtils;
 import top.felixu.platform.util.ValueUtils;
 import top.felixu.platform.util.WrapperUtils;
@@ -225,6 +225,7 @@ public class ProjectManager {
 
     @Transactional(rollbackFor = Exception.class)
     public void importV1 (Integer id, MultipartFile file) {
+        // TODO: 11/25 和新增用例，使用分布式锁保证数据完整性
         // 权限校验
         userProjectService.checkAuthority(id);
         try (Workbook wb = WorkbookFactory.create(file.getInputStream())) {
@@ -237,7 +238,6 @@ public class ProjectManager {
     }
 
     private void doImportV1(Integer projectId, List<CaseInfo> caseInfos) {
-        // TODO: 11/25 和新增用例，使用分布式锁保证数据完整性
         // 所有用例均放到默认分组下，自己处理
         CaseInfoGroup defaultGroup = caseInfoGroupService.getDefaultCaseInfoGroup(projectId);
         List<CaseInfo> noDependencies = new ArrayList<>();
@@ -245,22 +245,27 @@ public class ProjectManager {
         // 拆分成两个数组分别处理
         caseInfos.forEach(caseInfo -> {
             caseInfo.setProjectId(projectId);
+            caseInfo.setGroupId(defaultGroup.getId());
             if (CollectionUtils.isEmpty(caseInfo.getDependencies()))
                 noDependencies.add(caseInfo);
             else
                 haveDependencies.add(caseInfo);
         });
-        // TODO: 11/25 提供批量存储的方法 、计算 sort
-        // TODO: 11/25 批量存储没有依赖的用例
-        haveDependencies.forEach(caseInfo ->
-                caseInfo.getDependencies().forEach(dept ->
-                        dept.getDependValue().setDepend(caseInfos.get(dept.getDependValue().getDepend()).getId())));
-        // TODO: 11/25 批量存储有依赖的用例
+        // 懒得琢磨批量的事情了，就这样吧，拉倒
+        CaseInfoManager caseInfoManager = ApplicationUtils.getBean(CaseInfoManager.class);
+        noDependencies.forEach(caseInfoManager::create);
+        System.out.println("-----------");
+        haveDependencies.forEach(caseInfo -> {
+            caseInfo.getDependencies().forEach(dept ->
+                    dept.getDependValue().setDepend(caseInfos.get(dept.getDependValue().getDepend()).getId()));
+            caseInfoManager.create(caseInfo);
+        });
+        // TODO 还有一种情况是结果依赖于用例次
     }
 
     @SneakyThrows
     private List<CaseInfo> parseExcelV1(Sheet sheet) {
-        return ExcelReader.readFormSheet(sheet, 6, CaseInfo::new,
+        return ExcelReader.readFormSheet(sheet, 5, CaseInfo::new,
                 // 0. 备注
                 cell -> cell.getData().setRemark(cell.getNullableString()),
                 // 1. 名称

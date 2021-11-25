@@ -1,10 +1,11 @@
 package top.felixu.platform.util.excel;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import top.felixu.platform.exception.ErrorCode;
+import top.felixu.platform.exception.InternalException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -40,7 +41,8 @@ public class ExcelCellReader<T> {
     public String getRequiredString() {
         String value = getNullableString();
         if (value == null) {
-            throw new InternalException("缺少必填字段，sheet：" + sheetName + "，行：" + rowIndex + "，列：" + columnIndex + "。");
+            throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                    "缺少必填字段，sheet：" + sheetName + "，行：" + rowIndex + "，列：" + columnIndex + "。");
         }
         return value;
     }
@@ -58,7 +60,8 @@ public class ExcelCellReader<T> {
         try {
             return new BigDecimal(value).longValue();
         } catch (NumberFormatException e) {
-            throw new InternalException("整数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
+            throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                    "整数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
         }
     }
 
@@ -67,7 +70,8 @@ public class ExcelCellReader<T> {
         try {
             return new BigDecimal(value).longValue();
         } catch (NumberFormatException e) {
-            throw new InternalException("整数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
+            throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                    "整数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
         }
     }
 
@@ -96,7 +100,8 @@ public class ExcelCellReader<T> {
                     Date date = cell.getDateCellValue();
                     return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 } catch (Exception e) {
-                    throw new InternalException("日期格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
+                    throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                            "日期格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
                 }
             }
         }
@@ -141,7 +146,8 @@ public class ExcelCellReader<T> {
         try {
             return new BigDecimal(value).doubleValue();
         } catch (NumberFormatException e) {
-            throw new InternalException("小数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
+            throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                    "小数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
         }
     }
 
@@ -150,7 +156,8 @@ public class ExcelCellReader<T> {
         try {
             return new BigDecimal(value).doubleValue();
         } catch (NumberFormatException e) {
-            throw new InternalException("小数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
+            throw new InternalException(ErrorCode.INTERNAL_ERROR,
+                    "小数格式错误：" + value + "，sheet：" + sheetName + "，行：" + (rowIndex) + "，列：" + (columnIndex));
         }
     }
 }
