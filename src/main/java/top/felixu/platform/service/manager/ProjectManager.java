@@ -36,6 +36,7 @@ import top.felixu.platform.service.UserProjectService;
 import top.felixu.platform.util.FileUtils;
 import top.felixu.platform.util.UserHolderUtils;
 import top.felixu.platform.util.WrapperUtils;
+import top.felixu.platform.util.excel.ExcelReader;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -218,7 +219,7 @@ public class ProjectManager {
     public void importV1 (Integer id, MultipartFile file) {
         List<CaseInfo> res;
         try {
-            res = FileUtils.parseExcel(file.getInputStream());
+            res = FileUtils.parseCaseInfoFromExcel(file.getInputStream());
         }catch (Exception e) {
             log.error("文件导入失败：{}", e);
             throw new PlatformException(ErrorCode.IMPORT_ERROR);
@@ -257,37 +258,6 @@ public class ProjectManager {
 
         caseInfoService.saveBatch(dependencies);
 
-//        for (int i = 0; i < res.size(); i++) {
-//            CaseInfo caseInfo = res.get(i);
-//            caseInfo.setProjectId(id);
-//            caseInfo.setSort(i);
-//            caseInfo.setGroupId(group.getId());
-//            caseInfo.setOwner(owner);
-//            caseInfo.setCheckStatus(false);
-//            //旧版本的 expected_key 和 expected_val 是固定值，默认不会存在依赖关系，只需要关注入参就好
-//            if (caseInfo.getDependencies() == null) {
-//                caseInfoService.save(caseInfo);
-//            }
-//        }
-//
-//        //更新依赖
-//        int i = 0;
-//        for (; i < res.size(); i++) {
-//            CaseInfo caseInfo = res.get(i);
-//            caseInfo.setProjectId(id);
-//            caseInfo.setSort(i);
-//            caseInfo.setGroupId(group.getId());
-//            caseInfo.setOwner(owner);
-//            caseInfo.setCheckStatus(false);
-//            //旧版本的 expected_key 和 expected_val 是固定值，默认不会存在依赖关系，只需要关注入参就好
-//            if (caseInfo.getDependencies() != null) {
-//                caseInfo.getDependencies().forEach(dept -> {
-//                    final Integer index = dept.getDependValue().getDepend();
-//                    dept.getDependValue().setDepend(res.get(index).getId());
-//                });
-//                caseInfoService.save(caseInfo);
-//            }
-//        }
         log.info("导入完毕，共{}条记录", res.size());
     }
 
