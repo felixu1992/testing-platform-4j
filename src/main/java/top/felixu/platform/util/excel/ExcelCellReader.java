@@ -14,12 +14,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 /**
- * <p>
- *     excel 的单元格（ cell ）取值
- * </p>
- * @author : zhan9yn
- * @version : 1.0
- * @date : 2021/11/24 3:21 下午
+ * @author felixu
+ * @since 2020.11.04
  */
 @Data
 public class ExcelCellReader<T> {
@@ -45,14 +41,6 @@ public class ExcelCellReader<T> {
         String value = getNullableString();
         if (value == null) {
             throw new InternalException("缺少必填字段，sheet：" + sheetName + "，行：" + rowIndex + "，列：" + columnIndex + "。");
-        }
-        return value;
-    }
-
-    public String getDefaultString (String defaultStr) {
-        String value = getNullableString();
-        if (StringUtils.isEmpty(value)) {
-            value = defaultStr;
         }
         return value;
     }

@@ -3,23 +3,31 @@ package top.felixu.platform.service.manager;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.ImmutableList;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import top.felixu.common.bean.BeanUtils;
+import top.felixu.common.json.JsonUtils;
 import top.felixu.platform.constants.DefaultConstants;
+import top.felixu.platform.enums.HttpMethodEnum;
 import top.felixu.platform.enums.RoleTypeEnum;
 import top.felixu.platform.exception.ErrorCode;
 import top.felixu.platform.exception.PlatformException;
+import top.felixu.platform.model.dto.CaseInfoDTO;
 import top.felixu.platform.model.dto.ProjectDTO;
 import top.felixu.platform.model.dto.StatisticsDTO;
 import top.felixu.platform.model.entity.CaseInfo;
 import top.felixu.platform.model.entity.CaseInfoGroup;
+import top.felixu.platform.model.entity.Dependency;
+import top.felixu.platform.model.entity.Expected;
 import top.felixu.platform.model.entity.Project;
 import top.felixu.platform.model.entity.ProjectContactor;
 import top.felixu.platform.model.entity.ProjectGroup;
@@ -33,19 +41,19 @@ import top.felixu.platform.service.ProjectGroupService;
 import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.service.UserProjectService;
-import top.felixu.platform.util.FileUtils;
 import top.felixu.platform.util.UserHolderUtils;
+import top.felixu.platform.util.ValueUtils;
 import top.felixu.platform.util.WrapperUtils;
 import top.felixu.platform.util.excel.ExcelReader;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -217,49 +225,110 @@ public class ProjectManager {
 
     @Transactional(rollbackFor = Exception.class)
     public void importV1 (Integer id, MultipartFile file) {
-        List<CaseInfo> res;
-        try {
-            res = FileUtils.parseCaseInfoFromExcel(file.getInputStream());
-        }catch (Exception e) {
-            log.error("文件导入失败：{}", e);
-            throw new PlatformException(ErrorCode.IMPORT_ERROR);
+        // 权限校验
+        userProjectService.checkAuthority(id);
+        try (Workbook wb = WorkbookFactory.create(file.getInputStream())) {
+            Iterator<Sheet> sheets = wb.sheetIterator();
+            while (sheets.hasNext())
+                doImportV1(id, parseExcelV1(sheets.next()));
+        } catch (IOException ex) {
+            // TODO: 11/25 exception
         }
-        //处理依赖关系，落库
-        Integer owner = UserHolderUtils.getOwner();
-        CaseInfoGroup group = new CaseInfoGroup();
-        group.setName(file.getName());
-        group.setProjectId(id);
-        group.setOwner(owner);
-        caseInfoGroupService.save(group);
-
-        List<CaseInfo> nodependenies = new ArrayList<>(16);
-        List<CaseInfo> dependencies = new ArrayList<>(16);
-
-        for (int i = 0; i < res.size(); i++) {
-            CaseInfo caseInfo = res.get(i);
-            caseInfo.setProjectId(id);
-            caseInfo.setGroupId(group.getId());
-            caseInfo.setOwner(owner);
-            caseInfo.setCheckStatus(false);
-            if (caseInfo.getDependencies() == null) {
-                nodependenies.add(caseInfo);
-            } else {
-                dependencies.add(caseInfo);
-            }
-        }
-        caseInfoService.saveBatch(nodependenies);
-
-        for (CaseInfo caseInfo : dependencies) {
-            caseInfo.getDependencies().forEach(dept -> {
-                final Integer index = dept.getDependValue().getDepend();
-                dept.getDependValue().setDepend(res.get(index).getId());
-            });
-        }
-
-        caseInfoService.saveBatch(dependencies);
-
-        log.info("导入完毕，共{}条记录", res.size());
     }
 
+    private void doImportV1(Integer projectId, List<CaseInfo> caseInfos) {
+        // TODO: 11/25 和新增用例，使用分布式锁保证数据完整性
+        // 所有用例均放到默认分组下，自己处理
+        CaseInfoGroup defaultGroup = caseInfoGroupService.getDefaultCaseInfoGroup(projectId);
+        List<CaseInfo> noDependencies = new ArrayList<>();
+        List<CaseInfo> haveDependencies = new ArrayList<>();
+        // 拆分成两个数组分别处理
+        caseInfos.forEach(caseInfo -> {
+            caseInfo.setProjectId(projectId);
+            if (CollectionUtils.isEmpty(caseInfo.getDependencies()))
+                noDependencies.add(caseInfo);
+            else
+                haveDependencies.add(caseInfo);
+        });
+        // TODO: 11/25 提供批量存储的方法 、计算 sort
+        // TODO: 11/25 批量存储没有依赖的用例
+        haveDependencies.forEach(caseInfo ->
+                caseInfo.getDependencies().forEach(dept ->
+                        dept.getDependValue().setDepend(caseInfos.get(dept.getDependValue().getDepend()).getId())));
+        // TODO: 11/25 批量存储有依赖的用例
+    }
 
+    @SneakyThrows
+    private List<CaseInfo> parseExcelV1(Sheet sheet) {
+        return ExcelReader.readFormSheet(sheet, 6, CaseInfo::new,
+                // 0. 备注
+                cell -> cell.getData().setRemark(cell.getNullableString()),
+                // 1. 名称
+                cell -> cell.getData().setName(cell.getRequiredString()),
+                // 2. 是否运行
+                cell -> cell.getData().setRun(ValueUtils.emptyAs("NO".equalsIgnoreCase(cell.getNullableString()), true)),
+                // 3. 请求方法
+                cell -> cell.getData().setMethod(HttpMethodEnum.valueOf(cell.getRequiredString().toUpperCase())),
+                // 4. 请求地址
+                cell -> cell.getData().setHost(cell.getNullableString()),
+                // 5. 请求路径
+                cell -> cell.getData().setPath(cell.getRequiredString()),
+                // 6. 延迟执行
+                cell -> cell.getData().setDelay(ValueUtils.emptyAs(cell.getNullableInteger(), 0)),
+                // 7. 请求参数
+                cell -> cell.getData().setParams(JsonUtils.fromJsonToMap(ValueUtils.emptyAs(cell.getNullableString(), "{}"))),
+                // 8. 动态参数，如果没有值，给个空集合，否则转为依赖对象列表
+                cell -> cell.getData().setDependencies(StringUtils.hasText(cell.getNullableString()) ?
+                        Arrays.stream(cell.getNullableString().split(",")).map(exKey -> {
+                            Dependency dependency = new Dependency();
+                            dependency.setDependKey(exKey.split("\\."));
+                            return dependency;
+                        }).collect(Collectors.toList())
+                        : new ArrayList<>()),
+                // 9. 动态参数补充依赖过程
+                cell -> {
+                    List<Dependency> dependencies = cell.getData().getDependencies();
+                    if (!CollectionUtils.isEmpty(dependencies)) {
+                        String stepStr = cell.getRequiredString();
+                        String[] stepStrArray = stepStr.split(",");
+                        for (int i = 0; i < dependencies.size(); i++) {
+                            Dependency dependency = dependencies.get(i);
+                            String[] split = stepStrArray[i].split(":");
+                            Dependency.DependValue dependValue = new Dependency.DependValue();
+                            dependValue.setDepend(Integer.parseInt(split[0]) - 5);
+                            dependValue.setSteps(split[1].split("\\."));
+                            dependency.setDependValue(dependValue);
+                        }
+                    }
+                },
+                // 10. 请求头
+                cell -> cell.getData().setHeaders(JsonUtils.fromJsonToMap(ValueUtils.emptyAs(cell.getNullableString(), "{}"), String.class, String.class)),
+                // 11. 校验预期
+                cell -> cell.getData().setExpects(new ArrayList<>()),
+                // 12. 校验预期补充校验值
+                cell -> cell.getData().setExpects(Arrays.stream(cell.getRequiredString().split(","))
+                        .map(valStr -> {
+                            Expected expected = new Expected();
+                            Expected.ExpectValue expectValue = new Expected.ExpectValue();
+                            String[] split = valStr.split(":");
+                            if (split.length == 1) {
+                                expectValue.setFixed(true);
+                                expectValue.setValue(valStr);
+                            } else {
+                                expectValue.setDepend(Integer.parseInt(split[0]) - 5);
+                                expectValue.setSteps(split[1].split("\\."));
+                            }
+                            expected.setExpectValue(expectValue);
+                            return expected;
+                        })
+                        .collect(Collectors.toList())),
+                // 13. 校验预期补充校验过程
+                cell -> {
+                    String[] expectKeys = cell.getRequiredString().split(",");
+                    for (int i = 0; i < cell.getData().getExpects().size(); i++) {
+                        Expected expected = cell.getData().getExpects().get(i);
+                        expected.setExpectKey(expectKeys[i].split("\\."));
+                    }
+                });
+    }
 }

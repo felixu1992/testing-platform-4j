@@ -2,6 +2,7 @@ package top.felixu.platform.util.excel;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -13,25 +14,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * @author : zhan9yn
- * @version : 1.0
- * @date : 2021/11/24 3:49 下午
+ * @author felixu
+ * @since 2020.11.04
  */
 public class ExcelReader {
+
     @SafeVarargs
-    /**
-     *
-     * @param inputStream file 文件留
-     * @param sheetIndex sheet 索引， from 0
-     * @param start 从 start 行开始， from 1
-     * @param dataSupplier 需要转换的类型
-     * @param mappers 每个cell转换的过程
-     * @return java.util.List<T>
-     * @throws
-     * @author zhan9yn
-     * @date 2021/11/24 5:13 下午
-    */
-    public static <T> List<T> readFromExcel(InputStream inputStream, int sheetIndex, int start, Supplier<T> dataSupplier, Consumer<ExcelCellReader<T>>... mappers) throws IOException {
+    public static <T> List<T> readFromExcel(InputStream inputStream, int sheetIndex, int skip, Supplier<T> dataSupplier, Consumer<ExcelCellReader<T>>... mappers) throws IOException {
         XSSFWorkbook wb;
         try {
             wb = new XSSFWorkbook(inputStream);
@@ -44,11 +33,18 @@ public class ExcelReader {
         } catch (IllegalArgumentException e) {
             throw new InternalException("缺少第" + (sheetIndex + 1) + "个sheet");
         }
+        List<T> result = readFormSheet(sheet, skip, dataSupplier, mappers);
+        wb.close();
+        return result;
+    }
+
+    @SafeVarargs
+    public static <T> List<T> readFormSheet(Sheet sheet, int skip, Supplier<T> dataSupplier, Consumer<ExcelCellReader<T>>... mappers) {
         String sheetName = sheet.getSheetName();
         List<T> result = new ArrayList<>();
         for (Row row : sheet) {
-            if (row.getRowNum() < start) {
-                // 跳过标题行
+            if (row.getRowNum() < skip) {
+                // 跳过需要忽略的行数
                 continue;
             }
             T t = dataSupplier.get();
@@ -60,12 +56,11 @@ public class ExcelReader {
                 }
             }
         }
-        wb.close();
         return result;
     }
 
     @SafeVarargs
-    public static <T> List<T> readFromExcel(InputStream inputStream, int start, Supplier<T> dataSupplier, Consumer<ExcelCellReader<T>>... mappers) throws IOException {
+    public static <T> List<T> readFromExcel(InputStream inputStream, Supplier<T> dataSupplier, Consumer<ExcelCellReader<T>>... mappers) throws IOException {
         return readFromExcel(inputStream, 0, 1, dataSupplier, mappers);
     }
 }

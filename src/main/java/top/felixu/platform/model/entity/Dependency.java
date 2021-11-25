@@ -23,7 +23,6 @@ public class Dependency {
     private DependValue dependValue;
 
     @Data
-    @Builder
     public static class DependValue {
 
         /**

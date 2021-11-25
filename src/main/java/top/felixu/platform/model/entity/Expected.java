@@ -27,7 +27,6 @@ public class Expected {
     private ExpectValue expectValue;
 
     @Data
-    @Builder
     public static class ExpectValue {
 
         /**
