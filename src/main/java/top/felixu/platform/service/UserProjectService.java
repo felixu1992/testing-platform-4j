@@ -50,6 +50,24 @@ public class UserProjectService extends ServiceImpl<UserProjectMapper, UserProje
         saveBatch(relations);
     }
 
+    @CacheEvict(cacheNames = NAME, key = RELATION + " + #userId")
+    public void createRelation(Integer userId, Integer projectId) {
+        UserProject relation = new UserProject();
+        relation.setUserId(userId);
+        relation.setProjectId(projectId);
+        save(relation);
+    }
+
+    @CacheEvict(cacheNames = NAME)
+    public void deleteRelationByProjectId(Integer projectId) {
+        remove(Wrappers.<UserProject>lambdaQuery().eq(UserProject::getProjectId, projectId));
+    }
+
+    @CacheEvict(cacheNames = NAME, key = RELATION + " + #userId")
+    public void deleteRelationByUserId(Integer userId) {
+        remove(Wrappers.<UserProject>lambdaQuery().eq(UserProject::getUserId, userId));
+    }
+
     public void checkAuthority(Integer projectId) {
         if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY) {
             if (count(Wrappers.<UserProject>lambdaQuery()

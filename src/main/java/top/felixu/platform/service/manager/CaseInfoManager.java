@@ -27,6 +27,7 @@ import top.felixu.platform.service.ContactorService;
 import top.felixu.platform.service.ProjectService;
 import top.felixu.platform.service.ReportService;
 import top.felixu.platform.service.RecordService;
+import top.felixu.platform.service.UserProjectService;
 import top.felixu.platform.util.ExecuteCaseUtils;
 
 import java.util.Collections;
@@ -101,7 +102,9 @@ public class CaseInfoManager {
     }
 
     public void delete(Integer id) {
-        caseInfoService.delete(caseInfoService.getCaseInfoByIdAndCheck(id));
+        CaseInfo caseInfo = caseInfoService.getCaseInfoByIdAndCheck(id);
+        projectService.getProjectByIdAndCheck(id);
+        caseInfoService.delete(caseInfo);
     }
 
     public void sort(CaseSortForm form) {
@@ -117,6 +120,7 @@ public class CaseInfoManager {
         if (form.getOperation() == SortEnum.DRAG && form.getTarget() == null)
             throw new PlatformException(ErrorCode.CASE_DRAG_MISS_TARGET);
         CaseInfo source = caseInfoService.getCaseInfoByIdAndCheck(form.getSource());
+        projectService.getProjectByIdAndCheck(source.getProjectId());
         List<CaseInfo> caseInfos = caseInfoService.listByProjectId(source.getProjectId());
         CaseInfo target;
         switch (form.getOperation()) {

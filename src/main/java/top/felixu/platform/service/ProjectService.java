@@ -3,6 +3,7 @@ package top.felixu.platform.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,10 +32,14 @@ import static top.felixu.platform.constants.CacheKeyConstants.Project.PROJECT;
  * @since 2021-08-28
  */
 @Service
+@RequiredArgsConstructor
 public class ProjectService extends ServiceImpl<ProjectMapper, Project> implements IService<Project> {
+
+    private final UserProjectService userProjectService;
 
     @Cacheable(cacheNames = NAME, key = PROJECT + " + #id", unless = "#result == null")
     public Project getProjectByIdAndCheck(Integer id) {
+        userProjectService.checkAuthority(id);
         return Optional.ofNullable(getById(id)).orElseThrow(() -> new PlatformException(ErrorCode.PROJECT_NOT_FOUND));
     }
 

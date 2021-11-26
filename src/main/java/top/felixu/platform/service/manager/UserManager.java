@@ -127,6 +127,7 @@ public class UserManager {
         if (user.getRole() == RoleTypeEnum.SUPER_ADMIN)
             throw new PlatformException(ErrorCode.SUPER_ADMIN_CAN_NOT_DELETE);
         userService.delete(user);
+        userProjectService.deleteRelationByUserId(id);
         // TODO: 08/27 删除项目与用户的关联关系
         // TODO: 08/27 如果是管理员，要清除所有数据
     }

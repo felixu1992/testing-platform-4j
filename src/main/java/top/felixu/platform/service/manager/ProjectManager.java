@@ -84,7 +84,7 @@ public class ProjectManager {
     }
 
     public IPage<ProjectDTO> page(Project project, PageRequestForm form) {
-        Page<Project> page = projectService.page(form.toPage(), Wrappers.lambdaQuery(project));
+        Page<Project> page = projectService.page(form.toPage(), WrapperUtils.relation(Wrappers.lambdaQuery(project), Project::getId, userProjectService));
         Map<Integer, String> groupMap = projectGroupService.getProjectGroupList().stream()
                 .collect(Collectors.toMap(ProjectGroup::getId, ProjectGroup::getName));
         return page.convert(item -> {
@@ -105,6 +105,8 @@ public class ProjectManager {
         group.setName(DefaultConstants.CaseGroup.NAME);
         group.setProjectId(result.getId());
         caseInfoGroupService.create(group);
+        // 权限关联
+        userProjectService.createRelation(UserHolderUtils.getCurrentUserId(), result.getId());
         return result;
     }
 
@@ -123,10 +125,15 @@ public class ProjectManager {
     public void delete(Integer id) {
         // 校验权限
         userProjectService.checkAuthority(id);
+        // 普通用户不可以删项目
+        if (UserHolderUtils.getCurrentRole() == RoleTypeEnum.ORDINARY)
+            throw new PlatformException(ErrorCode.MISSING_AUTHORITY);
         Project project = projectService.getProjectByIdAndCheck(id);
         if (caseInfoService.countByProjectId(id) > 0)
             throw new PlatformException(ErrorCode.PROJECT_USED_BY_CASE);
         projectService.delete(project);
+        // 删除项目所有和用户的关联关系
+        userProjectService.deleteRelationByProjectId(id);
     }
 
     public Project copy(ProjectCopyForm form) {
