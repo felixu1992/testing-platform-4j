@@ -109,6 +109,8 @@ public class ProjectManager {
     }
 
     public Project update(Project project) {
+        // 校验权限
+        userProjectService.checkAuthority(project.getId());
         Project original = projectService.getProjectByIdAndCheck(project.getId());
         BeanUtils.copyNotEmpty(Project.class, project, Project.class, original);
         // 校验分组是否存在
@@ -119,6 +121,8 @@ public class ProjectManager {
     }
 
     public void delete(Integer id) {
+        // 校验权限
+        userProjectService.checkAuthority(id);
         Project project = projectService.getProjectByIdAndCheck(id);
         if (caseInfoService.countByProjectId(id) > 0)
             throw new PlatformException(ErrorCode.PROJECT_USED_BY_CASE);
@@ -126,7 +130,8 @@ public class ProjectManager {
     }
 
     public Project copy(ProjectCopyForm form) {
-        // 拷贝项目
+        // 校验权限
+        userProjectService.checkAuthority(form.getId());
         Project original = projectService.getProjectByIdAndCheck(form.getId());
         Project project = BeanUtils.map(original, Project.class);
         project.setName(form.getName());
