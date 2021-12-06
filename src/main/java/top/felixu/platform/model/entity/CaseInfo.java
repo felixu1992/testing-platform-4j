@@ -76,13 +76,13 @@ public class CaseInfo implements Serializable {
     private List<Expected> expects;
 
     @ApiModelProperty(value = "校验预期的状态码")
-    private Integer expectedHttpStatus = 200;
+    private Integer expectedHttpStatus;
 
     @ApiModelProperty(value = "是否校验状态码")
-    private Boolean checkStatus = Boolean.FALSE;
+    private Boolean checkStatus;
 
     @ApiModelProperty(value = "是否运行")
-    private Boolean run = Boolean.TRUE;
+    private Boolean run;
 
     @ApiModelProperty(value = "开发者")
     private Integer developer;
@@ -96,7 +96,7 @@ public class CaseInfo implements Serializable {
     private Integer sort;
 
     @ApiModelProperty(value = "延迟时长")
-    private int delay = 0;
+    private Integer delay;
 
     @ApiModelProperty(value = "返回值示例")
     @TableField(typeHandler = JacksonTypeHandler.class)
